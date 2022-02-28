@@ -7,13 +7,12 @@
 #include "CUnit/Console.h"
 #include "CUnit/Automated.h"
 
-#include "config.h"
 #include "hardware.h"
 #include "data.h"
 #include "instruction.h"
 #include "rung.h"
 #include "plclib.h"
-#include "plcemu.h"
+
 #include "parser-tree.h"
 #include "parser-il.h"
 #include "parser-ld.h"

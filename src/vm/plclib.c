@@ -21,15 +21,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <sys/time.h>
 #include <unistd.h>
 
-#include "config.h"
 #include "hardware.h"
 #include "data.h"
 #include "instruction.h"
 #include "rung.h"
 #include "plclib.h"
 #include "util.h"
-
-#include "project.h"
 
 const char * LibErrors[N_IE] = {
     "Unknown error",
@@ -1466,17 +1463,17 @@ plc_t plc_func(plc_t p) {//TODO: this is a callback, supposed to be
 //TODO: a better user plugin system when function blocks are implemented
                 project_task(p); //plugin code
 
-                if(r >= PLC_OK)
+                if(r >= PLC_OK){
                         r = all_tasks(p->step * THOUSAND, p);
-                
+                }
         gettimeofday(&Curtime, NULL);	//start timing next cycle
         timeval_subtract(&dt, &Curtime, &tp);
         run_time =  dt.tv_usec;
         compute_variance((double)(run_time + poll_time + io_time));
         
         if(r == ERR_TIMEOUT){    
-            plc_log("timeout! i/o: %d us, poll: %d us, run: %d us",
-                    io_time, poll_time, run_time);
+                plc_log("timeout! i/o: %d us, poll: %d us, run: %d us",
+                        io_time, poll_time, run_time);
         }
         o_changed = enc_out(p);
         p->command = 0;

@@ -1,5 +1,9 @@
 #ifndef _UT_IO_
 #define _UT_IO_
+
+void read_inputs(plc_t p);
+void write_outputs(plc_t p);
+
 void ut_read(){
 
     //nulls shouldn't crash

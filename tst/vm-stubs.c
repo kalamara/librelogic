@@ -3,7 +3,7 @@
 #include <string.h>
 #include <stdarg.h>
 
-#include "config.h"
+//#include "config.h"
 #include "hardware.h"
 #include "data.h"
 #include "instruction.h"
@@ -45,11 +45,6 @@ unsigned char Mock_dout = 0;
 int Mock_flush_count = 0;
 uint64_t Mock_ain = 0;
 uint64_t Mock_aout = 0;
-
-int stub_config(const config_t conf)
-{
-    return PLC_OK;    
-}
 
 int stub_enable() /* Enable bus communication */
 {
@@ -131,7 +126,7 @@ struct hardware Hw_stub = {
     stub_dio_bitfield, //dio_bitfield
     stub_data_read, //data_read
     stub_data_write, //data_write
-    stub_config, //hw_config
+    NULL, //hw_config
 };
 
 hardware_t get_hardware( int type){

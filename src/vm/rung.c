@@ -90,16 +90,14 @@ int append(const instruction_t i, rung_t r) {
     if(i!=NULL){
         if(r->instructions == NULL){//lazy allocation
             r->instructions = 
-                (instruction_t *)malloc(MAXSTACK*sizeof(instruction_t));
-            memset(r->instructions, 0, MAXSTACK*sizeof(instruction_t));
+                (instruction_t *)calloc(MAXSTACK, sizeof(instruction_t));
         }
         if(lookup(i->label, r) >=0)
             return PLC_ERR; //dont allow duplicate labels
             
-        instruction_t ins = (instruction_t)malloc(sizeof(struct instruction));
-        memset(ins, 0, sizeof(struct instruction));
+        instruction_t ins = (instruction_t)calloc(1,sizeof(struct instruction));
         deepcopy(i, ins);
-            
+
         r->instructions[(r->insno)++] = ins;
     }
     return PLC_OK;
@@ -110,8 +108,7 @@ codeline_t append_line( const char * l, codeline_t code){
         
         return code;    
     }
-    codeline_t r = (codeline_t)malloc(sizeof(struct codeline));
-    memset(r,0,sizeof(struct codeline));
+    codeline_t r = (codeline_t)calloc(1, sizeof(struct codeline));
     r->line = strdup(l);
     
     if(code != NULL){

@@ -23,7 +23,7 @@ typedef void(*dio_wr_f)(const unsigned char *, unsigned int , unsigned char );
 typedef void(*dio_bit_f)(const unsigned char*, unsigned char *);
 typedef void(*data_rd_f)(unsigned int, uint64_t* );
 typedef void(*data_wr_f)(unsigned int, uint64_t );
-typedef int(*config_f)(const config_t );
+typedef int(*config_f)(void * );
 
 typedef struct hardware{
     int type;

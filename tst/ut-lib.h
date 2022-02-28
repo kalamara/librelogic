@@ -16,39 +16,81 @@ void init_mock_plc(plc_t plc)
     plc->nm = 8;
     plc->nmr = 8;
     plc->hw = &Hw_stub;
-    plc->inputs = (BYTE *) malloc(plc->ni);
-    plc->outputs = (BYTE *) malloc(plc->nq);
-    plc->real_in = (uint64_t *) malloc(plc->nai * sizeof(uint64_t));
-    plc->real_out = (uint64_t *) malloc(plc->naq * sizeof(uint64_t));
+    plc->inputs = (BYTE *) calloc(1, plc->ni);
+    plc->outputs = (BYTE *) calloc(1, plc->nq);
+    plc->real_in = (uint64_t *) calloc(plc->nai, sizeof(uint64_t));
+    plc->real_out = (uint64_t *) calloc(plc->naq, sizeof(uint64_t));
    
-	plc->di = (di_t) malloc(
-			BYTESIZE * plc->ni * sizeof(struct digital_input));
-	plc->dq = (do_t) malloc(
-			BYTESIZE * plc->nq * sizeof(struct digital_output));
+	plc->di = (di_t) calloc(BYTESIZE * plc->ni, 
+                            sizeof(struct digital_input));
+	plc->dq = (do_t) calloc(BYTESIZE * plc->nq, 
+                            sizeof(struct digital_output));
 			
-	plc->ai = (aio_t) malloc(
-			 plc->nai * sizeof(struct analog_io));
-	plc->aq = (aio_t) malloc(
-			 plc->naq * sizeof(struct analog_io));
+	plc->ai = (aio_t) calloc(plc->nai, 
+                            sizeof(struct analog_io));
+	plc->aq = (aio_t) calloc(plc->naq,
+                            sizeof(struct analog_io));
 					
-    plc->t = (dt_t) malloc(plc->nt * sizeof(struct timer));
-    
-    plc->s = (blink_t) malloc(plc->ns * sizeof(struct blink));
-    plc->m = (mvar_t) malloc(plc->nm * sizeof(struct mvar));
-    plc->mr = (mreal_t) malloc(plc->nmr * sizeof(struct mreal));
-   
-    memset(plc->inputs, 0, plc->ni);
-	memset(plc->outputs, 0, plc->nq);
-	memset(plc->real_in, 0, plc->nai*sizeof(uint64_t));
-	memset(plc->real_out, 0, plc->naq*sizeof(uint64_t));
-    memset(plc->di, 0, BYTESIZE * plc->ni * sizeof(struct digital_input));
-	memset(plc->dq, 0, BYTESIZE * plc->nq * sizeof(struct digital_output));
-    memset(plc->ai, 0, plc->nai * sizeof(struct analog_io));
-	memset(plc->aq, 0, plc->naq * sizeof(struct analog_io));
-    memset(plc->t, 0, plc->nt * sizeof(struct timer));
-	memset(plc->s, 0, plc->ns * sizeof(struct blink));
-    memset(plc->m, 0, plc->nm * sizeof(struct mvar));
-    memset(plc->mr, 0, plc->nmr * sizeof(struct mreal));    
+    plc->t = (dt_t) calloc(plc->nt, sizeof(struct timer));
+    plc->s = (blink_t) calloc(plc->ns, sizeof(struct blink));
+    plc->m = (mvar_t) calloc(plc->nm, sizeof(struct mvar));
+    plc->mr = (mreal_t) calloc(plc->nmr, sizeof(struct mreal));
+}
+
+void deinit_mock_plc(plc_t plc){
+    if(plc->inputs) {
+        free(plc->inputs);  
+        plc->inputs = NULL;
+    }
+    if(plc->outputs){
+        free(plc->outputs);
+        plc->outputs = NULL;
+    } 
+    if(plc->real_in) {
+        free(plc->real_in);  
+        plc->real_in = NULL;
+    }
+    if(plc->real_out){
+        free(plc->real_out);
+        plc->real_out = NULL;
+    } 
+    if(plc->di) {
+        free(plc->di);  
+        plc->di = NULL;
+    }
+    if(plc->dq){
+        free(plc->dq);
+        plc->dq = NULL;
+    } 
+    if(plc->ai) {
+        free(plc->ai);  
+        plc->ai = NULL;
+    }
+    if(plc->aq){
+        free(plc->aq);
+        plc->aq = NULL;
+    } 
+    if(plc->t) {
+        free(plc->t);  
+        plc->t = NULL;
+    }
+    if(plc->s){
+        free(plc->s);
+        plc->s = NULL;
+    } 
+    if(plc->m) {
+        free(plc->m);  
+        plc->m = NULL;
+    }
+    if(plc->mr){
+        free(plc->mr);
+        plc->mr = NULL;
+    } 
+    if(plc->old){
+        deinit_mock_plc(plc->old);
+        free(plc->old);
+        plc->old = NULL;
+    }
 }
 
 void ut_codec()
@@ -195,6 +237,8 @@ void ut_codec()
     CU_ASSERT(p.outputs[0] == 0x11);
     //printf("%lx\n", p.real_out[0]);
     CU_ASSERT(p.real_out[0] == 0xa000000000000000);
+
+    deinit_mock_plc(&p);
 }
 
 void ut_jmp()
@@ -380,6 +424,7 @@ void ut_set_reset()
     CU_ASSERT(result == PLC_OK);
     CU_ASSERT(p.m[1].SET == FALSE);
     CU_ASSERT(p.m[1].RESET == TRUE);
+    deinit_mock_plc(&p);
 }
 
 void ut_st()
@@ -449,6 +494,7 @@ void ut_st()
     CU_ASSERT_DOUBLE_EQUAL(p.aq[1].V, 1.25l, FLOAT_PRECISION);
     //0xa000000000000000);
     //printf("%lx\n", p.aq[1].V);
+    deinit_mock_plc(&p);
     init_mock_plc(&p);
     
     ins.byte = 1;
@@ -506,6 +552,7 @@ void ut_st()
     result = handle_st( &ins, acc, &p);
     CU_ASSERT(result == PLC_OK);
     CU_ASSERT_DOUBLE_EQUAL(p.mr[1].V, -1.25l, FLOAT_PRECISION);
+    deinit_mock_plc(&p);
 }
 
 
@@ -593,6 +640,7 @@ void ut_st_discrete()
     result = st_mem(&ins, acc, &p);
     CU_ASSERT(result == PLC_OK);
     CU_ASSERT(p.m[1].V == 0xAABBCCDDEEFF1122);
+    deinit_mock_plc(&p);
 }
 
 void ut_st_real()
@@ -620,6 +668,7 @@ void ut_st_real()
     CU_ASSERT(result == PLC_OK);
     CU_ASSERT_DOUBLE_EQUAL(p.mr[0].V, 5.0l, FLOAT_PRECISION);
     //printf("%lx\n", p.aq[0].V);
+    deinit_mock_plc(&p);
 }
 
 void ut_ld()
@@ -662,6 +711,7 @@ void ut_ld()
     p.dq[10].Q = TRUE;
     result = handle_ld( &ins, &acc, &p);
     CU_ASSERT(acc.u == 1);
+    deinit_mock_plc(&p);
     init_mock_plc(&p);
     
     //OUTPUT REAL
@@ -680,6 +730,7 @@ void ut_ld()
     CU_ASSERT(result == PLC_OK);
     CU_ASSERT_DOUBLE_EQUAL(acc.r, -2.5l, FLOAT_PRECISION);
     //printf("%f\n", acc.r);
+    deinit_mock_plc(&p);
     init_mock_plc(&p);
     
     //INPUT
@@ -700,6 +751,7 @@ void ut_ld()
     p.di[10].I = TRUE;
     result = handle_ld( &ins, &acc, &p);
     CU_ASSERT(acc.u == 1);
+    deinit_mock_plc(&p);
     init_mock_plc(&p);
     
     //INPUT REAL
@@ -717,7 +769,7 @@ void ut_ld()
     result = handle_ld( &ins, &acc, &p);
     CU_ASSERT(result == PLC_OK);
     CU_ASSERT_DOUBLE_EQUAL(acc.r, 0.0l, FLOAT_PRECISION);
-    
+    deinit_mock_plc(&p);
     init_mock_plc(&p);
     
      //MEMORY
@@ -741,6 +793,7 @@ void ut_ld()
     p.m[1].PULSE = TRUE;
     result = handle_ld( &ins, &acc, &p);
     CU_ASSERT(acc.u == FALSE);
+    deinit_mock_plc(&p);
     init_mock_plc(&p);
     
      //MEMORY REAL
@@ -758,7 +811,7 @@ void ut_ld()
     CU_ASSERT(result == PLC_OK);
     CU_ASSERT_DOUBLE_EQUAL(acc.r, -123.4567l, FLOAT_PRECISION);
     //printf("%f\n", acc.r);
-    
+    deinit_mock_plc(&p);
     init_mock_plc(&p);
     
     //TIMEOUT
@@ -780,6 +833,7 @@ void ut_ld()
     p.t[1].Q = TRUE;
     result = handle_ld( &ins, &acc, &p);
     CU_ASSERT(acc.u == 1);
+    deinit_mock_plc(&p);
     init_mock_plc(&p);
     
      //BLINKOUT
@@ -818,6 +872,7 @@ void ut_ld()
     p.di[10].RE = TRUE;
     result = handle_ld( &ins, &acc, &p);
     CU_ASSERT(acc.u == 1);
+    deinit_mock_plc(&p);
     init_mock_plc(&p);
     
     //FALLING
@@ -834,8 +889,9 @@ void ut_ld()
     p.di[10].FE = TRUE;
     result = handle_ld(&ins, &acc, &p);
     CU_ASSERT(acc.u == 1);
-    init_mock_plc(&p);
     
+    init_mock_plc(&p);
+    deinit_mock_plc(&p);
 }
 
 void ut_ld_discrete()
@@ -903,7 +959,7 @@ void ut_ld_discrete()
     
     CU_ASSERT(result == PLC_OK);
     CU_ASSERT(acc == 0xAABBCCDDEEFF1122);
-
+    deinit_mock_plc(&p);
 }
 
 void ut_ld_real()
@@ -949,6 +1005,7 @@ void ut_ld_real()
     result = ld_mem_r( &ins, &acc, &p);
     CU_ASSERT(result == PLC_OK);
     CU_ASSERT_DOUBLE_EQUAL(acc, -2.5l, FLOAT_PRECISION);
+    deinit_mock_plc(&p);
 }
 
 void ut_stackable()
@@ -995,6 +1052,7 @@ void ut_stackable()
     
     ins.modifier = IL_PUSH;
     ins.operand = 0;
+    deinit_mock_plc(&p);
     init_mock_plc(&p);
     t.u = 0;
     
@@ -1046,7 +1104,7 @@ void ut_stackable()
     acc = pop(r.acc, &(r.stack)); 
     
     CU_ASSERT(acc.u == 11);
-    
+    deinit_mock_plc(&p);
 }
 
 BYTE gcd(BYTE a, BYTE b)
@@ -1220,7 +1278,7 @@ I0.2-----I0.0-----+
     CU_ASSERT(p.dq[0].Q == TRUE);
     
     clear_rung(&r);
-
+    deinit_mock_plc(&p);
 }
 
 void ut_instruct_scalar()
@@ -1275,6 +1333,7 @@ function gcd(a, b)
     BYTE a = 0xff;
     BYTE b = 0x22;
     //printf("GCD (0x%x, 0x%x) = 0x%x\n", a, b, gcd(a,b));
+    deinit_mock_plc(&p);
     init_mock_plc(&p);
     memset(&ins, 0, sizeof(struct instruction));
     p.inputs[0] = a;
@@ -1539,6 +1598,7 @@ function gcd(a, b)
     
      
     clear_rung(&r);
+    deinit_mock_plc(&p);
 }    
 
 void ut_instruct_real()
@@ -1891,6 +1951,7 @@ Knuth's online variance:
     //0x4800000000000000); 
 //printf("%lx\n", p.aq[0].V);
      clear_rung(&r);
+     deinit_mock_plc(&p);
 }
 
 
@@ -2170,6 +2231,7 @@ void ut_task_scalar()
     CU_ASSERT(result == PLC_OK); 
      
     clear_rung(&r);
+    deinit_mock_plc(&p);
 }
 
 
@@ -2399,8 +2461,8 @@ void ut_task_real()
     } 
     //CU_ASSERT(p.aq[0].V == 0x4800000000000000); 
     
-    
     clear_rung(&r);   
+    deinit_mock_plc(&p);
 }
 
 void ut_task_bitwise()
@@ -2546,6 +2608,7 @@ void ut_task_bitwise()
     CU_ASSERT(result == PLC_OK);
 
     clear_rung(&r);
+    deinit_mock_plc(&p);
 }
 
 void ut_task_timeout()
@@ -2589,7 +2652,7 @@ void ut_task_timeout()
     
     result = task(timeout, &p, &r);
     CU_ASSERT(result == ERR_TIMEOUT);
-    
+    deinit_mock_plc(&p);
 }
 
 void ut_rung()
@@ -2907,6 +2970,7 @@ void ut_force(){
     
     CU_ASSERT(is_forced(r, OP_OUTPUT, 1)==0);
     CU_ASSERT(r->aq[1].mask <= r->aq[1].min);
+    deinit_mock_plc(&plc);
 }
 
 #endif //_UT_LIB_H_

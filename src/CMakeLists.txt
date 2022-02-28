@@ -15,11 +15,10 @@ find_library(PTHREAD pthread)
 if(NOT PTHREAD)
     message(FATAL ERROR "PTHREAD not found")
 endif(NOT PTHREAD)  
-      
-#find_library(NACS nacs-yml)
 
 include_directories(
-	${PROJECT_SOURCE_DIR}/include
+	${PROJECT_SOURCE_DIR}/../include
+    ${PROJECT_SOURCE_DIR}
 )
 	
 ADD_LIBRARY(${PROJECT_NAME}
@@ -32,14 +31,19 @@ ADD_LIBRARY(${PROJECT_NAME}
     ${PROJECT_SOURCE_DIR}/vm/parser-ld.c
     ${PROJECT_SOURCE_DIR}/vm/parser-tree.c
     ${PROJECT_SOURCE_DIR}/vm/codegen.c
-    
-    #${PROJECT_SOURCE_DIR}/src/hw/hardware.c
-    #${PROJECT_SOURCE_DIR}/src/hw/hardware-comedi.c
-    #${PROJECT_SOURCE_DIR}/src/hw/hardware-sim.c
-    #${PROJECT_SOURCE_DIR}/src/hw/hardware-uspace.c
-    #${PROJECT_SOURCE_DIR}/src/hw/hardware-dry.c
+    ${PROJECT_SOURCE_DIR}/hw/hardware.c
 )
 
+if(${HW} STREQUAL "SIM")
+    target_sources(${PROJECT_NAME}, ${PROJECT_SOURCE_DIR}/hw/hardware-sim.c)
+elseif(${HW} STREQUAL "USPACE")
+    target_sources(${PROJECT_NAME}, ${PROJECT_SOURCE_DIR}/hw/hardware-uspace.c)
+elseif(${HW} STREQUAL "COMEDI")
+    target_sources(${PROJECT_NAME}, ${PROJECT_SOURCE_DIR}/hw/hardware-comedi.c)
+else() #DRY
+    target_sources(${PROJECT_NAME} PUBLIC 
+        ${PROJECT_SOURCE_DIR}/hw/hardware-dry.c)
+endif()
 
 
 

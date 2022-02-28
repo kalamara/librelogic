@@ -16,30 +16,17 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "hardware.h"
-#include <stddef.h>
+#ifndef _UTIL_H_
+#define _UTIL_H_
+/**logging, metrics, debugging stuff */
 
-extern struct hardware Comedi;
-extern struct hardware Uspace;
-extern struct hardware Sim;
-extern struct hardware Dry;
-
-hardware_t get_hardware( int type){
-    switch(type){
-        case HW_COMEDI:
-#ifdef COMEDI        
-            return &Comedi;
-#else
-            return NULL;
-#endif             
-        case HW_USPACE:
-            return &Uspace;
-
-        case HW_SIM: 
-        	return &Sim;
-        default: 
-            return &Dry;
-    }
-}
-
-
+#define LOG "plcemu.log"
+void plc_log(const char * msg, ...);
+void close_log();
+//char * strdup_r(char * dest, const char * src);
+/*******************debugging tools****************/
+void dump_label( char * label, char * dump);
+void compute_variance( double x);
+void get_variance( double * mean, double * var);
+unsigned long get_loop();
+#endif //_UTIL_H

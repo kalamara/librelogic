@@ -18,7 +18,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <ctype.h>
 
-#include "config.h"
 #include "hardware.h"
 #include "data.h"
 #include "instruction.h"
@@ -268,8 +267,8 @@ char * trunk_whitespace(char* line)
         return NULL;
     }
     int n = strlen(line);
-    char * buf = (char *)malloc(n + 1);
-    memset(buf, 0, n + 1);
+    char * buf = (char *)calloc(1, n + 1);
+    //memset(buf, 0, n + 1);
     
     //trim left
     int i = 0;

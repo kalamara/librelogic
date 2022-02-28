@@ -21,14 +21,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "instruction.h"
 #include "rung.h"
 
-#include "util.h"
-
-#include "config.h"
-#include "schema.h"
-
 #include "hardware.h"
 
-int dry_config(const config_t conf)
+int dry_config(void * conf)
 {
     return PLC_OK;    
 }
