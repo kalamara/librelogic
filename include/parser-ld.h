@@ -39,15 +39,15 @@ enum {
  */
 enum {
     /// LD specific operators:
-    LD_BLANK = 10,  ///blank character
-    LD_AND,         ///-
-    LD_NOT,         ///!
-    LD_OR,          ///|
-    LD_NODE,        ///+
-    LD_COIL,        ///( contact coil
-    LD_SET,         ///[ set
-    LD_RESET,       ///] reset,
-    LD_DOWN,    	///) negate coil
+    LD_BLANK  = 10,  ///blank character
+    LD_AND    = 11,         ///-
+    LD_NOT    = 12,         ///!
+    LD_OR     = 13,          ///|
+    LD_NODE   = 14,        ///+
+    LD_COIL   = 15,        ///( contact coil
+    LD_SET    = 16,         ///[ set
+    LD_RESET  = 17,       ///] reset,
+    LD_DOWN   = 18,    	///) negate coil
     N_LD_SYMBOLS
 }LD_SYMBOLS;
 

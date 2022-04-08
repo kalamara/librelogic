@@ -29,26 +29,31 @@ int gen_expr(const item_t expression, rung_t rung, BYTE recursive)
 {   
     int rv = PLC_OK;
     if(expression == NULL
-    || rung == NULL)
+    || rung == NULL){
         return PLC_ERR;
-        
-    if(expression->tag != TAG_EXPRESSION)
+    }
+
+    if(expression->tag != TAG_EXPRESSION){
         return PLC_ERR;
+    }
                
     BYTE operator = expression->v.exp.op;
-    if(! IS_OPERATION(operator))
+    if(! IS_OPERATION(operator) && operator != IL_LD){
         return ERR_BADOPERATOR;
+    }
         
     BYTE modifier = expression->v.exp.mod;
-    if(! IS_MODIFIER(modifier))
-        return ERR_BADOPERATOR;    
+    if(! IS_MODIFIER(modifier)){
+        return ERR_BADOPERATOR; 
+    }   
     //left operand
     rv = gen_expr_left( expression->v.exp.a,
                         rung, 
-                        recursive);
-    if(rv < 0)
+                        recursive,
+                        modifier);
+    if(rv < 0){
         return rv;
-   
+    }
     //right operand
     rv = gen_expr_right(expression->v.exp.b, 
                         rung, 
@@ -59,7 +64,7 @@ int gen_expr(const item_t expression, rung_t rung, BYTE recursive)
     memset(&ins, 0, sizeof(struct instruction));
     
     if(rv == PLC_OK 
-    && modifier == IL_PUSH
+    && (modifier & IL_PUSH)  
     && IS_OPERATION(operator)
     && expression->v.exp.b != NULL){
         ins.operation = IL_POP;
@@ -68,16 +73,16 @@ int gen_expr(const item_t expression, rung_t rung, BYTE recursive)
     return rv; 
 }
 
-int gen_expr_left(const item_t left, rung_t rung, BYTE recursive)
+int gen_expr_left(const item_t left, rung_t rung, BYTE recursive, BYTE mod)
 {
     int rv =  PLC_OK;
     if(left == NULL)
         return ERR_BADOPERAND;
     BYTE inner = IL_LD;
-    BYTE mod = IL_NORM;
+ 
     if(IS_OPERATION(recursive)){
         inner = recursive;
-        mod = IL_PUSH;
+        mod |= IL_PUSH;
     }
     struct instruction ins;
     memset(&ins, 0, sizeof(struct instruction));

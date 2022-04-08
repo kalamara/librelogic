@@ -35,7 +35,7 @@ int gen_expr(const item_t expression, rung_t rung, BYTE recursive);
  * @param the operation to generate if called in a recursion
  * @return ok or error code
  */
-int gen_expr_left(const item_t left, rung_t rung, BYTE recursive); 
+int gen_expr_left(const item_t left, rung_t rung, BYTE recursive, BYTE mod); 
 
 /**
  * @brief generate code for the right side of an expression

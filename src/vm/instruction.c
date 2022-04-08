@@ -136,6 +136,22 @@ void dump_label(char * label, char * dump) {
     }
 }
 
+//print correct modifier
+const char * get_mod(int mod){
+    switch(mod){
+        case IL_NEG:
+            return " !";
+        case IL_PUSH: 
+            return " (";   
+        case IL_PUSH + IL_NEG: 
+            return "(!";   
+        case IL_COND: 
+            return " ?";   
+        default:
+            return "  ";
+    }
+}
+
 void dump_instruction(instruction_t ins, char * dump) {
     if(ins == NULL)
         return;
@@ -143,7 +159,7 @@ void dump_instruction(instruction_t ins, char * dump) {
     dump_label(ins->label, dump);
     strcat(dump, IlCommands[ins->operation]);
     if(ins->operation >= IL_RET){
-        strcat(dump, IlModifiers[ins->modifier - 1]);
+        strcat(dump, get_mod(ins->modifier));
         if(ins->operation == IL_JMP){
             sprintf(buf, "%d", ins->operand);
             strcat(dump, buf);

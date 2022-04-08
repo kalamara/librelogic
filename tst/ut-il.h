@@ -577,29 +577,30 @@ Knuth's online variance:
    dump_rung(p.rungs[0], dump);
    //printf("%s", dump); 
    const char * expected = 
-"0.LD mf0/8\n\
-1.ADD mf1/8\n\
-2.ST MF0/8\n\
-3.LD if0/8\n\
-4.SUB mf1/8\n\
-5.ST MF3/8\n\
-6.LD mf1/8\n\
-7.ADD(mf3/8\n\
-8.DIV mf0/8\n\
+"0.LD  mf0/8\n\
+1.ADD  mf1/8\n\
+2.ST  MF0/8\n\
+3.LD  if0/8\n\
+4.SUB  mf1/8\n\
+5.ST  MF3/8\n\
+6.LD  mf1/8\n\
+7.ADD (mf3/8\n\
+8.DIV  mf0/8\n\
 9.)\n\
-10.ST MF1/8\n\
-11.LD mf2/8\n\
-12.ADD(mf3/8\n\
-13.MUL(if0/8\n\
-14.SUB mf1/8\n\
+10.ST  MF1/8\n\
+11.LD  mf2/8\n\
+12.ADD (mf3/8\n\
+13.MUL (if0/8\n\
+14.SUB  mf1/8\n\
 15.)\n\
 16.)\n\
-17.ST MF2/8\n\
-18.LD mf2/8\n\
-19.DIV(mf0/8\n\
-20.SUB mf4/8\n\
+17.ST  MF2/8\n\
+18.LD  mf2/8\n\
+19.DIV (mf0/8\n\
+20.SUB  mf4/8\n\
 21.)\n\
-22.ST QF0/8\n";
+22.ST  QF0/8\n";
+
     CU_ASSERT_STRING_EQUAL(dump, expected);
 }
 
@@ -858,20 +859,22 @@ function gcd(a, b)
    //printf("%s", dump); 
    
    const char * expected = 
-"0.while:LD m0/8\n\
-1.EQ m1/8\n\
-2.JMP?12\n\
-3.LT m1/8\n\
-4.JMP?8\n\
-5.SUB m1/8\n\
-6.ST M0/8\n\
-7.JMP 0\n\
-8.reverse:LD m1/8\n\
-9.SUB m0/8\n\
-10.ST M1/8\n\
-11.JMP 0\n\
-12.endwhile:LD m0/8\n\
-13.ST Q0/8\n"; 
+
+"0.while:LD  m0/8\n\
+1.EQ  m1/8\n\
+2.JMP ?12\n\
+3.LT  m1/8\n\
+4.JMP ?8\n\
+5.SUB  m1/8\n\
+6.ST  M0/8\n\
+7.JMP  0\n\
+8.reverse:LD  m1/8\n\
+9.SUB  m0/8\n\
+10.ST  M1/8\n\
+11.JMP  0\n\
+12.endwhile:LD  m0/8\n\
+13.ST  Q0/8\n";
+
    CU_ASSERT_STRING_EQUAL(dump, expected);
 }
 #endif //_UT_IL_H_

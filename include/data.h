@@ -48,34 +48,34 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 typedef enum{
     ///IL OPCODES: 
-    IL_NOP,///no operand
-    IL_POP,     ///)
-    IL_RET,         ///RET
+    IL_NOP = 0,///no operand
+    IL_POP = 1,     ///)
+    IL_RET = 2,         ///RET
     //arithmetic LABEL
-    IL_JMP,         ///JMP
+    IL_JMP = 3,         ///JMP
     //subroutine call (unimplemented)
-    IL_CAL,         ///CAL
+    IL_CAL = 4,         ///CAL
     //boolean, no modifier
-    IL_SET,         ///S
-    IL_RESET,       ///R
+    IL_SET = 5,         ///S
+    IL_RESET = 6,       ///R
     //any operand, only negation
-    IL_LD,          ///LD
-    IL_ST,          ///ST
+    IL_LD = 7,          ///LD
+    IL_ST = 8,          ///ST
     //any operand, only push
     //boolean, all modifiers
-    IL_AND,         ///AND
-    IL_OR,          ///OR
-    IL_XOR,         ///XOR
-    IL_ADD,          ///ADD
-    IL_SUB,          ///SUBTRACT
-    IL_MUL,          ///MULTIPLY
-    IL_DIV,          ///DIVIDE
-    IL_GT,          ///GREATER THAN
-    IL_GE,          ///GREATER OR EQUAL
-    IL_EQ,          ///EQUAL
-    IL_NE,          ///NOT EQUAL
-    IL_LT,          ///LESS THAN
-    IL_LE,          ///LESS OR EQUAL
+    IL_AND = 9,         ///AND
+    IL_OR = 10,          ///OR
+    IL_XOR = 11,         ///XOR
+    IL_ADD = 12,          ///ADD
+    IL_SUB = 13,          ///SUBTRACT
+    IL_MUL = 14,          ///MULTIPLY
+    IL_DIV = 15,          ///DIVIDE
+    IL_GT = 16,          ///GREATER THAN
+    IL_GE = 17,          ///GREATER OR EQUAL
+    IL_EQ = 18,          ///EQUAL
+    IL_NE = 19,          ///NOT EQUAL
+    IL_LT = 20,          ///LESS THAN
+    IL_LE = 21,          ///LESS OR EQUAL
     N_IL_INSN
 }IL_INSN;
 
