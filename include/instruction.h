@@ -25,13 +25,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *IL modifiers
  */
 typedef enum {
+  IL_NORM = 0x0,    /// ' '
   IL_NEG  = 0x1,    /// '!'
   IL_PUSH = 0x2,    /// '(' 
-  IL_NORM = 0x4,    /// ' '
-  IL_COND = 0x8,    ///'?'
+  IL_COND = 0x4,    ///'?'
 } IL_MODIFIERS;
 #define N_IL_MODIFIERS 4
-#define IS_MODIFIER(x) (x >= IL_NEG && x < N_IL_MODIFIERS)
+#define IS_MODIFIER(x) (x >= IL_NORM && x <= IL_COND)
 
 #define MAX_LABEL 1024
 

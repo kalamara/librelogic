@@ -170,7 +170,7 @@ int main ()
   if(ADD_TEST(suite_ld, ut_minmin) 
   || ADD_TEST(suite_ld, ut_parse_ld_line)
   || ADD_TEST(suite_ld, ut_find_next_node)
-//  || ADD_TEST(suite_ld, ut_parse_ld_program)  
+  || ADD_TEST(suite_ld, ut_parse_ld_program)  
      )
   {
 	CU_cleanup_registry ();

@@ -448,7 +448,7 @@ printf("\nIV. q0/1 := (i0/0 OR NULL)\n" );
 0.LD i0/0\n\
 1.ST!m1/8\n";
 
-printf("\nV. m1/8 := !(i0/0 AND NULL)\n" );
+printf("\nV. !m1/8 := (i0/0 AND NULL)\n" );
 //printf("expected: \n%s\n", expected);
 
   id2 = mk_identifier(OP_MEMORY, 1, 8);
@@ -479,12 +479,12 @@ printf("\nV. m1/8 := !(i0/0 AND NULL)\n" );
   /////// assign I0/1 :=!( I0/1 OR I0/2) //////////////
 
 expected = "\
-0.LD i0/1\n\
-1.OR(i0/2\n\
+0.LD  i0/1\n\
+1.OR (i0/2\n\
 2.)\n\
-3.ST!i0/1\n";
+3.ST !i0/1\n";
 
-printf("\nVI. i0/1 := !(i0/1 OR i0/2)\n" );
+printf("\nVI. !i0/1 := (i0/1 OR i0/2)\n" );
 //printf("expected: \n%s\n", expected);
 
   id2 = mk_identifier(OP_INPUT, 0, 2);
@@ -504,13 +504,13 @@ printf("\nVI. i0/1 := !(i0/1 OR i0/2)\n" );
 
   clear_tree(ass);
   clear_rung(&ru);
-  /////// assign I0/0 :=( !I0/1 AND !I0/2) //////////////
+  /////// assign !I0/0 :=( !I0/1 AND !I0/2) //////////////
 
 expected = "\
-0.LD!i0/1\n\
+0.LD !i0/1\n\
 1.AND(!i0/2\n\
 2.)\n\
-3.ST q0/0\n";
+3.ST  Q0/0\n";
 
 printf("\nVII. q0/0 := (!i0/1 AND !i0/2)\n" );
 //printf("expected: \n%s\n", expected);
@@ -521,7 +521,7 @@ printf("\nVII. q0/0 := (!i0/1 AND !i0/2)\n" );
   exp1 = mk_expression(id1, NULL, IL_AND, IL_NEG);
   exp2 = mk_expression(id2, NULL, IL_AND, IL_NEG);
   exp = mk_expression(exp1, exp2, IL_AND, IL_PUSH);
-  ass = mk_assignment(q1, exp, LD_DOWN);
+  ass = mk_assignment(q1, exp, LD_COIL);
   result = gen_ass(ass, &ru);
 
   memset(dump, 0, MAXBUF * MAXSTR);
