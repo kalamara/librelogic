@@ -80,7 +80,7 @@ void ut_parse_ld_line() {
   CU_ASSERT(line.stmt->v.ass.type == LD_COIL);
 
   CU_ASSERT(line.stmt->v.ass.right->v.exp.op == IL_AND);
-  CU_ASSERT(line.stmt->v.ass.right->v.exp.mod == IL_NEG);
+  CU_ASSERT(line.stmt->v.ass.right->v.exp.mod == IL_NEG | IL_PUSH);
   CU_ASSERT(line.stmt->v.ass.right->v.exp.a->tag == TAG_IDENTIFIER);
   CU_ASSERT(line.stmt->v.ass.right->v.exp.a->v.id.operand == OP_INPUT);
   CU_ASSERT(line.stmt->v.ass.right->v.exp.a->v.id.byte == 0);
@@ -97,7 +97,7 @@ void ut_parse_ld_line() {
   CU_ASSERT(line.status == STATUS_UNRESOLVED);
   CU_ASSERT(line.stmt->tag == TAG_EXPRESSION);
   CU_ASSERT(line.stmt->v.exp.op == IL_AND);
-  CU_ASSERT(line.stmt->v.exp.mod == IL_NORM);
+  CU_ASSERT(line.stmt->v.exp.mod == IL_PUSH);
   CU_ASSERT(line.stmt->v.exp.a->tag == TAG_IDENTIFIER);
   CU_ASSERT(line.stmt->v.exp.a->v.id.operand == OP_OUTPUT);
   CU_ASSERT(line.stmt->v.exp.a->v.id.byte == 1);
@@ -121,14 +121,14 @@ void ut_parse_ld_line() {
   CU_ASSERT(line.status == STATUS_UNRESOLVED);
   CU_ASSERT(line.stmt->tag == TAG_EXPRESSION);
   CU_ASSERT(line.stmt->v.exp.op == IL_AND);
-  CU_ASSERT(line.stmt->v.exp.mod == IL_NEG);
+  CU_ASSERT(line.stmt->v.exp.mod == IL_NEG | IL_PUSH);
   CU_ASSERT(line.stmt->v.exp.a->tag == TAG_IDENTIFIER);
   CU_ASSERT(line.stmt->v.exp.a->v.id.operand == OP_INPUT);
   CU_ASSERT(line.stmt->v.exp.a->v.id.byte == 0);
   CU_ASSERT(line.stmt->v.exp.a->v.id.bit == 3);
   CU_ASSERT(line.stmt->v.exp.b->tag == TAG_EXPRESSION);
   CU_ASSERT(line.stmt->v.exp.b->v.exp.op == IL_AND);
-  CU_ASSERT(line.stmt->v.exp.b->v.exp.mod == IL_NORM);
+  CU_ASSERT(line.stmt->v.exp.b->v.exp.mod == IL_PUSH );
   CU_ASSERT(line.stmt->v.exp.b->v.exp.a->tag == TAG_IDENTIFIER);
   CU_ASSERT(line.stmt->v.exp.b->v.exp.a->v.id.operand == OP_OUTPUT);
   CU_ASSERT(line.stmt->v.exp.b->v.exp.a->v.id.byte == 1);
@@ -209,7 +209,7 @@ void ut_parse_ld_program() {
   CU_ASSERT(program[0]->stmt->tag == TAG_ASSIGNMENT);
   CU_ASSERT(program[0]->stmt->v.ass.type == LD_COIL);
   CU_ASSERT(program[0]->stmt->v.ass.right->v.exp.op == IL_AND);
-  CU_ASSERT(program[0]->stmt->v.ass.right->v.exp.mod == IL_NEG);
+  CU_ASSERT(program[0]->stmt->v.ass.right->v.exp.mod == IL_PUSH | IL_NEG);
 
   memset(lines, 0, MAXBUF * MAXSTR);
   destroy_program(1, program);
@@ -240,7 +240,8 @@ void ut_parse_ld_program() {
   CU_ASSERT(program[2]->stmt->v.exp.mod == IL_PUSH);
 
   destroy_program(3, program);
-
+  
+  //printf("1or3:\n");
   r = parse_ld_program("1or3.ld", lines, &p);
   CU_ASSERT(p.status == PLC_OK);
   CU_ASSERT_STRING_EQUAL(p.rungs[0]->id, "1or3.ld");
@@ -252,8 +253,6 @@ void ut_parse_ld_program() {
   CU_ASSERT_STRING_EQUAL(p.rungs[0]->code->line, "i0/1--+---[Q0/0");
 
   dump_rung(p.rungs[0], dump);
-
-  // printf("%s\n", dump);
 
   clear_rung(p.rungs[0]);
   deinit_mock_plc(&p);
@@ -267,14 +266,13 @@ void ut_parse_ld_program() {
   sprintf(lines[3], "%s\n", "  ");
   sprintf(lines[4], "%s\n", " i0/4--+   ");
   sprintf(lines[5], "%s\n", " i0/5--+-(Q0/1            ");
+  //printf("many_ors: \n");
   result = parse_ld_program("many_ors.ld", lines, &p)->status;
 
   CU_ASSERT(result == PLC_OK);
 
   dump_rung(p.rungs[0], dump);
 
-  printf("got: %s\n", dump);
-  
   const char *expected = "\
 0.LD  i0/3\n\
 1.OR (i0/2\n\
@@ -291,25 +289,26 @@ void ut_parse_ld_program() {
   CU_ASSERT_STRING_EQUAL(dump, expected);
   clear_rung(p.rungs[0]);
   deinit_mock_plc(&p);
-
   init_mock_plc(&p);
   memset(lines, 0, MAXBUF * MAXSTR);
+  memset(dump, 0, MAXBUF * MAXSTR);
+
   sprintf(lines[0], "%s\n", "i0/1--!i0/5-----(Q0/0");
+
   result = parse_ld_program("and_not.ld", lines, &p)->status;
 
   CU_ASSERT(result == PLC_OK);
 
   dump_rung(p.rungs[0], dump);
 
-  // printf("%s\n", dump);
   const char *expected_n = "\
-0.LD  !i0/5\n\
+0.LD !i0/5\n\
 1.AND (i0/1\n\
 2.)\n\
-3.ST   Q0/1\n\
+3.ST  Q0/0\n\
 ";
 
-  // CU_ASSERT_STRING_EQUAL(dump, expected_n);
+  CU_ASSERT_STRING_EQUAL(dump, expected_n);
 
   deinit_mock_plc(&p);
 }

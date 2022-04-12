@@ -166,16 +166,7 @@ int main ()
         return CU_get_error ();
   }
 
-//LD expression parser
-  if(ADD_TEST(suite_ld, ut_minmin) 
-  || ADD_TEST(suite_ld, ut_parse_ld_line)
-  || ADD_TEST(suite_ld, ut_find_next_node)
-  || ADD_TEST(suite_ld, ut_parse_ld_program)  
-     )
-  {
-	CU_cleanup_registry ();
-        return CU_get_error ();
-  }
+
 
 //syntax tree
   if(ADD_TEST(suite_tree, ut_mk_identifier) 
@@ -205,7 +196,16 @@ int main ()
 	CU_cleanup_registry ();
         return CU_get_error ();
   }
-
+//LD expression parser
+  if(ADD_TEST(suite_ld, ut_minmin) 
+  || ADD_TEST(suite_ld, ut_parse_ld_line)
+  || ADD_TEST(suite_ld, ut_find_next_node)
+  || ADD_TEST(suite_ld, ut_parse_ld_program)  
+     )
+  {
+	CU_cleanup_registry ();
+        return CU_get_error ();
+  }
   /* Run all tests using the basic interface */
 
   CU_basic_set_mode (CU_BRM_VERBOSE);

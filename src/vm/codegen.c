@@ -25,9 +25,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "parser-ld.h"
 #include "codegen.h"
 
-int gen_expr(const item_t expression, rung_t rung, BYTE recursive)
+int gen_expr(const item_t expression, rung_t rung, BYTE recursive_operation)
 {   
     int rv = PLC_OK;
+    
     if(expression == NULL
     || rung == NULL){
         return PLC_ERR;
@@ -46,10 +47,11 @@ int gen_expr(const item_t expression, rung_t rung, BYTE recursive)
     if(! IS_MODIFIER(modifier)){
         return ERR_BADOPERATOR; 
     }   
+    
     //left operand
     rv = gen_expr_left( expression->v.exp.a,
                         rung, 
-                        recursive,
+                        recursive_operation,
                         modifier);
     if(rv < 0){
         return rv;
@@ -83,6 +85,8 @@ int gen_expr_left(const item_t left, rung_t rung, BYTE recursive, BYTE mod)
     if(IS_OPERATION(recursive)){
         inner = recursive;
         mod |= IL_PUSH;
+    } else {
+        mod &= (0xff - IL_PUSH);
     }
     struct instruction ins;
     memset(&ins, 0, sizeof(struct instruction));

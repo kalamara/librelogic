@@ -147,7 +147,7 @@ int handle_operand(int operand,
 			line->stmt = mk_expression(identifier,
 			                                 line->stmt,
 			                                 IL_AND,
-			                                 negate?IL_NEG:IL_NORM);
+			                                 IL_PUSH | (negate?IL_NEG:IL_NORM));
 		} else {
 			rv = ERR_BADINDEX;
 			line->status = STATUS_ERROR;		    
@@ -463,7 +463,7 @@ plc_t parse_ld_program(const char * name,
     
         p->status = rv;
     } else {
-    
+        plc_log(name);
         p = generate_code(len, name, program, p);
         
         char dump[MAXBUF];

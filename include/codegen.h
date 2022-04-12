@@ -33,6 +33,7 @@ int gen_expr(const item_t expression, rung_t rung, BYTE recursive);
  * @param expression or identifier
  * @param the rung to insert the code to
  * @param the operation to generate if called in a recursion
+ * @param the modifier 
  * @return ok or error code
  */
 int gen_expr_left(const item_t left, rung_t rung, BYTE recursive, BYTE mod); 

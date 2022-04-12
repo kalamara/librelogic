@@ -95,7 +95,7 @@ void ut_gen_expr() {
 
   CU_ASSERT(ins->operation == IL_LD);
   CU_ASSERT(ins->operand == OP_INPUT);
-  CU_ASSERT(ins->modifier == IL_PUSH);
+  CU_ASSERT(ins->modifier == IL_NORM);
   CU_ASSERT(ins->byte == 0);
   CU_ASSERT(ins->bit == 0);
 
@@ -211,7 +211,7 @@ void ut_gen_expr() {
 
   CU_ASSERT(ins->operation == IL_LD);
   CU_ASSERT(ins->operand == OP_INPUT);
-  CU_ASSERT(ins->modifier == IL_PUSH);
+  CU_ASSERT(ins->modifier == IL_NORM);
   CU_ASSERT(ins->byte == 0);
   CU_ASSERT(ins->bit == 0);
 
@@ -299,7 +299,6 @@ void ut_gen_ass() {
 1.ST m1/8\n";
 
 printf("\nI. i0/1:=m1/8\n");
-//printf("\nexpected: \n%s\n", expected);
 
   item_t id2 = mk_identifier(OP_MEMORY, 1, 8);
   id1 = mk_identifier(OP_INPUT, 0, 0);
@@ -344,7 +343,6 @@ expected = "\
 1.ST m1/8\n";
 
 printf("\nII. m1/8 := !i0/0\n" );
-//printf("\nexpected: \n%s\n", expected);
 
   id2 = mk_identifier(OP_MEMORY, 1, 8);
   id1 = mk_identifier(OP_INPUT, 0, 0);
@@ -385,7 +383,6 @@ expected = "\
 1.ST!m1/8\n";
 
 printf("\nIII. m1/8 := !(i0/0)\n" );
-//printf("\nexpected: \n%s\n", expected);
 
   id2 = mk_identifier(OP_MEMORY, 1, 8);
   id1 = mk_identifier(OP_INPUT, 0, 0);
@@ -417,7 +414,7 @@ printf("\nIII. m1/8 := !(i0/0)\n" );
 1.ST q0/1\n";
 
 printf("\nIV. q0/1 := (i0/0 OR NULL)\n" );
-//printf("expected: \n%s\n", expected);
+
   id2 = mk_identifier(OP_CONTACT, 0, 1);
   id1 = mk_identifier(OP_INPUT, 0, 0);
   exp = mk_expression(id1, NULL, IL_OR, IL_NORM);
@@ -449,7 +446,6 @@ printf("\nIV. q0/1 := (i0/0 OR NULL)\n" );
 1.ST!m1/8\n";
 
 printf("\nV. !m1/8 := (i0/0 AND NULL)\n" );
-//printf("expected: \n%s\n", expected);
 
   id2 = mk_identifier(OP_MEMORY, 1, 8);
   id1 = mk_identifier(OP_INPUT, 0, 0);
@@ -485,7 +481,6 @@ expected = "\
 3.ST !i0/1\n";
 
 printf("\nVI. !i0/1 := (i0/1 OR i0/2)\n" );
-//printf("expected: \n%s\n", expected);
 
   id2 = mk_identifier(OP_INPUT, 0, 2);
   id1 = mk_identifier(OP_INPUT, 0, 1);
@@ -507,21 +502,20 @@ printf("\nVI. !i0/1 := (i0/1 OR i0/2)\n" );
   /////// assign !I0/0 :=( !I0/1 AND !I0/2) //////////////
 
 expected = "\
-0.LD !i0/1\n\
-1.AND(!i0/2\n\
+0.LD !i0/2\n\
+1.AND(!i0/1\n\
 2.)\n\
 3.ST  Q0/0\n";
 
-printf("\nVII. q0/0 := (!i0/1 AND !i0/2)\n" );
-//printf("expected: \n%s\n", expected);
+printf("\nVII. q0/0 := !i0/1 AND !i0/2\n" );
 
   id2 = mk_identifier(OP_INPUT, 0, 2);
   id1 = mk_identifier(OP_INPUT, 0, 1);
   q1 = mk_identifier(OP_CONTACT, 0, 0);
   exp1 = mk_expression(id1, NULL, IL_AND, IL_NEG);
-  exp2 = mk_expression(id2, NULL, IL_AND, IL_NEG);
-  exp = mk_expression(exp1, exp2, IL_AND, IL_PUSH);
-  ass = mk_assignment(q1, exp, LD_COIL);
+  exp2 = mk_expression(id2, exp1, IL_AND, IL_NEG | IL_PUSH);
+
+  ass = mk_assignment(q1, exp2, LD_COIL);
   result = gen_ass(ass, &ru);
 
   memset(dump, 0, MAXBUF * MAXSTR);
