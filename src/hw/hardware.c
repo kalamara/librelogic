@@ -33,10 +33,19 @@ hardware_t get_hardware( int type){
             return NULL;
 #endif             
         case HW_USPACE:
+#ifdef USPACE        
             return &Uspace;
+#else
+            return NULL;
+#endif             
 
         case HW_SIM: 
+#ifdef SIM        
         	return &Sim;
+#else
+            return NULL;
+#endif             
+
         default: 
             return &Dry;
     }

@@ -35,11 +35,20 @@ ADD_LIBRARY(${PROJECT_NAME}
 )
 
 if(${HW} STREQUAL "SIM")
+    add_definitions(
+        -DSIM
+    )
     target_sources(${PROJECT_NAME}, ${PROJECT_SOURCE_DIR}/hw/hardware-sim.c)
 elseif(${HW} STREQUAL "USPACE")
+    add_definitions(
+        -DUSPACE
+    )
     target_sources(${PROJECT_NAME}, ${PROJECT_SOURCE_DIR}/hw/hardware-uspace.c)
 elseif(${HW} STREQUAL "COMEDI")
     target_sources(${PROJECT_NAME}, ${PROJECT_SOURCE_DIR}/hw/hardware-comedi.c)
+    add_definitions(
+        -DCOMEDI
+    )
 else() #DRY
     target_sources(${PROJECT_NAME} PUBLIC 
         ${PROJECT_SOURCE_DIR}/hw/hardware-dry.c)
