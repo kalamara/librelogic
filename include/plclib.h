@@ -136,11 +136,11 @@ typedef struct analog_io{
  * struct which represents  a timer state at a given cycle
  */
 typedef struct timer{
-    long S;	///scale; S=1000=>increase every 1000 cycles. STEP= 10 msec=> increase every 10 sec
+    long S; ///scale; S=1000=>increase every 1000 cycles. STEP= 10 msec=> increase every 10 sec
     long sn;///internal counter used for scaling
-    long V;	///value
-    BIT(Q);	///output
-    long P;	///Preset value
+    long V; ///value
+    BIT(Q); ///output
+    long P; ///Preset value
     BIT(ONDELAY);///1=on delay, 0 = off delay
     BIT(START);///start command: must be on to count
     BIT(RESET);///down command: sets V = 0
@@ -154,7 +154,7 @@ typedef struct timer{
  */
 typedef struct blink{
     BIT(Q); ///output
-    long S;	///scale; S=1000=>toggle every 1000 cycles. STEP= 10 msec=> toggle every 10 sec
+    long S; ///scale; S=1000=>toggle every 1000 cycles. STEP= 10 msec=> toggle every 10 sec
     long sn;///internal counter for scaling
     char * nick;//[NICKLEN];
 } * blink_t;
@@ -165,12 +165,12 @@ typedef struct blink{
  */
 typedef struct mvar{
     uint64_t V;     ///TODO: add type
-    BIT(RO);	///1 if read only;
-    BIT(DOWN);	///1: can be used as a down counter
-    BIT(PULSE);		///pulse for up/downcounting
-    BIT(EDGE);		///edge of pulse
-    BIT(SET);		///set pulse
-    BIT(RESET);		///reset pulse
+    BIT(RO);    ///1 if read only;
+    BIT(DOWN);  ///1: can be used as a down counter
+    BIT(PULSE);     ///pulse for up/downcounting
+    BIT(EDGE);      ///edge of pulse
+    BIT(SET);       ///set pulse
+    BIT(RESET);     ///reset pulse
     //BIT(MASK); ///true if pulse is set
     char * nick;//[NICKLEN];   ///nickname
 } * mvar_t;
@@ -181,7 +181,7 @@ typedef struct mvar{
  */
 typedef struct mreal{
     double V;     ///TODO: add type
-    BIT(RO);	///1 if read only;
+    BIT(RO);    ///1 if read only;
     char * nick;//[NICKLEN];   ///nickname
 } * mreal_t;
 
@@ -203,41 +203,36 @@ typedef struct PLC_regs{
     
     BYTE update; ///binary mask of state update
     int status;    ///0 = stopped, 1 = running, negative = error
-	
-	BYTE ni; ///number of bytes for digital inputs 
-	di_t di; ///digital inputs
-	
-	BYTE nq; ///number of bytes for digital outputs
-	do_t dq; ///the digital outputs
+    
+    BYTE ni; ///number of bytes for digital inputs 
+    di_t di; ///digital inputs
+    
+    BYTE nq; ///number of bytes for digital outputs
+    do_t dq; ///the digital outputs
 
     BYTE nai; ///number of analog input channels
-	aio_t ai; ///the analog inputs
-	
-	BYTE naq; ///number of analog output channels
-	aio_t aq; ///the analog outputs
-	
-	BYTE nt; ///number of timers
-	dt_t t; ///the timers
+    aio_t ai; ///the analog inputs
+    
+    BYTE naq; ///number of analog output channels
+    aio_t aq; ///the analog outputs
+
+    BYTE nt; ///number of timers
+    dt_t t; ///the timers
     
     BYTE ns; ///number of blinkers
-	blink_t s; ///the blinkers
-	
-	BYTE nm; ///number of memory counters
-	mvar_t m; ///the memory
-	
-	BYTE nmr; ///number of memory registers
-	mreal_t mr; ///the memory
+    blink_t s; ///the blinkers
+    
+    BYTE nm; ///number of memory counters
+    mvar_t m; ///the memory
+    
+    BYTE nmr; ///number of memory registers
+    mreal_t mr; ///the memory
 
-	rung_t * rungs;
-	BYTE rungno; //256 rungs should suffice
-	
-	long step; //cycle time in milliseconds
-	char * response_file; //pipe to send response.
-	struct pollfd com[1];  //polling on a file descriptor for external 
-	                        //"commands", this will be thrown away and  
-	                        //replaced by usleep
-	                        //FIXME: throw this feature away
-	struct PLC_regs * old; //pointer to previous state
+    rung_t * rungs;
+    BYTE rungno; //256 rungs should suffice
+    
+    long step; //cycle time in milliseconds
+    struct PLC_regs * old; //pointer to previous state
 } * plc_t;
 
 /**
@@ -283,223 +278,15 @@ plc_t parse_ld_program(const char * name,
  */
 plc_t plc_load_program_file(const char * path, plc_t plc);
 
-/**
- * @brief execute JMP instruction
- * @param the rung
- * @param the program counter (index of instruction in the rung)
- * @return OK or error
- */
-int handle_jmp( const rung_t r, unsigned int * pc);
 
-/**
- * @brief execute RESET instruction
- * @param the instruction
- * @param current acc value
- * @param true if we are setting a bit from a variable, 
- * false if we are setting the input of a block
- * @param reference to the plc
- * @return OK or error
- */
-int handle_reset( const instruction_t op,
-                  const data_t acc,
-                  BYTE is_bit,    
-                  plc_t p);
-
-/**
- * @brief execute SET instruction
- * @param the instruction
- * @param current acc value
- * @param true if we are setting a bit from a variable, 
- * false if we are setting the input of a block
- * @param reference to the plc
- * @return OK or error
- */
-int handle_set( const instruction_t op,
-                const data_t acc, 
-                BYTE is_bit,
-                plc_t p);
-
-/**
- * @brief store value to digital outputs
- * @note values are stored in BIG ENDIAN
- * @param value
- * @reference to the plc
- * @return OK or error
- */
-int st_out( const instruction_t op, 
-            uint64_t val,
-            plc_t p);
           
-/**
- * @brief store value to analog outputs
- * @param value
- * @reference to the plc
- * @return OK or error
- */            
-int st_out_r( const instruction_t op, 
-              double val,
-              plc_t p);
-
-/**
- * @brief store value to memory registers
- * @param value
- * @reference to the plc
- * @return OK or error
- */
-int st_mem( const instruction_t op, 
-            uint64_t val,
-            plc_t p);
-
-/**
- * @brief store value to floating point memory registers 
- * @param value
- * @reference to the plc
- * @return OK or error
- */
-int st_mem_r( const instruction_t op, 
-              double val,
-              plc_t p);
-
-
-/**
- * @brief execute STORE instruction
- * @param the value to be stored
- * @param the instruction
- * @param reference to the plc
- * @return OK or error
- */
-int handle_st( const instruction_t op, 
-               const data_t val, 
-               plc_t p);
-                
-/**
- * @brief load value from digital inputs
- * values are loaded in BIG ENDIAN
- * @param value
- * @reference to the plc
- * @return OK or error
- */
-int ld_in( const instruction_t op, 
-           uint64_t * val,
-           plc_t p);
-            
-/**
- * @brief load rising edge from digital inputs
- * @param value
- * @reference to the plc
- * @return OK or error
- */
-int ld_re( const instruction_t op, 
-           BYTE * val,
-           plc_t p);
-            
-/**
- * @brief load falling edge from digital inputs
- * @param value
- * @reference to the plc
- * @return OK or error
- */            
-int ld_fe( const instruction_t op, 
-           BYTE * val,
-           plc_t p);
-            
-/**
- * @brief load value from analog inputs
- * @param value
- * @reference to the plc
- * @return OK or error
- */            
-int ld_in_r( const instruction_t op, 
-             double * val,
-             plc_t p);
-            
-/**
- * @brief load value from digital outputs
- * @param value
- * @reference to the plc
- * @return OK or error
- */
-int ld_out( const instruction_t op, 
-            uint64_t * val,
-            plc_t p);
-          
-/**
- * @brief load value from analog outputs
- * @param value
- * @reference to the plc
- * @return OK or error
- */            
-int ld_out_r( const instruction_t op, 
-              double * val,
-              plc_t p);
-
-/**
- * @brief load value from memory registers
- * @param value
- * @reference to the plc
- * @return OK or error
- */
-int ld_mem( const instruction_t op, 
-            uint64_t * val,
-            plc_t p);
-
-/**
- * @brief load value from floating point memory 
- * @param value
- * @reference to the plc
- * @return OK or error
- */
-int ld_mem_r( const instruction_t op, 
-              double * val,
-              plc_t p);
-            
-/**
- * @brief load value from timer 
- * @param value
- * @reference to the plc
- * @return OK or error
- */
-int ld_timer( const instruction_t op, 
-              uint64_t * val,
-              plc_t p);            
-
-/**
- * @brief execute LOAD instruction
- * @param the instruction
- * @param where to load the value
- * @param reference to the plc
- * @return OK or error
- */
-int handle_ld( const instruction_t op, 
-               data_t * acc, 
-               plc_t p);
-
-/**
- * @brief execute any stack operation
- * @param the intruction
- * @param the rung
- * @param reference to the plc
- * @return OK or error
- */
-int handle_stackable(const instruction_t op,
-                     rung_t r, 
-                     plc_t p);
-
-/**
- * @brief execute IL instruction
- * @param the plc
- * @param the rung
- * @return OK or error
- */
-int instruct(plc_t p, rung_t r, unsigned int *pc);
-
 /**
  * @brief add a new rung to a plc
  * @param a unique identifier
  * @param the plc
  * @return reference to the new rung
  */
-rung_t mk_rung(const char * name, plc_t p);
+rung_t plc_mk_rung(const char * name, plc_t p);
 
 /**
  * @brief get rung reference from plc
@@ -508,52 +295,28 @@ rung_t mk_rung(const char * name, plc_t p);
  * @param idx the index
  * @return reference to rung or NULL
  */
-rung_t get_rung( const plc_t p, unsigned int idx);
+rung_t plc_get_rung( const plc_t p, unsigned int idx);
 
-/**
- * @brief task to execute IL rung
- * @param timeout (usec)
- * @param pointer to PLC registers
- * @param pointer to IL rung
- * @return OK or error
- */
-int task( long timeout, plc_t p, rung_t r);
-
-/**
- * @brief task to execute all rungs
- * @param timeout (usec)
- * @param pointer to PLC registers
- * @return OK or error
- */
-int all_tasks( long timeout, plc_t p);
 
 /**
  * @brief custom project init code as plugin
  * @return OK or error
  */
-int project_init();
+int plc_project_init();
 
 /**
  * @brief custom project task code as plugin
  * @param pointer to PLC registers
  * @return OK or error
  */
-int project_task( plc_t p);
+int plc_project_task( plc_t p);
 
 /**
- * @brief PLC task executed in a loop
- * @param pointer to PLC registers
- * @return OK or error code
- */
-int plc_task( plc_t p);
-
-/**
- * @brief Pipe initialization executed once
- * @param pipe to poll
+ * @brief PLC initialization executed once
  * @param ref to plc
  * @return OK or error
  */
-int open_pipe(const char * pipe, plc_t p);
+int plc_init(plc_t p);
 
 /**
  * @brief PLC realtime loop
@@ -578,7 +341,7 @@ plc_t plc_func( plc_t p);
  * @param the value
  * @return new plc state, or NULL in error
  */
-plc_t force(plc_t p, int op, BYTE i, char * val);
+plc_t plc_force(plc_t p, int op, BYTE i, char * val);
 
 /**
  * @brief unforce operand
@@ -587,7 +350,7 @@ plc_t force(plc_t p, int op, BYTE i, char * val);
  * @param the operand index
  * @param new plc state, or null in error
  */
-plc_t unforce(plc_t p, int op, BYTE i);
+plc_t plc_unforce(plc_t p, int op, BYTE i);
 
 /**
  * @brief is an operand forced
@@ -596,109 +359,9 @@ plc_t unforce(plc_t p, int op, BYTE i);
  * @param input index
  * @return true if forced, false if not, error if out of bounds
  */
-int is_forced(plc_t p, int op, BYTE i);
+int plc_is_forced(plc_t p, int op, BYTE i);
 
-/**
- * @brief decode inputs
- * @param pointer to PLC registers
- * @return true if input changed
- */
-unsigned char dec_inp( plc_t p);
 
-/**
- * @brief encode outputs
- * @param pointer to PLC registers
- * @return true if output changed
- */
-unsigned char enc_out( plc_t p);
-
-/**
- * @brief write values to memory variables
- * @param pointer to PLC registers
- */
-void write_mvars( plc_t p);
-
-/**
- * @brief read_mvars
- * @param pointer to PLC registers
- */
-void read_mvars( plc_t p);
-
-/**
- * @brief rising edge of input
- * @param pointer to PLC registers
- * @param type is Digital Input Or Counter
- * @param index
- * @return true if rising edge of operand, false or error otherwise
- */
-int re( const plc_t p, 
-        int type, 
-        int idx);
-
-/**
- * @brief falling edge of input
- * @param pointer to PLC registers
- * @param type is Digital Input Or Counter
- * @param index
- * @return true if falling edge of operand, false or error otherwise
- */
-int fe( const plc_t p, 
-        int type, 
-        int idx);
-
-/**
- * @brief set output
- * @param pointer to PLC registers
- * @param type is Digital Output, Timer or Counter
- * @param index
- * @return OK if success or error code
- */
-int set( plc_t p, 
-         int type, 
-         int idx);
-
-/**
- * @brief reset output
- * @param pointer to PLC registers
- * @param type is Digital Output, Timer or Counter
- * @param index
- * @return OK if success or error code
- */
-int reset( plc_t p, 
-           int type,
-           int idx);
-
-/**
- * @brief contact value to output
- * @param pointer to PLC registers
- * @param type is Digital Output, Timer or Counter
- * @param index
- * @param value
- * @return OK if success or error code
- */
-int contact( plc_t p, 
-             int type, 
-             int idx, 
-             BYTE val);
-
-/**
- * @brief resolve an operand value
- * @param pointer to PLC registers
- * @param type of operand
- * @param index
- * @return return value or error code
- */
-int resolve( plc_t p, 
-             int type, 
-             int idx);
-
-/**
- * @brief reset timer
- * @param pointer to PLC registers
- * @param index
- * @return OK if success or error code
- */
-int down_timer( plc_t p, int idx);
 
 /**
  * @brief construct a new plc with a configuration
@@ -715,7 +378,7 @@ int down_timer( plc_t p, int idx);
 
  * @return configured plc
  */
-plc_t new_plc(
+plc_t plc_new(
     int di, 
     int dq,
     int ai,
@@ -732,12 +395,12 @@ plc_t new_plc(
  * @param source plc
  * @return newly allocated copy
  */
-plc_t copy_plc(const plc_t plc); 
+plc_t plc_copy(const plc_t plc); 
 
 /**
  * @brief dtor
  */
-void clear_plc(plc_t plc);
+void plc_clear(plc_t plc);
 
 /*configurators*/
 
@@ -750,7 +413,7 @@ void clear_plc(plc_t plc);
  * @see also data.h
  * @return plc instance with saved change or updated error status
  */
-plc_t declare_variable(const plc_t p, 
+plc_t plc_declare_variable(const plc_t p, 
                         int var,
                         BYTE idx,                          
                         const char* val);
@@ -765,7 +428,7 @@ plc_t declare_variable(const plc_t p,
  * @see also data.h
  * @return plc instance with saved change or updated error status
  */
-plc_t init_variable(const plc_t p, int var, BYTE idx, const char* val);
+plc_t plc_init_variable(const plc_t p, int var, BYTE idx, const char* val);
 
 /**
  * @brief configure a plc register variable as readonly
@@ -776,7 +439,7 @@ plc_t init_variable(const plc_t p, int var, BYTE idx, const char* val);
  * @see also data.h
  * @return plc instance with saved change or updated error status
  */
-plc_t configure_variable_readonly(const plc_t p, 
+plc_t plc_configure_variable_readonly(const plc_t p, 
                                 int var, 
                                 BYTE idx, 
                                 const char* val);
@@ -791,7 +454,7 @@ plc_t configure_variable_readonly(const plc_t p,
  * @see also data.h
  * @return plc instance with saved change or updated error status
  */
-plc_t configure_io_limit(const plc_t p, 
+plc_t plc_configure_io_limit(const plc_t p, 
                         int io, 
                         BYTE idx, 
                         const char* val,
@@ -804,7 +467,7 @@ plc_t configure_io_limit(const plc_t p,
  * @param serialized direction flag (true if "DOWN", false otherwise)
  * @return plc instance with saved change or updated error status
  */
-plc_t configure_counter_direction(const plc_t p, 
+plc_t plc_configure_counter_direction(const plc_t p, 
                                     BYTE idx, 
                                     const char* val);
 /**
@@ -815,7 +478,7 @@ plc_t configure_counter_direction(const plc_t p,
  * @see also timer_t
  * @return plc instance with saved change or updated error status
  */
-plc_t configure_timer_scale(const plc_t p, 
+plc_t plc_configure_timer_scale(const plc_t p, 
                      BYTE idx, 
                      const char* val);
 
@@ -827,7 +490,7 @@ plc_t configure_timer_scale(const plc_t p,
  * @see also timer_t
  * @return plc instance with saved change or updated error status
  */
-plc_t configure_timer_preset(const plc_t p, 
+plc_t plc_configure_timer_preset(const plc_t p, 
                         BYTE idx, 
                         const char* val);
 
@@ -839,7 +502,7 @@ plc_t configure_timer_preset(const plc_t p,
  * @see also timer_t
  * @return plc instance with saved change or updated error status
  */
-plc_t configure_timer_delay_mode(const plc_t p, 
+plc_t plc_configure_timer_delay_mode(const plc_t p, 
                         BYTE idx, 
                         const char* val);
 
@@ -851,7 +514,7 @@ plc_t configure_timer_delay_mode(const plc_t p,
  * @see also blink_t
  * @return plc instance with saved change or updated error status
  */
-plc_t configure_pulse_scale(const plc_t p, 
+plc_t plc_configure_pulse_scale(const plc_t p, 
                         BYTE idx, 
                         const char* val);
 

@@ -470,7 +470,7 @@ plc_t parse_il_program(const char * name,
 {
     int rv = PLC_OK;
     unsigned int i = 0;
-    rung_t r = mk_rung(name, p);
+    rung_t r = plc_mk_rung(name, p);
     while(rv == PLC_OK 
     && i < MAXBUF
     && lines[i][0] != 0){

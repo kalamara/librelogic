@@ -40,17 +40,21 @@ const char * LibErrors[N_IE] = {
 
 struct timeval Curtime;
 
-int open_pipe(const char * pipe, plc_t p) {
-    p->com[0].fd = open(pipe, O_NONBLOCK | O_RDONLY);
-    p->com[0].events = POLLIN | POLLPRI;
-    int r = p->com[0].fd > 0? PLC_OK: PLC_ERR;
+int plc_init(plc_t p) {
 
     gettimeofday(&Curtime, NULL);
     
-    return r;
+    return PLC_OK;
 }
 
-int re(const plc_t p,  int type,  int idx) { 
+/**
+ * @brief rising edge of input
+ * @param pointer to PLC registers
+ * @param type is Digital Input Or Counter
+ * @param index
+ * @return true if rising edge of operand, false or error otherwise
+ */
+static int re(const plc_t p,  int type,  int idx) { 
 //return rising edge of operand
 
 	switch (type){
@@ -65,7 +69,14 @@ int re(const plc_t p,  int type,  int idx) {
 	}
 }
 
-int fe(const plc_t p,  int type,  int idx) { 
+/**
+ * @brief falling edge of input
+ * @param pointer to PLC registers
+ * @param type is Digital Input Or Counter
+ * @param index
+ * @return true if falling edge of operand, false or error otherwise
+ */
+static int fe(const plc_t p,  int type,  int idx) { 
 //return falling edge of operand
 
 	switch (type) {
@@ -80,7 +91,14 @@ int fe(const plc_t p,  int type,  int idx) {
 	}
 }
 
-int set(plc_t p,  int type,  int idx) { 
+/**
+ * @brief set output
+ * @param pointer to PLC registers
+ * @param type is Digital Output, Timer or Counter
+ * @param index
+ * @return OK if success or error code
+ */
+static int set(plc_t p,  int type,  int idx) { 
 //set operand
 	switch (type){
     case BOOL_DQ:
@@ -108,7 +126,14 @@ int set(plc_t p,  int type,  int idx) {
     return 0;
 }
 
-int reset(plc_t p,  int type, int idx) { 
+/**
+ * @brief reset output
+ * @param pointer to PLC registers
+ * @param type is Digital Output, Timer or Counter
+ * @param index
+ * @return OK if success or error code
+ */
+static int reset(plc_t p,  int type, int idx) { 
 //reset operand
 	switch (type){
     case BOOL_DQ:
@@ -139,7 +164,15 @@ int reset(plc_t p,  int type, int idx) {
     return 0;
 }
 
-int contact(plc_t p, 
+/**
+ * @brief contact value to output
+ * @param pointer to PLC registers
+ * @param type is Digital Output, Timer or Counter
+ * @param index
+ * @param value
+ * @return OK if success or error code
+ */
+static int contact( plc_t p, 
              int type, 
              int idx, 
              BYTE val) { 
@@ -173,7 +206,14 @@ int contact(plc_t p,
     return 0;
 }
 
-int resolve(plc_t p,  int type,  int idx) { 
+/**
+ * @brief resolve an operand value
+ * @param pointer to PLC registers
+ * @param type of operand
+ * @param index
+ * @return return value or error code
+ */
+static int resolve(plc_t p,  int type,  int idx) { 
 //return an operand value
 	switch (type){
     case BOOL_DQ:
@@ -197,7 +237,13 @@ int resolve(plc_t p,  int type,  int idx) {
 	}
 }
 
-int down_timer(plc_t p,  int idx) { 
+/**
+ * @brief reset timer
+ * @param pointer to PLC registers
+ * @param index
+ * @return OK if success or error code
+ */
+static int down_timer(plc_t p,  int idx) { 
 //RESET timer
 	p->t[idx].START = FALSE;
 	p->t[idx].V = 0;
@@ -205,6 +251,792 @@ int down_timer(plc_t p,  int idx) {
     return 0;
 }
 
+/*************************VM*******************************************/
+
+/**
+ * @brief execute JMP instruction
+ * @param the rung
+ * @param the program counter (index of instruction in the rung)
+ * @return OK or error
+ */
+int handle_jmp( const rung_t r, unsigned int * pc) {
+    if(r==NULL
+    || pc==NULL)
+        return PLC_ERR;
+        
+    instruction_t op;
+    if(get(r, *pc, &op) < PLC_OK)
+        return ERR_BADOPERAND;
+      
+    if(op->operation != IL_JMP)
+        return ERR_BADOPERATOR; //sanity
+    
+    if(!(op->modifier==IL_COND
+    && r->acc.u == 0))
+        *pc = op->operand;
+    else 
+        (*pc)++;
+    return PLC_OK;
+}
+
+/**
+ * @brief execute SET instruction
+ * @param the instruction
+ * @param current acc value
+ * @param true if we are setting a bit from a variable, 
+ * false if we are setting the input of a block
+ * @param reference to the plc
+ * @return OK or error
+ */
+int handle_set( const instruction_t op,
+                const data_t acc,
+                BYTE is_bit,                 
+                plc_t p ) {
+    int r = PLC_OK;
+    if(op==NULL
+    || p==NULL){
+    
+        return PLC_ERR;
+    }    
+    if(op->operation != IL_SET){
+    
+        return ERR_BADOPERATOR; //sanity
+    }    
+    if(op->modifier == IL_COND
+    && acc.u == FALSE){
+    
+        return r;
+    }        
+    switch (op->operand){
+    
+        case OP_CONTACT:	//set output %QX.Y
+            if(!is_bit) {//only gets called when bit is defined
+                r = ERR_BADOPERAND;
+            } else {
+                r = set(p, 
+                        BOOL_DQ, 
+                        (op->byte) * BYTESIZE + op->bit);
+            }
+            break;
+            
+        case OP_START:	//bits are irrelevant
+            r = set(p, BOOL_TIMER, op->byte);
+            break;
+            
+        case OP_PULSEIN:	//same here
+            r = set(p, BOOL_COUNTER, op->byte);
+            break;
+            
+        default:
+            r = ERR_BADOPERAND;
+            break;
+    }
+    return r;
+}
+
+/**
+ * @brief execute RESET instruction
+ * @param the instruction
+ * @param current acc value
+ * @param true if we are setting a bit from a variable, 
+ * false if we are setting the input of a block
+ * @param reference to the plc
+ * @return OK or error
+ */
+int handle_reset(const instruction_t op, 
+                 const data_t acc,
+                 BYTE is_bit,
+                 plc_t p) {
+    int r = PLC_OK;
+    if(op==NULL
+    || p==NULL)
+        return PLC_ERR;
+    
+    if(op->operation != IL_RESET)
+        return ERR_BADOPERATOR; //sanity
+    
+    if(op->modifier == IL_COND
+    && acc.u == FALSE)
+        return r;
+        
+    switch (op->operand){
+        case OP_CONTACT:	//set output %QX.Y
+            if (!is_bit)	//only gets called when bit is defined
+                r = ERR_BADOPERAND;
+            else
+                r = reset(p, BOOL_DQ, (op->byte) * BYTESIZE + op->bit);
+            break;
+            
+        case OP_START:	//bits are irrelevant
+                r = reset(p, BOOL_TIMER, op->byte);
+            break;
+            
+        case OP_PULSEIN:	//same here
+                r = reset(p, BOOL_COUNTER, op->byte);
+            break;
+            
+        default:
+            r = ERR_BADOPERAND;
+    }
+    return r;
+}
+
+/**
+ * @brief store value to analog outputs
+ * @param value
+ * @reference to the plc
+ * @return OK or error
+ */            
+int st_out_r( const instruction_t op, 
+              double val,
+              plc_t p) {
+    if(op->byte >= p->naq)
+        return ERR_BADOPERAND;
+    BYTE i = op->byte;
+    p->aq[i].V = val;    
+    return PLC_OK;
+}
+
+/**
+ * @brief store value to digital outputs
+ * @note values are stored in BIG ENDIAN
+ * @param value
+ * @reference to the plc
+ * @return OK or error
+ */
+int st_out( const instruction_t op, 
+            uint64_t val,
+            plc_t p) {
+    int r = PLC_OK;
+    int t = get_type(op);
+    BYTE offs = (op->bit / BYTESIZE) - 1;
+    int i = 0;
+    switch(t){
+        case T_BOOL:
+            if (op->modifier == IL_NEG)
+                val = TRUE - BOOL(val);
+            if(op->byte >= p->nq)
+                r = ERR_BADOPERAND; 
+            else    
+                r = contact(p, 
+                        BOOL_DQ, 
+                        (op->byte) * BYTESIZE + op->bit,
+                        BOOL(val));
+            break;
+            
+        case T_BYTE:
+        case T_WORD:
+        case T_DWORD:
+        case T_LWORD:
+            if (op->modifier == IL_NEG)
+                val = - val;
+            if(op->byte + offs >= p->nq)
+                r = ERR_BADOPERAND; 
+            else for(;i<=offs;i++){
+                    p->outputs[op->byte + i] = 
+                    (val >> ((offs-i)*BYTESIZE)) % (0x100);    
+                }
+            
+            break;    
+                
+        default: 
+            r = ERR_BADOPERAND;
+    }
+    return r;    
+}
+
+/**
+ * @brief store value to floating point memory registers 
+ * @param value
+ * @reference to the plc
+ * @return OK or error
+ */
+int st_mem_r( const instruction_t op, 
+              double val,
+              plc_t p) {
+    if(op->byte >= p->nmr)
+                return ERR_BADOPERAND; 
+    p->mr[op->byte].V = val;
+   // plc_log("store %lf to m%d", val, op->byte);
+    return PLC_OK; 
+}
+              
+/**
+ * @brief store value to memory registers
+ * @param value
+ * @reference to the plc
+ * @return OK or error
+ */
+int st_mem( const instruction_t op, 
+            uint64_t val,
+            plc_t p) {
+    int r = PLC_OK;
+    int t = get_type(op);
+    BYTE offs = (op->bit / BYTESIZE) - 1;
+    uint64_t compl = 0x100;
+ 
+    if(op->byte >= p->nm)
+                return ERR_BADOPERAND; 
+    switch(t){
+        case T_BOOL:
+             r = contact(p, 
+                         BOOL_COUNTER, 
+                         op->byte, 
+                         BOOL(val));
+             break;
+             
+        case T_BYTE:
+        case T_WORD:
+        case T_DWORD:
+        case T_LWORD:
+             p->m[op->byte].V = 
+                 val & ((compl << (BYTESIZE * offs))-1);
+            // plc_log("store 0x%lx to m%d", val, op->byte);
+             break;           
+                 
+        default: 
+            return ERR_BADOPERAND;
+    }
+    return r;    
+}
+
+/**
+ * @brief execute STORE instruction
+ * @param the value to be stored
+ * @param the instruction
+ * @param reference to the plc
+ * @return OK or error
+ */
+int handle_st(  const instruction_t op, 
+                const data_t acc, 
+                plc_t p) {
+    int r = PLC_OK;
+    data_t val = acc;
+    if(op==NULL
+    || p==NULL)
+        return PLC_ERR;
+        
+    if(op->operation != IL_ST)
+        return ERR_BADOPERATOR; //sanity
+     
+    switch (op->operand){
+        case OP_REAL_CONTACT:	    //set output %QX.Y
+            r = st_out_r(op, val.r, p);
+            break;
+        
+        case OP_CONTACT:	    //set output %QX.Y
+            r = st_out(op, val.u, p);
+            break;
+            
+        case OP_START:	    //bits are irrelevant
+            r = contact(p, BOOL_TIMER, op->byte, val.u % 2);
+            break;
+            
+        case OP_REAL_MEMIN:
+            r = st_mem_r(op, val.r, p);
+            break;     
+            
+        case OP_PULSEIN:
+            r = st_mem(op, val.u, p);
+            break;
+            
+        case OP_WRITE:
+            p->command = val.u;
+            break;
+            
+        default:
+            r = ERR_BADOPERAND;
+    }
+    return r;
+}
+
+static uint64_t ld_bytes(BYTE start, 
+                  BYTE offset, 
+                  BYTE * arr) {
+    uint64_t rv = 0;
+    int i = offset;
+    for(; i >=0; i--){
+        uint64_t u = arr[start + i]; 
+        rv +=  u << (BYTESIZE*(offset -i)) ;
+    }
+    return rv;
+}                
+
+/**
+ * @brief load value from digital inputs
+ * values are loaded in BIG ENDIAN
+ * @param value
+ * @reference to the plc
+ * @return OK or error
+ */
+static int ld_in( const instruction_t op, 
+           uint64_t * val,
+           plc_t p) {
+    int r = PLC_OK;
+    int t = get_type(op);
+    BYTE offs = (op->bit / BYTESIZE) - 1;
+    uint64_t complement = 0x100;
+    
+    switch(t){
+        case T_BOOL:
+            if(op->byte >= p->ni)
+                return ERR_BADOPERAND;
+            *val = resolve(p, BOOL_DI, 
+                            (op->byte) * BYTESIZE + op->bit);
+            if (op->modifier == IL_NEG)
+                *val = *val?FALSE:TRUE;      
+            break;
+            
+        case T_BYTE:
+        case T_WORD:
+        case T_DWORD:
+        case T_LWORD:
+            if(op->byte + offs >= p->ni)
+                return ERR_BADOPERAND;
+                
+            *val = ld_bytes(op->byte, offs, p->inputs);    
+            
+            if(op->modifier == IL_NEG)
+                *val = (complement << offs*BYTESIZE) - *val;  
+            break;
+      
+        default: 
+            return ERR_BADOPERAND;
+    }
+    return r;    
+}
+            
+/**
+ * @brief load rising edge from digital inputs
+ * @param value
+ * @reference to the plc
+ * @return OK or error
+ */
+static int ld_re( const instruction_t op, 
+           BYTE * val,
+           plc_t p ) {
+    int r = PLC_OK;
+    int t = get_type(op);
+    if(op->byte >= p->ni)
+                return ERR_BADOPERAND;
+    if(t == T_BOOL)
+            *val = re(p, BOOL_DI, (op->byte) * BYTESIZE + op->bit);
+    else
+            r = ERR_BADOPERAND;
+    return r;    
+}
+                          
+/**
+ * @brief load falling edge from digital inputs
+ * @param value
+ * @reference to the plc
+ * @return OK or error
+ */            
+static int ld_fe( const instruction_t op, 
+           BYTE * val,
+           plc_t p) {
+    int r = PLC_OK;
+    int t = get_type(op);
+    if(op->byte >= p->ni)
+                return ERR_BADOPERAND;
+    if(t == T_BOOL)
+            *val = fe(p, BOOL_DI, 
+                      (op->byte) * BYTESIZE + op->bit);
+    else 
+            r = ERR_BADOPERAND;
+    return r;    
+}              
+
+/**
+ * @brief load value from analog inputs
+ * @param value
+ * @reference to the plc
+ * @return OK or error
+ */            
+int ld_in_r( const instruction_t op, 
+             double * val,
+             plc_t p) {
+    if(op->byte >= p->nai)
+                return ERR_BADOPERAND;
+    BYTE i = op->byte;
+    *val = p->ai[i].V;
+    return PLC_OK;    
+}
+            
+/**
+ * @brief load value from analog outputs
+ * @param value
+ * @reference to the plc
+ * @return OK or error
+ */
+int ld_out_r( const instruction_t op, 
+            double * val,
+            plc_t p) {
+    if(op->byte >= p->naq)
+                return ERR_BADOPERAND;
+    BYTE i = op->byte;
+    *val = p->aq[i].V;
+    return PLC_OK;    
+}            
+            
+/**
+ * @brief load value from digital outputs
+ * @param value
+ * @reference to the plc
+ * @return OK or error
+ */            
+int ld_out( const instruction_t op, 
+            uint64_t * val,
+            plc_t p) {
+    int r = PLC_OK;
+    int t = get_type(op);
+    BYTE offs = (op->bit / BYTESIZE) - 1;
+    uint64_t complement = 0x100;
+    switch(t){
+        case T_BOOL:
+             if(op->byte >= p->nq)
+                return ERR_BADOPERAND;
+            *val = resolve(p, BOOL_DQ, 
+                           (op->byte) * BYTESIZE + op->bit);
+            if (op->modifier == IL_NEG)
+                *val = *val?FALSE:TRUE;      
+            break;
+            
+        case T_BYTE:
+        case T_WORD:
+        case T_DWORD:
+        case T_LWORD:
+            if(op->byte + offs >= p->nq)
+                return ERR_BADOPERAND;
+                
+            *val = ld_bytes(op->byte, offs, p->outputs);    
+            
+            if(op->modifier == IL_NEG)
+                *val = (complement << offs*BYTESIZE) - *val;  
+            break;
+        
+        default: 
+            return ERR_BADOPERAND;
+    }
+    return r;    
+}
+            
+
+/**
+ * @brief load value from memory registers
+ * @param value
+ * @reference to the plc
+ * @return OK or error
+ */
+int ld_mem( const instruction_t op, 
+            uint64_t * val,
+            plc_t p) {
+    int r = PLC_OK;
+    int t = get_type(op);
+    if(op->byte >= p->nm)
+                return ERR_BADOPERAND;
+    int offs = (op->bit / BYTESIZE) - 1;
+    uint64_t compl = 0x100;
+                
+    switch(t){
+        case T_BOOL:
+            *val = resolve(p, BOOL_COUNTER, op->byte);
+            if (op->modifier == IL_NEG)
+                *val = (*val)?FALSE:TRUE;      
+            break;
+            
+        case T_BYTE:
+        case T_WORD:
+        case T_DWORD:
+        case T_LWORD:
+            *val = p->m[op->byte].V & ((compl << offs*BYTESIZE) - 1);
+            
+            if( op->modifier == IL_NEG )
+                *val = (compl << offs*BYTESIZE) - *val;
+            break;
+                
+        default: 
+            return ERR_BADOPERAND;
+    } 
+    return r;    
+}
+
+/**
+ * @brief load value from floating point memory 
+ * @param value
+ * @reference to the plc
+ * @return OK or error
+ */
+int ld_mem_r( const instruction_t op, 
+              double * val,
+              plc_t p) {
+    if(op->byte >= p->nmr)
+                return ERR_BADOPERAND;
+                
+    *val = p->mr[op->byte].V;
+     if( op->modifier == IL_NEG )
+                *val = - *val;
+                
+    return PLC_OK;   
+}
+
+/**
+ * @brief load value from timer 
+ * @param value
+ * @reference to the plc
+ * @return OK or error
+ */
+static int ld_timer( const instruction_t op, 
+                uint64_t * val,
+                plc_t p) {
+    int r = PLC_OK;
+    int t = get_type(op);
+    int offs = (op->bit / BYTESIZE) - 1;
+    uint64_t compl = 0x100;
+   
+/*a convention: bit is irrelevant, 
+  but defining it means we are referring to t.Q, otherwise t.V
+*/
+    if(op->byte >= p->nt)
+                return ERR_BADOPERAND;
+    switch(t){
+        case T_BOOL:
+            *val = resolve(p, BOOL_TIMER, op->byte);
+            if (op->modifier == IL_NEG)
+                *val = *val?FALSE:TRUE;      
+     
+            break;
+            
+        case T_BYTE:
+        case T_WORD:
+        case T_DWORD:
+        case T_LWORD:
+            *val = p->t[op->byte].V & ((compl << offs*BYTESIZE) - 1);
+            
+            if( op->modifier == IL_NEG )
+                *val = (compl << offs*BYTESIZE) - *val;
+            break;
+                
+        default: 
+            r = ERR_BADOPERAND;
+    }
+    return r;    
+}
+            
+/**
+ * @brief execute LOAD instruction
+ * @param the instruction
+ * @param where to load the value
+ * @param reference to the plc
+ * @return OK or error
+ */
+
+int handle_ld(  const instruction_t op, 
+                data_t * acc, 
+                plc_t p) {
+    int r = 0;
+    BYTE edge = 0; 
+    if(op==NULL
+    || p==NULL
+    || acc==NULL)
+        return PLC_ERR;
+    
+    if((op->operation != IL_LD 
+    && op->operation < FIRST_BITWISE)  
+    || op->operation >= N_IL_INSN)
+        return ERR_BADOPERATOR; //sanity
+        
+    switch (op->operand){
+        case OP_OUTPUT:	//set output %QX.Y
+            r = ld_out(op, &(acc->u), p);
+            break; 
+            
+        case OP_INPUT:	//load input %IX.Y
+            r = ld_in(op, &(acc->u), p);
+            break;
+        
+        case OP_REAL_OUTPUT:	//set output %QX.Y
+            r = ld_out_r(op, &(acc->r), p);
+            break; 
+            
+        case OP_REAL_INPUT:	//load input %IX.Y
+            r = ld_in_r(op, &(acc->r), p);
+            break;
+            
+        case OP_MEMORY:
+            r = ld_mem(op, &(acc->u), p);
+            break;
+            
+        case OP_REAL_MEMORY:
+            r = ld_mem_r(op, &(acc->r), p);
+            break;    
+            
+        case OP_TIMEOUT:
+            r = ld_timer(op, &(acc->u), p);
+            break;
+            
+        case OP_BLINKOUT:	//bit is irrelevant
+            if(op->byte >= p->ns)
+                return ERR_BADOPERAND;
+            acc->u = resolve(p, BOOL_BLINKER, op->byte);
+            break;
+            
+        case OP_COMMAND:
+            acc->u = p->command;
+            break;
+            
+        case OP_RISING:	//only boolean
+            r = ld_re(op, &edge, p);
+            acc->u = edge;
+            break;
+            
+        case OP_FALLING:	//only boolean
+            r = ld_fe(op, &edge, p);
+            acc->u = edge;
+            break;
+            
+        default:
+            r = ERR_BADOPERAND;
+            break;
+    }
+    return r;
+}
+
+/**
+ * @brief execute any stack operation
+ * @param the intruction
+ * @param the rung
+ * @param reference to the plc
+ * @return OK or error
+ */
+int handle_stackable(   const instruction_t op, 
+                        rung_t r,  
+                        plc_t p)
+{//all others (stackable operations)
+    int rv = 0;
+    data_t val;
+    val.u = 0;
+    BYTE stackable = 0;
+    if(r==NULL
+    || p==NULL)
+        return PLC_ERR;
+    
+    if(op->operation < FIRST_BITWISE 
+    || op->operation >=  N_IL_INSN)
+        return ERR_BADOPERATOR; //sanity
+    
+    int type = get_type(op);
+    if(type == PLC_ERR)
+        return ERR_BADOPERAND;
+    
+    struct instruction loader;
+    deepcopy(op, &loader);
+    loader.operation = IL_LD;
+    loader.modifier = IL_NORM;
+    
+    stackable = op->operation;
+    
+    if (op->modifier == IL_NEG)
+        stackable += NEGATE;
+        
+    if (op->modifier == IL_PUSH){
+        push(stackable, type, r->acc, r); 
+        rv = handle_ld(&loader,  &(r->acc), p);	   
+    }
+    else{    
+        rv = handle_ld( &loader, &val, p);
+        r->acc = operate(stackable, type, r->acc, val);
+    }
+    return rv;
+}
+
+/**
+ * @brief execute IL instruction
+ * @param the plc
+ * @param the rung
+ * @return OK or error
+ */
+int instruct(plc_t p, rung_t r, unsigned int *pc)
+{
+    BYTE type = 0;
+    int error = 0;
+    instruction_t op;
+    BYTE increment = TRUE;
+    if(r==NULL
+    || p==NULL
+    || *pc >= r->insno){   
+        (*pc)++;
+        return PLC_ERR;
+    }
+    if(get(r, *pc , &op) < PLC_OK){   
+        (*pc)++;
+        return ERR_BADOPERAND;
+    }
+    
+    type = get_type(op);
+    if(type == PLC_ERR)
+        return ERR_BADOPERAND;
+    /*
+    char dump[MAXSTR] = "";
+    dump_instruction(op, dump);
+    plc_log("%d.%s", *pc, dump);
+    */
+	switch (op->operation){
+//IL OPCODES: no operand
+	case IL_POP: //POP
+		r->acc = pop(r->acc, &(r->stack));
+		break;
+	case IL_NOP: 
+//null operation	
+	case IL_CAL: 
+//subroutine call (unimplemented) retrieve subroutine line, set pc
+	case IL_RET: 
+//unimplemented yet: retrieve  previous program , counter, set pc
+		break;
+//arithmetic LABEL
+	case IL_JMP:			//JMP
+        error = handle_jmp(r, pc);
+        increment = FALSE;
+//retrieve line number from label, set pc
+		break;
+//boolean, no modifier, outputs.
+	case IL_SET:	//S
+        error = handle_set( op, 
+                            r->acc,//.u % 0x100, 
+                            type == T_BOOL, 
+                            p);
+		break;
+	case IL_RESET:	//R
+        error = handle_reset( op,                                 
+                              r->acc,//.u % 0x100, 
+                              type == T_BOOL,
+                              p);
+		break;
+    case IL_LD:	//LD
+        error = handle_ld( op, &(r->acc), p);
+        
+		break;
+	case IL_ST:	//ST: output
+		//if negate, negate acc
+        error = handle_st( op, r->acc, p);
+//any operand, only push
+		break;
+    default:
+        error = handle_stackable( op,  r,  p);
+	}
+	if(increment == TRUE)
+	    (*pc)++;
+    return error;
+}
+
+
+/**
+ * @brief task to execute IL rung
+ * @param timeout (usec)
+ * @param pointer to PLC registers
+ * @param pointer to IL rung
+ * @return OK or error
+ */
 int task(long timeout, plc_t p, rung_t r) {
     unsigned int i = 0;
     unsigned int pc = 0;
@@ -280,652 +1112,7 @@ int all_tasks(long timeout, plc_t p) {
     return rv;
 }
 
-/*************************VM*******************************************/
-
-int handle_jmp( const rung_t r, unsigned int * pc) {
-    if(r==NULL
-    || pc==NULL)
-        return PLC_ERR;
-        
-    instruction_t op;
-    if(get(r, *pc, &op) < PLC_OK)
-        return ERR_BADOPERAND;
-      
-    if(op->operation != IL_JMP)
-        return ERR_BADOPERATOR; //sanity
-    
-    if(!(op->modifier==IL_COND
-    && r->acc.u == 0))
-        *pc = op->operand;
-    else 
-        (*pc)++;
-    return PLC_OK;
-}
-
-int handle_set( const instruction_t op,
-                const data_t acc,
-                BYTE is_bit,                 
-                plc_t p ) {
-    int r = PLC_OK;
-    if(op==NULL
-    || p==NULL){
-    
-        return PLC_ERR;
-    }    
-    if(op->operation != IL_SET){
-    
-        return ERR_BADOPERATOR; //sanity
-    }    
-    if(op->modifier == IL_COND
-    && acc.u == FALSE){
-    
-        return r;
-    }        
-    switch (op->operand){
-    
-        case OP_CONTACT:	//set output %QX.Y
-            if(!is_bit) {//only gets called when bit is defined
-                r = ERR_BADOPERAND;
-            } else {
-                r = set(p, 
-                        BOOL_DQ, 
-                        (op->byte) * BYTESIZE + op->bit);
-            }
-            break;
-            
-        case OP_START:	//bits are irrelevant
-            r = set(p, BOOL_TIMER, op->byte);
-            break;
-            
-        case OP_PULSEIN:	//same here
-            r = set(p, BOOL_COUNTER, op->byte);
-            break;
-            
-        default:
-            r = ERR_BADOPERAND;
-            break;
-    }
-    return r;
-}
-
-int handle_reset(const instruction_t op, 
-                 const data_t acc,
-                 BYTE is_bit,
-                 plc_t p) {
-    int r = PLC_OK;
-    if(op==NULL
-    || p==NULL)
-        return PLC_ERR;
-    
-    if(op->operation != IL_RESET)
-        return ERR_BADOPERATOR; //sanity
-    
-    if(op->modifier == IL_COND
-    && acc.u == FALSE)
-        return r;
-        
-    switch (op->operand){
-        case OP_CONTACT:	//set output %QX.Y
-            if (!is_bit)	//only gets called when bit is defined
-                r = ERR_BADOPERAND;
-            else
-                r = reset(p, BOOL_DQ, (op->byte) * BYTESIZE + op->bit);
-            break;
-            
-        case OP_START:	//bits are irrelevant
-                r = reset(p, BOOL_TIMER, op->byte);
-            break;
-            
-        case OP_PULSEIN:	//same here
-                r = reset(p, BOOL_COUNTER, op->byte);
-            break;
-            
-        default:
-            r = ERR_BADOPERAND;
-    }
-    return r;
-}
-
-int st_out_r( const instruction_t op, 
-              double val,
-              plc_t p) {
-    if(op->byte >= p->naq)
-        return ERR_BADOPERAND;
-    BYTE i = op->byte;
-    p->aq[i].V = val;    
-    return PLC_OK;
-}
-
-int st_out( const instruction_t op, 
-            uint64_t val,
-            plc_t p) {
-    int r = PLC_OK;
-    int t = get_type(op);
-    BYTE offs = (op->bit / BYTESIZE) - 1;
-    int i = 0;
-    switch(t){
-        case T_BOOL:
-            if (op->modifier == IL_NEG)
-                val = TRUE - BOOL(val);
-            if(op->byte >= p->nq)
-                r = ERR_BADOPERAND; 
-            else    
-                r = contact(p, 
-                        BOOL_DQ, 
-                        (op->byte) * BYTESIZE + op->bit,
-                        BOOL(val));
-            break;
-            
-        case T_BYTE:
-        case T_WORD:
-        case T_DWORD:
-        case T_LWORD:
-            if (op->modifier == IL_NEG)
-                val = - val;
-            if(op->byte + offs >= p->nq)
-                r = ERR_BADOPERAND; 
-            else for(;i<=offs;i++){
-                    p->outputs[op->byte + i] = 
-                    (val >> ((offs-i)*BYTESIZE)) % (0x100);    
-                }
-            
-            break;    
-                
-        default: 
-            r = ERR_BADOPERAND;
-    }
-    return r;    
-}
-
-int st_mem_r( const instruction_t op, 
-              double val,
-              plc_t p) {
-    if(op->byte >= p->nmr)
-                return ERR_BADOPERAND; 
-    p->mr[op->byte].V = val;
-   // plc_log("store %lf to m%d", val, op->byte);
-    return PLC_OK; 
-}
-              
-int st_mem( const instruction_t op, 
-            uint64_t val,
-            plc_t p) {
-    int r = PLC_OK;
-    int t = get_type(op);
-    BYTE offs = (op->bit / BYTESIZE) - 1;
-    uint64_t compl = 0x100;
- 
-    if(op->byte >= p->nm)
-                return ERR_BADOPERAND; 
-    switch(t){
-        case T_BOOL:
-             r = contact(p, 
-                         BOOL_COUNTER, 
-                         op->byte, 
-                         BOOL(val));
-             break;
-             
-        case T_BYTE:
-        case T_WORD:
-        case T_DWORD:
-        case T_LWORD:
-             p->m[op->byte].V = 
-                 val & ((compl << (BYTESIZE * offs))-1);
-            // plc_log("store 0x%lx to m%d", val, op->byte);
-             break;           
-                 
-        default: 
-            return ERR_BADOPERAND;
-    }
-    return r;    
-}
-
-int handle_st(  const instruction_t op, 
-                const data_t acc, 
-                plc_t p) {
-    int r = PLC_OK;
-    data_t val = acc;
-    if(op==NULL
-    || p==NULL)
-        return PLC_ERR;
-        
-    if(op->operation != IL_ST)
-        return ERR_BADOPERATOR; //sanity
-     
-    switch (op->operand){
-        case OP_REAL_CONTACT:	    //set output %QX.Y
-            r = st_out_r(op, val.r, p);
-            break;
-        
-        case OP_CONTACT:	    //set output %QX.Y
-            r = st_out(op, val.u, p);
-            break;
-            
-        case OP_START:	    //bits are irrelevant
-            r = contact(p, BOOL_TIMER, op->byte, val.u % 2);
-            break;
-            
-        case OP_REAL_MEMIN:
-            r = st_mem_r(op, val.r, p);
-            break;     
-            
-        case OP_PULSEIN:
-            r = st_mem(op, val.u, p);
-            break;
-            
-        case OP_WRITE:
-            p->command = val.u;
-            break;
-            
-        default:
-            r = ERR_BADOPERAND;
-    }
-    return r;
-}
-
-uint64_t ld_bytes(BYTE start, 
-                  BYTE offset, 
-                  BYTE * arr) {
-    uint64_t rv = 0;
-    int i = offset;
-    for(; i >=0; i--){
-        uint64_t u = arr[start + i]; 
-        rv +=  u << (BYTESIZE*(offset -i)) ;
-    }
-    return rv;
-}                
-
-int ld_in( const instruction_t op, 
-           uint64_t * val,
-           plc_t p) {
-    int r = PLC_OK;
-    int t = get_type(op);
-    BYTE offs = (op->bit / BYTESIZE) - 1;
-    uint64_t complement = 0x100;
-    
-    switch(t){
-        case T_BOOL:
-            if(op->byte >= p->ni)
-                return ERR_BADOPERAND;
-            *val = resolve(p, BOOL_DI, 
-                            (op->byte) * BYTESIZE + op->bit);
-            if (op->modifier == IL_NEG)
-                *val = *val?FALSE:TRUE;      
-            break;
-            
-        case T_BYTE:
-        case T_WORD:
-        case T_DWORD:
-        case T_LWORD:
-            if(op->byte + offs >= p->ni)
-                return ERR_BADOPERAND;
-                
-            *val = ld_bytes(op->byte, offs, p->inputs);    
-            
-            if(op->modifier == IL_NEG)
-                *val = (complement << offs*BYTESIZE) - *val;  
-            break;
-      
-        default: 
-            return ERR_BADOPERAND;
-    }
-    return r;    
-}
-            
-int ld_re( const instruction_t op, 
-           BYTE * val,
-           plc_t p ) {
-    int r = PLC_OK;
-    int t = get_type(op);
-    if(op->byte >= p->ni)
-                return ERR_BADOPERAND;
-    if(t == T_BOOL)
-            *val = re(p, BOOL_DI, (op->byte) * BYTESIZE + op->bit);
-    else
-            r = ERR_BADOPERAND;
-    return r;    
-}
-                          
-int ld_fe( const instruction_t op, 
-           BYTE * val,
-           plc_t p) {
-    int r = PLC_OK;
-    int t = get_type(op);
-    if(op->byte >= p->ni)
-                return ERR_BADOPERAND;
-    if(t == T_BOOL)
-            *val = fe(p, BOOL_DI, 
-                      (op->byte) * BYTESIZE + op->bit);
-    else 
-            r = ERR_BADOPERAND;
-    return r;    
-}              
-
-int ld_in_r( const instruction_t op, 
-             double * val,
-             plc_t p) {
-    if(op->byte >= p->nai)
-                return ERR_BADOPERAND;
-    BYTE i = op->byte;
-    *val = p->ai[i].V;
-    return PLC_OK;    
-}
-            
-int ld_out_r( const instruction_t op, 
-            double * val,
-            plc_t p) {
-    if(op->byte >= p->naq)
-                return ERR_BADOPERAND;
-    BYTE i = op->byte;
-    *val = p->aq[i].V;
-    return PLC_OK;    
-}            
-            
-int ld_out( const instruction_t op, 
-            uint64_t * val,
-            plc_t p) {
-    int r = PLC_OK;
-    int t = get_type(op);
-    BYTE offs = (op->bit / BYTESIZE) - 1;
-    uint64_t complement = 0x100;
-    switch(t){
-        case T_BOOL:
-             if(op->byte >= p->nq)
-                return ERR_BADOPERAND;
-            *val = resolve(p, BOOL_DQ, 
-                           (op->byte) * BYTESIZE + op->bit);
-            if (op->modifier == IL_NEG)
-                *val = *val?FALSE:TRUE;      
-            break;
-            
-        case T_BYTE:
-        case T_WORD:
-        case T_DWORD:
-        case T_LWORD:
-            if(op->byte + offs >= p->nq)
-                return ERR_BADOPERAND;
-                
-            *val = ld_bytes(op->byte, offs, p->outputs);    
-            
-            if(op->modifier == IL_NEG)
-                *val = (complement << offs*BYTESIZE) - *val;  
-            break;
-        
-        default: 
-            return ERR_BADOPERAND;
-    }
-    return r;    
-}
-            
-int ld_mem( const instruction_t op, 
-            uint64_t * val,
-            plc_t p) {
-    int r = PLC_OK;
-    int t = get_type(op);
-    if(op->byte >= p->nm)
-                return ERR_BADOPERAND;
-    int offs = (op->bit / BYTESIZE) - 1;
-    uint64_t compl = 0x100;
-                
-    switch(t){
-        case T_BOOL:
-            *val = resolve(p, BOOL_COUNTER, op->byte);
-            if (op->modifier == IL_NEG)
-                *val = (*val)?FALSE:TRUE;      
-            break;
-            
-        case T_BYTE:
-        case T_WORD:
-        case T_DWORD:
-        case T_LWORD:
-            *val = p->m[op->byte].V & ((compl << offs*BYTESIZE) - 1);
-            
-            if( op->modifier == IL_NEG )
-                *val = (compl << offs*BYTESIZE) - *val;
-            break;
-                
-        default: 
-            return ERR_BADOPERAND;
-    } 
-    return r;    
-}
-
-int ld_mem_r( const instruction_t op, 
-              double * val,
-              plc_t p) {
-    if(op->byte >= p->nmr)
-                return ERR_BADOPERAND;
-                
-    *val = p->mr[op->byte].V;
-     if( op->modifier == IL_NEG )
-                *val = - *val;
-                
-    return PLC_OK;   
-}
-
-int ld_timer( const instruction_t op, 
-                uint64_t * val,
-                plc_t p) {
-    int r = PLC_OK;
-    int t = get_type(op);
-    int offs = (op->bit / BYTESIZE) - 1;
-    uint64_t compl = 0x100;
-   
-/*a convention: bit is irrelevant, 
-  but defining it means we are referring to t.Q, otherwise t.V
-*/
-    if(op->byte >= p->nt)
-                return ERR_BADOPERAND;
-    switch(t){
-        case T_BOOL:
-            *val = resolve(p, BOOL_TIMER, op->byte);
-            if (op->modifier == IL_NEG)
-                *val = *val?FALSE:TRUE;      
-     
-            break;
-            
-        case T_BYTE:
-        case T_WORD:
-        case T_DWORD:
-        case T_LWORD:
-            *val = p->t[op->byte].V & ((compl << offs*BYTESIZE) - 1);
-            
-            if( op->modifier == IL_NEG )
-                *val = (compl << offs*BYTESIZE) - *val;
-            break;
-                
-        default: 
-            r = ERR_BADOPERAND;
-    }
-    return r;    
-}
-            
-int handle_ld(  const instruction_t op, 
-                data_t * acc, 
-                plc_t p) {
-    int r = 0;
-    BYTE edge = 0; 
-    if(op==NULL
-    || p==NULL
-    || acc==NULL)
-        return PLC_ERR;
-    
-    if((op->operation != IL_LD 
-    && op->operation < FIRST_BITWISE)  
-    || op->operation >= N_IL_INSN)
-        return ERR_BADOPERATOR; //sanity
-        
-    switch (op->operand){
-        case OP_OUTPUT:	//set output %QX.Y
-            r = ld_out(op, &(acc->u), p);
-            break; 
-            
-        case OP_INPUT:	//load input %IX.Y
-            r = ld_in(op, &(acc->u), p);
-            break;
-        
-        case OP_REAL_OUTPUT:	//set output %QX.Y
-            r = ld_out_r(op, &(acc->r), p);
-            break; 
-            
-        case OP_REAL_INPUT:	//load input %IX.Y
-            r = ld_in_r(op, &(acc->r), p);
-            break;
-            
-        case OP_MEMORY:
-            r = ld_mem(op, &(acc->u), p);
-            break;
-            
-        case OP_REAL_MEMORY:
-            r = ld_mem_r(op, &(acc->r), p);
-            break;    
-            
-        case OP_TIMEOUT:
-            r = ld_timer(op, &(acc->u), p);
-            break;
-            
-        case OP_BLINKOUT:	//bit is irrelevant
-            if(op->byte >= p->ns)
-                return ERR_BADOPERAND;
-            acc->u = resolve(p, BOOL_BLINKER, op->byte);
-            break;
-            
-        case OP_COMMAND:
-            acc->u = p->command;
-            break;
-            
-        case OP_RISING:	//only boolean
-            r = ld_re(op, &edge, p);
-            acc->u = edge;
-            break;
-            
-        case OP_FALLING:	//only boolean
-            r = ld_fe(op, &edge, p);
-            acc->u = edge;
-            break;
-            
-        default:
-            r = ERR_BADOPERAND;
-            break;
-    }
-    return r;
-}
-
-int handle_stackable(   const instruction_t op, 
-                        rung_t r,  
-                        plc_t p)
-{//all others (stackable operations)
-    int rv = 0;
-    data_t val;
-    val.u = 0;
-    BYTE stackable = 0;
-    if(r==NULL
-    || p==NULL)
-        return PLC_ERR;
-    
-    if(op->operation < FIRST_BITWISE 
-    || op->operation >=  N_IL_INSN)
-        return ERR_BADOPERATOR; //sanity
-    
-    int type = get_type(op);
-    if(type == PLC_ERR)
-        return ERR_BADOPERAND;
-    
-    struct instruction loader;
-    deepcopy(op, &loader);
-    loader.operation = IL_LD;
-    loader.modifier = IL_NORM;
-    
-    stackable = op->operation;
-    
-    if (op->modifier == IL_NEG)
-        stackable += NEGATE;
-        
-    if (op->modifier == IL_PUSH){
-        push(stackable, type, r->acc, r); 
-        rv = handle_ld(&loader,  &(r->acc), p);	   
-    }
-    else{    
-        rv = handle_ld( &loader, &val, p);
-        r->acc = operate(stackable, type, r->acc, val);
-    }
-    return rv;
-}
-
-int instruct(plc_t p, rung_t r, unsigned int *pc)
-{
-    BYTE type = 0;
-    int error = 0;
-    instruction_t op;
-    BYTE increment = TRUE;
-    if(r==NULL
-    || p==NULL
-    || *pc >= r->insno){   
-        (*pc)++;
-        return PLC_ERR;
-    }
-    if(get(r, *pc , &op) < PLC_OK){   
-        (*pc)++;
-        return ERR_BADOPERAND;
-    }
-    
-    type = get_type(op);
-    if(type == PLC_ERR)
-        return ERR_BADOPERAND;
-    /*
-    char dump[MAXSTR] = "";
-    dump_instruction(op, dump);
-    plc_log("%d.%s", *pc, dump);
-    */
-	switch (op->operation){
-//IL OPCODES: no operand
-	case IL_POP: //POP
-		r->acc = pop(r->acc, &(r->stack));
-		break;
-	case IL_NOP: 
-//null operation	
-	case IL_CAL: 
-//subroutine call (unimplemented) retrieve subroutine line, set pc
-	case IL_RET: 
-//unimplemented yet: retrieve  previous program , counter, set pc
-		break;
-//arithmetic LABEL
-	case IL_JMP:			//JMP
-        error = handle_jmp(r, pc);
-        increment = FALSE;
-//retrieve line number from label, set pc
-		break;
-//boolean, no modifier, outputs.
-	case IL_SET:	//S
-        error = handle_set( op, 
-                            r->acc,//.u % 0x100, 
-                            type == T_BOOL, 
-                            p);
-		break;
-	case IL_RESET:	//R
-        error = handle_reset( op,                                 
-                              r->acc,//.u % 0x100, 
-                              type == T_BOOL,
-                              p);
-		break;
-    case IL_LD:	//LD
-        error = handle_ld( op, &(r->acc), p);
-        
-		break;
-	case IL_ST:	//ST: output
-		//if negate, negate acc
-        error = handle_st( op, r->acc, p);
-//any operand, only push
-		break;
-    default:
-        error = handle_stackable( op,  r,  p);
-	}
-	if(increment == TRUE)
-	    (*pc)++;
-    return error;
-}
-
-rung_t mk_rung(const char * name, plc_t p) {
+rung_t plc_mk_rung(const char * name, plc_t p) {
     rung_t r = (rung_t)calloc(1, sizeof(struct rung));
     
     r->id = strdup(name);
@@ -938,7 +1125,7 @@ rung_t mk_rung(const char * name, plc_t p) {
     return r;
 }
 
-rung_t get_rung(const plc_t p, const unsigned int idx) {
+rung_t plc_get_rung(const plc_t p, const unsigned int idx) {
     if(p==NULL
     || idx >= p->rungno){ 
         return NULL;
@@ -1023,7 +1210,7 @@ void write_outputs(plc_t p) {
     p->hw->flush();//for simulation
 }
 /*TODO: how is force implemented for variables and timers?*/
-plc_t force(plc_t p, int op, BYTE i, char * val){
+plc_t plc_force(plc_t p, int op, BYTE i, char * val){
     if(p == NULL
     || val == NULL){
         return NULL;
@@ -1075,7 +1262,7 @@ plc_t force(plc_t p, int op, BYTE i, char * val){
     return r;
 }
 
-plc_t unforce(plc_t p, int op, BYTE i){
+plc_t plc_unforce(plc_t p, int op, BYTE i){
     if(p == NULL){
         return NULL;
     }
@@ -1112,7 +1299,7 @@ plc_t unforce(plc_t p, int op, BYTE i){
     return r;
 }
 
-int is_forced(const plc_t p, int op, BYTE i) {
+int plc_is_forced(const plc_t p, int op, BYTE i) {
     int r = PLC_ERR;
     switch(op){
         case OP_INPUT:if(i < p->ni){
@@ -1138,6 +1325,11 @@ int is_forced(const plc_t p, int op, BYTE i) {
     return r;
 }
 
+/**
+ * @brief decode inputs
+ * @param pointer to PLC registers
+ * @return true if input changed
+ */
 BYTE dec_inp(plc_t p) { //decode input bytes
 	BYTE i = 0;
 	BYTE j = 0;
@@ -1158,7 +1350,7 @@ BYTE dec_inp(plc_t p) { //decode input bytes
 	    }
 	}
 	for (i = 0; i < p->nai; i++){
-	    if(is_forced(p, OP_REAL_INPUT, i)){
+	    if(plc_is_forced(p, OP_REAL_INPUT, i)){
             p->ai[i].V = p->ai[i].mask;
         } else {
 	        double denom = (double)UINT64_MAX;   
@@ -1175,6 +1367,11 @@ BYTE dec_inp(plc_t p) { //decode input bytes
 	return i_changed;
 }
 
+/**
+ * @brief encode outputs
+ * @param pointer to PLC registers
+ * @return true if output changed
+ */
 BYTE enc_out(plc_t p) { //encode digital outputs to output bytes
 	BYTE i = 0;
 	BYTE j = 0;
@@ -1202,7 +1399,7 @@ BYTE enc_out(plc_t p) { //encode digital outputs to output bytes
 	    double min = p->aq[i].min;
         double max = p->aq[i].max;
         double val = p->aq[i].V;
-        if(is_forced(p, OP_REAL_OUTPUT, i)){
+        if(plc_is_forced(p, OP_REAL_OUTPUT, i)){
             val = p->aq[i].mask;    
         }
         p->real_out[i] = UINT64_MAX * ((val - min)/(max-min));
@@ -1214,7 +1411,11 @@ BYTE enc_out(plc_t p) { //encode digital outputs to output bytes
     return o_changed;
 }
 
-void read_mvars(plc_t p) {
+/**
+ * @brief read_mvars
+ * @param pointer to PLC registers
+ */
+static void read_mvars(plc_t p) {
 	int i;
 	for (i = 0; i < p->nm; i++){
 		if (p->m[i].SET || p->m[i].RESET)
@@ -1222,7 +1423,11 @@ void read_mvars(plc_t p) {
 	}
 }
 
-void write_mvars(plc_t p) {
+/**
+ * @brief write values to memory variables
+ * @param pointer to PLC registers
+ */
+static void write_mvars(plc_t p) {
 	int i;
 	for (i = 0; i < p->nm; i++){
 		if (!p->m[i].RO){
@@ -1270,17 +1475,6 @@ plc_t save_state(BYTE mask,
     }
     p->update = mask;
     return p;
-}
-
-void write_response(plc_t p) {
-    int rfd = 0; //response file descriptor
-    rfd = open(p->response_file, O_NONBLOCK | O_WRONLY);
-    //dummy code until this feature goes away
-    if(write(rfd, &(p->response), 1) < 0)
-        p->response = PLC_ERR;
-    else 
-        p->response = PLC_OK;
-    close(rfd);
 }
 
 BYTE manage_timers(plc_t p) {
@@ -1444,10 +1638,7 @@ plc_t plc_func(plc_t p) {//TODO: this is a callback, supposed to be
                 timeout -= io_time;
                 timeout -= run_time;
 //plc_log("I/O time approx:%d microseconds",dt.tv_usec);
-//poll on plcpipe for command, for max STEP msecs
-                written = poll(p->com, 0, timeout / THOUSAND);
-//TODO: when a truly asunchronous UI is available, 
-//replace poll() with sleep() for better accuracy
+                usleep(timeout);
                 gettimeofday(&tp, NULL);	//how much time did poll wait?
                 timeval_subtract(&dt, &tp, &tn);
                 poll_time =  dt.tv_usec;
@@ -1461,7 +1652,7 @@ plc_t plc_func(plc_t p) {//TODO: this is a callback, supposed to be
                 }
                 i_changed = dec_inp(p); //decode inputs
 //TODO: a better user plugin system when function blocks are implemented
-                project_task(p); //plugin code
+               // plc_project_task(p); //plugin code
 
                 if(r >= PLC_OK){
                         r = all_tasks(p->step * THOUSAND, p);
@@ -1522,7 +1713,7 @@ static plc_t allocate(plc_t plc) {
 }
 
 /***************construct*******************/
-plc_t new_plc(
+plc_t plc_new(
     int di, 
     int dq,
     int ai,
@@ -1553,12 +1744,12 @@ plc_t new_plc(
   
     plc = allocate(plc);
     
-    plc->old = copy_plc(plc);
+    plc->old = plc_copy(plc);
   
     return plc;
 }
 
-plc_t copy_plc(const plc_t plc) {
+plc_t plc_copy(const plc_t plc) {
 
     plc_t p = (plc_t)calloc(1, sizeof(struct PLC_regs));
     
@@ -1586,7 +1777,7 @@ plc_t copy_plc(const plc_t plc) {
     return p;
 }
 /*destroy*/
-void clear_plc(plc_t plc){
+void plc_clear(plc_t plc){
     if(plc != NULL){
         if(plc->ai !=NULL){
             free(plc->ai );
@@ -1628,7 +1819,7 @@ void clear_plc(plc_t plc){
     }
 }
 /*configurators*/
-plc_t declare_variable(const plc_t p, 
+plc_t plc_declare_variable(const plc_t p, 
                         int var, 
                         BYTE idx, 
                         const char* val) {
@@ -1693,7 +1884,7 @@ plc_t declare_variable(const plc_t p,
     return r;
 }
 
-plc_t init_variable(const plc_t p, int var, BYTE idx, const char* val){
+plc_t plc_init_variable(const plc_t p, int var, BYTE idx, const char* val){
     plc_t r = p;
     BYTE len = 0;
 
@@ -1723,7 +1914,7 @@ plc_t init_variable(const plc_t p, int var, BYTE idx, const char* val){
     return r;
 }
 
-plc_t configure_variable_readonly(const plc_t p, 
+plc_t plc_configure_variable_readonly(const plc_t p, 
                                 int var, 
                                 BYTE idx, 
                                 const char* val){
@@ -1755,7 +1946,7 @@ plc_t configure_variable_readonly(const plc_t p,
     return r;
 }
 
-plc_t configure_io_limit(const plc_t p, 
+plc_t plc_configure_io_limit(const plc_t p, 
                         int var, 
                         BYTE idx, 
                         const char* val,
@@ -1793,7 +1984,7 @@ plc_t configure_io_limit(const plc_t p,
     return r;
 }
 
-plc_t configure_counter_direction(const plc_t p, 
+plc_t plc_configure_counter_direction(const plc_t p, 
                                     BYTE idx, 
                                     const char* val){
     plc_t r = p;
@@ -1807,7 +1998,7 @@ plc_t configure_counter_direction(const plc_t p,
     return r;
 }
 
-plc_t configure_timer_scale(const plc_t p, 
+plc_t plc_configure_timer_scale(const plc_t p, 
                      BYTE idx, 
                      const char* val){
     plc_t r = p;
@@ -1821,7 +2012,7 @@ plc_t configure_timer_scale(const plc_t p,
     return r;
 }
            
-plc_t configure_timer_preset(const plc_t p, 
+plc_t plc_configure_timer_preset(const plc_t p, 
                         BYTE idx, 
                         const char* val){
     plc_t r = p;
@@ -1835,7 +2026,7 @@ plc_t configure_timer_preset(const plc_t p,
     return r;
 }                     
 
-plc_t configure_timer_delay_mode(const plc_t p, 
+plc_t plc_configure_timer_delay_mode(const plc_t p, 
                         BYTE idx, 
                         const char* val){
     plc_t r = p;
@@ -1848,7 +2039,7 @@ plc_t configure_timer_delay_mode(const plc_t p,
     return r;
 }
 
-plc_t configure_pulse_scale(const plc_t p, 
+plc_t plc_configure_pulse_scale(const plc_t p, 
                      BYTE idx, 
                      const char* val){
     plc_t r = p;

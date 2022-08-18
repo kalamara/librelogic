@@ -27,7 +27,7 @@ void plc_log(const char * msg, ...)
     printf("%s\n",msgstr);
 }
 
-int project_task(plc_t p)
+int plc_project_task(plc_t p)
 {
     return 0;
 }

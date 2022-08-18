@@ -416,7 +416,7 @@ plc_t generate_code(unsigned int length,
                   const ld_line_t * program,
                   plc_t p) {
     int rv = PLC_OK;
-    rung_t r = mk_rung(name, p);
+    rung_t r = plc_mk_rung(name, p);
   
     int i = 0; 
     for(; i < length && rv == PLC_OK; i++){

@@ -93,6 +93,8 @@ void deinit_mock_plc(plc_t plc){
     }
 }
 
+unsigned char dec_inp(plc_t p) ; //decode input bytes
+unsigned char enc_out(plc_t p) ; //encode digital outputs to output bytes
 void ut_codec()
 {
     struct PLC_regs p;
@@ -241,6 +243,7 @@ void ut_codec()
     deinit_mock_plc(&p);
 }
 
+int handle_jmp( const rung_t r, unsigned int * pc);
 void ut_jmp()
 {
  //degenerates
@@ -293,6 +296,16 @@ void ut_jmp()
     CU_ASSERT(result == PLC_OK);
     CU_ASSERT(pc == 3);
 }
+
+int handle_reset( const instruction_t op,
+                  const data_t acc,
+                  BYTE is_bit,    
+                  plc_t p);
+
+int handle_set( const instruction_t op,
+                const data_t acc, 
+                BYTE is_bit,
+                plc_t p);
 
 void ut_set_reset()
 {
@@ -427,6 +440,9 @@ void ut_set_reset()
     deinit_mock_plc(&p);
 }
 
+int handle_st( const instruction_t op, 
+               const data_t val, 
+               plc_t p);
 void ut_st()
 {
     struct PLC_regs p;
@@ -556,6 +572,13 @@ void ut_st()
 }
 
 
+int st_mem( const instruction_t op, 
+            uint64_t val,
+            plc_t p);
+
+int st_out( const instruction_t op, 
+            uint64_t val,
+            plc_t p);
 void ut_st_discrete()
 {
     struct PLC_regs p;
@@ -643,6 +666,14 @@ void ut_st_discrete()
     deinit_mock_plc(&p);
 }
 
+int st_mem_r( const instruction_t op, 
+              double val,
+              plc_t p);
+
+int st_out_r( const instruction_t op, 
+              double val,
+              plc_t p);
+
 void ut_st_real()
 {
     struct PLC_regs p;
@@ -671,6 +702,9 @@ void ut_st_real()
     deinit_mock_plc(&p);
 }
 
+int handle_ld( const instruction_t op, 
+               data_t * acc, 
+               plc_t p);
 void ut_ld()
 {
     struct PLC_regs p;
@@ -894,6 +928,13 @@ void ut_ld()
     deinit_mock_plc(&p);
 }
 
+int ld_out( const instruction_t op, 
+            uint64_t * val,
+            plc_t p) ;
+
+int ld_mem( const instruction_t op, 
+            uint64_t * val,
+            plc_t p) ;
 void ut_ld_discrete()
 {   
     int result = PLC_OK;
@@ -962,6 +1003,17 @@ void ut_ld_discrete()
     deinit_mock_plc(&p);
 }
 
+int ld_in_r( const instruction_t op, 
+             double * val,
+             plc_t p) ;
+
+int ld_out_r( const instruction_t op, 
+            double * val,
+            plc_t p) ;
+
+int ld_mem_r( const instruction_t op, 
+              double * val,
+              plc_t p) ;
 void ut_ld_real()
 {
     int result = PLC_OK;
@@ -1008,6 +1060,9 @@ void ut_ld_real()
     deinit_mock_plc(&p);
 }
 
+int handle_stackable(const instruction_t op,
+                     rung_t r, 
+                     plc_t p);
 void ut_stackable()
 {
     data_t acc;
@@ -1123,6 +1178,7 @@ BYTE gcd(BYTE a, BYTE b)
     return r;
 }
 
+int instruct(plc_t p, rung_t r, unsigned int *pc);
 void ut_instruct_bitwise()
 {
 
@@ -1955,6 +2011,7 @@ Knuth's online variance:
 }
 
 
+int task( long timeout, plc_t p, rung_t r);
 void ut_task_scalar()
 {
     struct PLC_regs p;
@@ -2888,26 +2945,26 @@ void ut_type()
 void ut_force(){
     struct PLC_regs plc;
     //degenerates
-    plc_t r = force(NULL, -1, -1, NULL);
-    CU_ASSERT(is_forced(NULL, -1, -1) == PLC_ERR);
-    CU_ASSERT_PTR_NULL(unforce(NULL, -1, -1));
+    plc_t r = plc_force(NULL, -1, -1, NULL);
+    CU_ASSERT(plc_is_forced(NULL, -1, -1) == PLC_ERR);
+    CU_ASSERT_PTR_NULL(plc_unforce(NULL, -1, -1));
     CU_ASSERT_PTR_NULL(r);
     //unsupported returns NULL
-    r = force(&plc, N_OPERANDS, -1, NULL);    
-    CU_ASSERT(is_forced(&plc, -1, -1) == PLC_ERR);
-    CU_ASSERT_PTR_NULL(unforce(&plc, -1, -1));
+    r = plc_force(&plc, N_OPERANDS, -1, NULL);    
+    CU_ASSERT(plc_is_forced(&plc, -1, -1) == PLC_ERR);
+    CU_ASSERT_PTR_NULL(plc_unforce(&plc, -1, -1));
     CU_ASSERT_PTR_NULL(r);
     
-    r = force(&plc, OP_INPUT, -1, NULL);
+    r = plc_force(&plc, OP_INPUT, -1, NULL);
     
-    CU_ASSERT(is_forced(&plc, OP_INPUT, -1) == PLC_ERR);
-    CU_ASSERT_PTR_NULL(unforce(&plc, OP_INPUT, -1));    
+    CU_ASSERT(plc_is_forced(&plc, OP_INPUT, -1) == PLC_ERR);
+    CU_ASSERT_PTR_NULL(plc_unforce(&plc, OP_INPUT, -1));    
     CU_ASSERT_PTR_NULL(r);
     
-    r = force(&plc, OP_INPUT, 1, NULL);    
+    r = plc_force(&plc, OP_INPUT, 1, NULL);    
     CU_ASSERT_PTR_NULL(r);
             
-    r = force(&plc, OP_INPUT, -1, "1");    
+    r = plc_force(&plc, OP_INPUT, -1, "1");    
     CU_ASSERT_PTR_NULL(r);
 //regular behavior        
     init_mock_plc(&plc);               
@@ -2915,60 +2972,60 @@ void ut_force(){
     plc.ai[1].max = 2.0;
     plc.aq[1].min = 0.0;
     plc.aq[1].max = 2.0;
-    r = force(&plc, OP_INPUT, 1, "1");    
+    r = plc_force(&plc, OP_INPUT, 1, "1");    
     
     CU_ASSERT_PTR_NOT_NULL(r);
     CU_ASSERT(r->di[1].MASK==1);
-    r = force(&plc, OP_INPUT, 1, "0");    
+    r = plc_force(&plc, OP_INPUT, 1, "0");    
     CU_ASSERT(r->di[1].N_MASK==1);
-    CU_ASSERT(is_forced(r, OP_INPUT, 1)==1);
-    r = unforce(&plc, OP_INPUT, 1);    
+    CU_ASSERT(plc_is_forced(r, OP_INPUT, 1)==1);
+    r = plc_unforce(&plc, OP_INPUT, 1);    
     
     CU_ASSERT(r->di[1].MASK==0);
     CU_ASSERT(r->di[1].N_MASK==0);
-    CU_ASSERT(is_forced(r, OP_INPUT, 1)==0);
+    CU_ASSERT(plc_is_forced(r, OP_INPUT, 1)==0);
     
-    r = force(&plc, OP_OUTPUT, 1, "1");    
+    r = plc_force(&plc, OP_OUTPUT, 1, "1");    
     
     CU_ASSERT_PTR_NOT_NULL(r);
     CU_ASSERT(r->dq[1].MASK==1);
-    r = force(&plc, OP_OUTPUT, 1, "0");    
+    r = plc_force(&plc, OP_OUTPUT, 1, "0");    
     CU_ASSERT(r->dq[1].N_MASK==1);
-    CU_ASSERT(is_forced(r, OP_OUTPUT, 1)==1);
-    r = unforce(&plc, OP_OUTPUT, 1);    
+    CU_ASSERT(plc_is_forced(r, OP_OUTPUT, 1)==1);
+    r = plc_unforce(&plc, OP_OUTPUT, 1);    
     
     CU_ASSERT(r->dq[1].MASK==0);
     CU_ASSERT(r->dq[1].N_MASK==0);
-    CU_ASSERT(is_forced(r, OP_OUTPUT, 1)==0);
+    CU_ASSERT(plc_is_forced(r, OP_OUTPUT, 1)==0);
     
-    r = force(&plc, OP_REAL_INPUT, 1, "-1.5");    
+    r = plc_force(&plc, OP_REAL_INPUT, 1, "-1.5");    
     //value less than min should not apply force
-    CU_ASSERT(is_forced(r, OP_REAL_INPUT, 1)==0);
+    CU_ASSERT(plc_is_forced(r, OP_REAL_INPUT, 1)==0);
     
-    r = force(&plc, OP_REAL_INPUT, 1, "1.5");    
+    r = plc_force(&plc, OP_REAL_INPUT, 1, "1.5");    
     
     CU_ASSERT_PTR_NOT_NULL(r);
     CU_ASSERT_DOUBLE_EQUAL(r->ai[1].mask, 1.5, FLOAT_PRECISION);
     
-    CU_ASSERT(is_forced(r, OP_REAL_INPUT, 1)==1);
-    r = unforce(&plc, OP_REAL_INPUT, 1);    
+    CU_ASSERT(plc_is_forced(r, OP_REAL_INPUT, 1)==1);
+    r = plc_unforce(&plc, OP_REAL_INPUT, 1);    
     
     CU_ASSERT(r->ai[1].mask <= r->ai[1].min);
-    CU_ASSERT(is_forced(r, OP_REAL_INPUT, 1)==0);
+    CU_ASSERT(plc_is_forced(r, OP_REAL_INPUT, 1)==0);
     
-    r = force(&plc, OP_REAL_OUTPUT, 1, "-1.5");    
+    r = plc_force(&plc, OP_REAL_OUTPUT, 1, "-1.5");    
     //value less than min should not apply force
-    CU_ASSERT(is_forced(r, OP_REAL_OUTPUT, 1)==0);
+    CU_ASSERT(plc_is_forced(r, OP_REAL_OUTPUT, 1)==0);
    
-    r = force(&plc, OP_REAL_OUTPUT, 1, "1.3");    
+    r = plc_force(&plc, OP_REAL_OUTPUT, 1, "1.3");    
     
     CU_ASSERT_PTR_NOT_NULL(r);
     CU_ASSERT_DOUBLE_EQUAL(r->aq[1].mask, 1.3, FLOAT_PRECISION);
     
-    CU_ASSERT(is_forced(r, OP_REAL_OUTPUT, 1)==1);
-    r = unforce(&plc, OP_REAL_OUTPUT, 1);    
+    CU_ASSERT(plc_is_forced(r, OP_REAL_OUTPUT, 1)==1);
+    r = plc_unforce(&plc, OP_REAL_OUTPUT, 1);    
     
-    CU_ASSERT(is_forced(r, OP_OUTPUT, 1)==0);
+    CU_ASSERT(plc_is_forced(r, OP_OUTPUT, 1)==0);
     CU_ASSERT(r->aq[1].mask <= r->aq[1].min);
     deinit_mock_plc(&plc);
 }
