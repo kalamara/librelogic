@@ -1134,7 +1134,7 @@ rung_t plc_get_rung(const plc_t p, const unsigned int idx) {
 }
 
 /*****************realtime loop************************************/
-int timeval_subtract(struct timeval *result, 
+static int timeval_subtract(struct timeval *result, 
                      struct timeval *x,
 		             struct timeval *y) { 
 /* Subtract the `struct timeval' values X and Y,
@@ -1611,7 +1611,7 @@ plc_t plc_func(plc_t p) {//TODO: this is a callback, supposed to be
         long poll_time = 0;
         long io_time = 0;
         static long run_time = 0;
-        int written=FALSE;
+
         int r = PLC_OK;
         BYTE change_mask = p->update;
         BYTE i_changed = FALSE;
@@ -1645,11 +1645,6 @@ plc_t plc_func(plc_t p) {//TODO: this is a callback, supposed to be
 //plc_log("Poll time approx:%d microseconds",dt.tv_usec);
 //dt = time(input) + time(poll)
         
-                if (written<0){
-                        r = PLC_ERR;
-                        plc_log("PIPE ERROR\n");
-                        p->command = 0;
-                }
                 i_changed = dec_inp(p); //decode inputs
 //TODO: a better user plugin system when function blocks are implemented
                // plc_project_task(p); //plugin code
