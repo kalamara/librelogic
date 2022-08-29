@@ -310,7 +310,31 @@ void ut_parse_ld_program() {
 
   CU_ASSERT_STRING_EQUAL(dump, expected_n);
 
+  
+  clear_rung(p.rungs[0]);
+   deinit_mock_plc(&p);
+  init_mock_plc(&p);
+
+  memset(dump, 0, MAXBUF * MAXSTR);
+  memset(lines, 0, MAXBUF * MAXSTR);
+
+
+  sprintf(lines[0], "%s\n","i0/1--+--+-!i0/5------+---i0/6--+--+-(Q0/0");
+  sprintf(lines[1], "%s\n","i0/2--+  |            +---i0/7--+  |");
+  sprintf(lines[2], "%s\n","i0/3--+  |            +---i1/0--+  |");
+  sprintf(lines[3], "%s\n","         +-----i1/2-------------+  |");
+  sprintf(lines[4], "%s\n","i0/4-------------------------------+");
+
+  result = parse_ld_program("hiperion.ld", lines, &p)->status;  
+
+CU_ASSERT(result == PLC_OK);
+
+dump_rung(p.rungs[0], dump);
+
+  clear_rung(p.rungs[0]);
   deinit_mock_plc(&p);
+
+
 }
 
 #endif //_UT_LD_H_

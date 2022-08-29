@@ -1639,11 +1639,11 @@ plc_t plc_func(plc_t p) {//TODO: this is a callback, supposed to be
                 timeout -= run_time;
 //plc_log("I/O time approx:%d microseconds",dt.tv_usec);
                 usleep(timeout);
-                gettimeofday(&tp, NULL);	//how much time did poll wait?
+                gettimeofday(&tp, NULL);	//how much time did sleep wait?
                 timeval_subtract(&dt, &tp, &tn);
                 poll_time =  dt.tv_usec;
-//plc_log("Poll time approx:%d microseconds",dt.tv_usec);
-//dt = time(input) + time(poll)
+//plc_log("Sleep time approx:%d microseconds",dt.tv_usec);
+//dt = time(input) + time(sleep)
         
                 i_changed = dec_inp(p); //decode inputs
 //TODO: a better user plugin system when function blocks are implemented

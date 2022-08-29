@@ -326,8 +326,6 @@ int plc_init(plc_t p);
  * 2. No mallocs
  * This way the time it takes to execute is predictable
  * Heavy parts can timeout
- * The timing is based on poll.h
- * which is also realtime when using a preempt scheduler
  * @param the PLC
  * @return PLC with updated state
  */

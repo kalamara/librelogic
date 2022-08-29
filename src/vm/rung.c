@@ -25,6 +25,19 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "rung.h"
 
 /*****************************rung***********************************/
+char * strdup_rc(char * dest, const char * src) {
+//strdup with realloc/calloc
+    int len = strlen(src);
+    if(len==0){
+      return dest;
+    }
+    char * r = (!dest)?(char *)calloc(1,len):realloc((void*)dest, len);
+
+    memset(r, 0, len);
+    sprintf(r, "%s", src);
+
+    return r;
+}
 
 opcode_t take(rung_t r) {
   if (r->stack == NULL)
