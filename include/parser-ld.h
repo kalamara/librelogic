@@ -26,7 +26,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 /**
  *possible LD line statuses
 */
-enum {
+typedef enum {
     STATUS_UNRESOLVED,
     STATUS_RESOLVED,
     STATUS_FINAL,
@@ -37,7 +37,7 @@ enum {
 /**
  *accepted LD symbols: 0-9 for digits, and
  */
-enum {
+typedef enum {
     /// LD specific operators:
     LD_BLANK  = 10,  ///blank character
     LD_AND    = 11,         ///-
