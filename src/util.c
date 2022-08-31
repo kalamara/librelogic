@@ -16,16 +16,14 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <stdio.h>
 #include <stdarg.h>
 #include <time.h>
+#include <string.h>
 
-//#include "data.h"
-
-//#include "ui.h"
-
+#include "data.h" 
 #include "util.h"
 
-extern int UiReady;
 FILE * ErrLog = NULL;
 
 void plc_log(const char * msg, ...) {
@@ -44,13 +42,10 @@ void plc_log(const char * msg, ...) {
       fprintf(ErrLog, ":%s", ctime(&now));
       fflush(ErrLog);
    }
-   //if(UiReady)
-       ui_display_message(msgstr);
-   //else
-   //    printf("%s\n",msgstr);
+   printf("%s\n",msgstr);
 }
 
-void close_log() {
+void plc_close_log() {
   if(ErrLog)
     fclose(ErrLog);
 }

@@ -25,8 +25,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <poll.h>
 #include <inttypes.h>
+#include "hardware.h"
+#include "data.h"
+#include "instruction.h"
+#include "rung.h"
 
 #define MILLION 1000000
 #define THOUSAND 1000

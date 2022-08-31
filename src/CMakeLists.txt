@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.22)
+cmake_minimum_required(VERSION 3.18)
 
 set(CMAKE_BUILD_TYPE Debug)
 
@@ -22,7 +22,8 @@ include_directories(
 )
 	
 ADD_LIBRARY(${PROJECT_NAME}
-    SHARED 
+    SHARED  
+    ${PROJECT_SOURCE_DIR}/util.c
     ${PROJECT_SOURCE_DIR}/vm/data.c
     ${PROJECT_SOURCE_DIR}/vm/instruction.c
     ${PROJECT_SOURCE_DIR}/vm/rung.c

@@ -22,7 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #define LOG "plcemu.log"
 void plc_log(const char * msg, ...);
-void close_log();
+void plc_close_log();
 
 /*******************debugging tools****************/
 void dump_label( char * label, char * dump);
