@@ -17,10 +17,37 @@ typedef enum{
     N_HW
 }HARDWARES;
 
-typedef struct config_gpiod{
+typedef struct config_uspace {
+    int  base;
+    int  write; 
+    int  read;
+    const char * label;
+} * conf_uspace_t;  
+
+typedef struct config_sim {
+    const char * ifname;
+    const char * ofname;
+    int  in_size; //bytes
+    int  out_size; 
+    int  adc_size;
+    int  dac_size;
+    const char * label;
+} * conf_sim_t;
+
+typedef struct config_comedi {
+    int  file;
+    int  sub_i;
+    int  sub_q;
+    int  sub_adc;
+    int  sub_dac;
+    const char * label;
+} * conf_comedi_t;
+
+typedef struct config_gpiod {
     const char * chipname;
     const int * in_lines;
     const int * out_lines;
+    const char * label;
 } * conf_gpiod_t;
 
 typedef int (*helper_f)(); //generic helper functions only return an error code
@@ -35,7 +62,7 @@ typedef int(*config_f)(void * );
 typedef struct hardware{
     int type;
     int status;
-    char * label;
+    const char * label;
 
 /**
  * @brief Enable bus communication

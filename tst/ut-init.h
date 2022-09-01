@@ -211,7 +211,7 @@ void ut_start_stop()
      CU_ASSERT(r->status == ERR_HARDWARE);
      
      //hardware is not configured correctly
-     plc->hw = get_hardware(HW_SIM);
+     plc->hw = plc_get_hardware(HW_SIM);
      plc->hw->status = PLC_ERR;
 
      r = plc_start(plc);

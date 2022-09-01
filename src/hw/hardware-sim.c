@@ -18,15 +18,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include <fcntl.h>
-
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+        
 #include "data.h"
 #include "instruction.h"
 #include "rung.h"
 
 #include "util.h"
 
-#include "config.h"
-#include "schema.h"
 #include "hardware.h"
 
 #define ASCIISTART 0x30
@@ -45,12 +46,11 @@ unsigned int Naq = 0;
 
 struct hardware Sim;
 
-int sim_config(const config_t conf)
+int sim_config(void * conf)
 {
     int r = PLC_OK;    
-    config_t hw = get_recursive_entry(CONFIG_HW, conf);
-    config_t ifc = get_recursive_entry(HW_IFACE, hw);
-    char * istr = get_string_entry(SIM_INPUT, ifc);
+    conf_sim_t c =(conf_sim_t)conf;
+    const char * istr =  c->ifname;
     if(istr){
         if(!(Ifd=fopen(istr, "r+"))){
                 plc_log("Failed to open simulation input from %s", istr);
@@ -59,7 +59,7 @@ int sim_config(const config_t conf)
                 plc_log("Opened simulation input from %s", istr);
         }
     }
-    char * ostr = get_string_entry(SIM_OUTPUT, ifc);
+    const char * ostr = c->ofname;
     if(ostr){
          if(!(Qfd=fopen(ostr, "w+"))){
              plc_log("Failed to open simulation output to %s", ostr);
@@ -69,23 +69,11 @@ int sim_config(const config_t conf)
         }
     }
     
-    sequence_t s = get_sequence_entry(CONFIG_DI, conf);
-    if(s){
-        Ni = s->size / BYTESIZE + 1; 
-    }
-    s = get_sequence_entry(CONFIG_DQ, conf);
-    if(s){
-        Nq = s->size / BYTESIZE + 1;
-    }
-    s = get_sequence_entry(CONFIG_AI, conf);
-    if(s){
-        Nai = s->size;
-    }
-    s = get_sequence_entry(CONFIG_AQ, conf);
-    if(s){
-        Naq = s->size;
-    }    
-    Sim.label = get_string_entry(HW_LABEL, hw);
+    Ni = c->in_size; 
+    Nq = c->out_size;
+    Nai = c->adc_size;
+    Naq = c->dac_size;
+    Sim.label = c->label;
         
     return r;    
 }

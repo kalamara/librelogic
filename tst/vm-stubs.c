@@ -129,7 +129,7 @@ struct hardware Hw_stub = {
     NULL, //hw_config
 };
 
-hardware_t get_hardware( int type){
+hardware_t plc_get_hardware( int type){
     return &Hw_stub;    
 }                        
 

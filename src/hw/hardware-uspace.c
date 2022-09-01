@@ -20,14 +20,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <unistd.h>
 #include <sys/io.h>
 #include <sys/types.h>
+#include <stdio.h>
 
 #include "data.h"
 #include "instruction.h"
 #include "rung.h"
 #include "util.h"
-#include "config.h"
 #include "hardware.h"
-#include "schema.h"
 
 int Io_base = 0;
 int Wr_offs = 0;
@@ -35,13 +34,13 @@ int Rd_offs = 0;
 
 struct hardware Uspace;
 
-int usp_config(const config_t conf)
+int usp_config(void * conf)
 {
-    config_t u = get_recursive_entry(CONFIG_HW, conf);//TODO: this will be rewritten
-    Io_base = get_numeric_entry(USPACE_BASE, u);
-    Wr_offs = get_numeric_entry(USPACE_WR, u);
-    Rd_offs = get_numeric_entry(USPACE_RD, u);
-    Uspace.label = get_string_entry(CONFIG_HW, conf);
+    conf_uspace_t u = (conf_uspace_t)conf;
+    Io_base = u->base;
+    Wr_offs = u->write;
+    Rd_offs = u->read;
+    Uspace.label = u->label;
     if(Io_base >= 0 && Wr_offs >=0 && Rd_offs >=0)        
         return PLC_OK;
     else 

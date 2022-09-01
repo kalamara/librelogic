@@ -23,9 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "data.h"
 #include "instruction.h"
 #include "rung.h"
-#include "config.h"
 #include "hardware.h"
-#include "schema.h"
 
 struct hardware Comedi;
 
@@ -39,23 +37,24 @@ int Comedi_subdev_q;
 int Comedi_subdev_ai;
 int Comedi_subdev_aq;
 
-int com_config(const config_t conf)
+int com_config(void * conf)
 {
-    config_t c = get_recursive_entry(CONFIG_COMEDI, conf);
-    Comedi_file = get_numeric_entry(COMEDI_FILE, c);
-    config_t sub = get_recursive_entry(COMEDI_SUBDEV, c);
+    conf_comedi_t c = (conf_comedi_t)conf;
+
+    Comedi_file = c->file;
     
-    Comedi_subdev_i = get_numeric_entry(SUBDEV_IN, sub);
-    Comedi_subdev_q = get_numeric_entry(SUBDEV_OUT, sub);
-    Comedi_subdev_ai = get_numeric_entry(SUBDEV_ADC, sub);
-    Comedi_subdev_aq = get_numeric_entry(SUBDEV_DAC, sub);
+    Comedi_subdev_i = c->sub_i;
+    Comedi_subdev_q = c->sub_q;
+    Comedi_subdev_ai = c->sub_adc;
+    Comedi_subdev_aq = c->sub_dac;
     
-    Comedi.label = get_string_entry(CONFIG_HW, conf);
+    Comedi.label = (char *)c->label;
     
      if(Comedi_file >= 0) 
          
         return PLC_OK;
     else 
+        plc_log("Unable to get COMEDI file descriptor!");
         return PLC_ERR;
     
     return 0;
