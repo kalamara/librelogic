@@ -7,14 +7,21 @@
 #include <inttypes.h>
 
 typedef enum{
-    HW_DRY,//TODO
+    HW_DRY,
     HW_SIM,
     HW_COMEDI,
     HW_USPACE,//TODO: update with current linux kernels
+    HW_GPIOD,
     HW_IIO, //TODO Linux industrial I/O
     HW_USB, //TODO FAR IN THE FUTURE
     N_HW
 }HARDWARES;
+
+typedef struct config_gpiod{
+    const char * chipname;
+    const int * in_lines;
+    const int * out_lines;
+} * conf_gpiod_t;
 
 typedef int (*helper_f)(); //generic helper functions only return an error code
 
@@ -94,7 +101,7 @@ typedef struct hardware{
 /**
  * hardware ctor factory
  */
-hardware_t get_hardware(int type);
+hardware_t plc_get_hardware(int type);
 
 
 #endif //_HARDWARE_H_
