@@ -27,10 +27,10 @@ typedef struct config_uspace {
 typedef struct config_sim {
     const char * ifname;
     const char * ofname;
-    int  in_size; //bytes
-    int  out_size; 
-    int  adc_size;
-    int  dac_size;
+    unsigned int  in_size; //bytes
+    unsigned int  out_size; 
+    unsigned int  adc_size;
+    unsigned int  dac_size;
     const char * label;
 } * conf_sim_t;
 
@@ -47,6 +47,8 @@ typedef struct config_gpiod {
     const char * chipname;
     const int * in_lines;
     const int * out_lines;
+    unsigned int  in_size; 
+    unsigned int  out_size; 
     const char * label;
 } * conf_gpiod_t;
 

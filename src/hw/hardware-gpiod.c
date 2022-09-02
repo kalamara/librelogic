@@ -24,27 +24,93 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "util.h"
 #include "hardware.h"
 
+static struct gpiod_chip *Chip;
+
+static struct gpiod_line ** InLines = NULL;
+static unsigned int MaxIn = 0;
+
+static struct gpiod_line ** OutLines = NULL;
+static unsigned int MaxOut = 0;
+
 int gpiod_config(void * conf)
 {
     conf_gpiod_t c = (conf_gpiod_t )conf;
-//    const char *chipname = "gpiochip0";
-    struct gpiod_chip *chip;
     // Open GPIO chip
-    chip = gpiod_chip_open_by_name(c->chipname);//hipname);
-    if(chip){
-        return PLC_OK;    
+    Chip = gpiod_chip_open_by_name(c->chipname);
+    if(!Chip){
+        plc_log("Failed to open GPIOD chip"); 
+        
+        return PLC_ERR;    
     }
-    plc_log("Failed to open GPIOD chip"); 
-    return PLC_ERR;
-}
+    MaxIn = c->in_size;
+    MaxOut = c->out_size;
+    
+    InLines = calloc(MaxIn, sizeof(void *));
+    OutLines = calloc(MaxOut, sizeof(void *));
+    
+    unsigned int i = 0;
+    unsigned int q = 0;
+    for(; i < MaxIn ; i++) {// Open GPIO lines
+        InLines[i] = gpiod_chip_get_line(Chip, c->in_lines[i]);    
 
-int gpiod_enable() /* Enable bus communication */
-{
+        if(!InLines[i]){
+            plc_log("Could not get line %d ",  c->in_lines[i]); 
+        
+            return PLC_ERR;    
+        }
+    }
+    
+    for(; q < MaxOut ; q++) {
+        OutLines[q] = gpiod_chip_get_line(Chip, c->out_lines[q]);    
+
+        if(!OutLines[q]){
+            plc_log("Could not get line %d ",  c->out_lines[q]); 
+        
+            return PLC_ERR;    
+        }
+    }
+
     return PLC_OK;
 }
 
-int gpiod_disable() /* Disable bus communication */
+int gpiod_enable() /* Enable */
 {
+    unsigned int i = 0;
+    unsigned int q = 0;
+    int ok = 0; 
+    // Open lines for output
+    for(; q < MaxOut ; q++) {//  
+        ok = gpiod_line_request_output(OutLines[q], "librelogic", 0);
+        if(ok < 0){
+            plc_log("Could not get output %d ", q); 
+        
+            return PLC_ERR;    
+        }
+    } 
+
+    // Open lines for input
+    for(; i < MaxIn ; i++) {//  
+        ok = gpiod_line_request_input(InLines[i], "librelogic");  
+        if(ok < 0){
+            plc_log("Could not get input %d ", i); 
+        
+            return PLC_ERR;    
+        }
+    }
+    return PLC_OK;
+}
+
+int gpiod_disable() /* Disable */
+{
+    unsigned int i = 0;
+    unsigned int q = 0;
+    for(; i < MaxIn ; i++) {// Release GPIO lines
+        gpiod_line_release(InLines[i]);    
+    }
+    
+    for(; q < MaxOut ; q++) {
+        gpiod_line_release(OutLines[q]);
+    }
 
     return PLC_OK;
 }
@@ -62,11 +128,15 @@ int gpiod_flush()
 
 void gpiod_dio_read(unsigned int n, BYTE* bit)
 {	
+    *bit = gpiod_line_get_value(InLines[n]);
+
     return;
 }
 
 void gpiod_dio_write(const unsigned char *buf, unsigned int n,  BYTE bit)
 {	
+    gpiod_line_set_value(OutLines[n], bit);
+
     return;
 }
 
