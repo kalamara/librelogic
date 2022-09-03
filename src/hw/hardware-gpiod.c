@@ -128,7 +128,8 @@ int gpiod_flush()
 
 void gpiod_dio_read(unsigned int n, BYTE* bit)
 {	
-    *bit = gpiod_line_get_value(InLines[n]);
+    int v = gpiod_line_get_value(InLines[n]);
+    *bit = (BYTE)v;
 
     return;
 }
