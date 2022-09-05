@@ -22,8 +22,15 @@ can as well be configured by the user.
 
 # Hardware
 LibreLogic is designed to support several IO hardware. 
-On a linux box it can work with Comedi and in user space. 
+On Linux box, it can work with GPIOD, Comedi, and in user space. 
 Additionally, in case no hardware is available there is File Simulation mode and Dry mode.
+
+## GPIOD
+In case ypur machine has GPIOs (eg. on a RaspBerry pi) you can just install the GPIOD package:
+libgpdiod-dev
+See also
+https://git.kernel.org/pub/scm/libs/libgpiod/libgpiod.git
+This mode only supports digital I/O.
 
 ## Comedi
 In Comedi mode, all you need to do is install and set up the apropriate Comedi driver for your card, and provide the setup values to librelogic frm the caller aplication.
