@@ -26,10 +26,13 @@ On Linux box, it can work with GPIOD, Comedi, and in user space.
 Additionally, in case no hardware is available there is File Simulation mode and Dry mode.
 
 ## GPIOD
-In case ypur machine has GPIOs (eg. on a RaspBerry pi) you can just install the GPIOD package:
+In case your machine has GPIOs (eg. on a RaspBerry pi) you can just install the GPIOD package:
+
 libgpdiod-dev
+
 See also
 https://git.kernel.org/pub/scm/libs/libgpiod/libgpiod.git
+
 This mode only supports digital I/O.
 
 ## Comedi
