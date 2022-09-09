@@ -128,16 +128,19 @@ int gpiod_flush()
 
 void gpiod_dio_read(unsigned int n, BYTE* bit)
 {	
-    int v = gpiod_line_get_value(InLines[n]);
-    *bit = (BYTE)v;
-
+    if(n < MaxIn){
+        int v = gpiod_line_get_value(InLines[n]);
+        *bit = (BYTE)v;
+    }
     return;
 }
 
 void gpiod_dio_write(const unsigned char *buf, unsigned int n,  BYTE bit)
 {	
-    gpiod_line_set_value(OutLines[n], bit);
-
+    
+    if(n < MaxOut){
+        gpiod_line_set_value(OutLines[n], bit);
+    }
     return;
 }
 
