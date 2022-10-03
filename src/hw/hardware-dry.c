@@ -21,7 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "instruction.h"
 #include "rung.h"
 
-#include "hardware.h"
+#include "plc_iface.h"
 
 int dry_config(void * conf)
 {

@@ -26,10 +26,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <stdio.h>
 #include <string.h>
 #include <inttypes.h>
-#include "hardware.h"
 #include "data.h"
 #include "instruction.h"
 #include "rung.h"
+
+#include "plc_iface.h"
 
 #define MILLION 1000000
 #define THOUSAND 1000
@@ -239,20 +240,6 @@ typedef struct PLC_regs{
 } * plc_t;
 
 /**
- * @brief start PLC 
- * @param the plc
- * @return plc with updated status
- */
-plc_t plc_start(plc_t p);
-
-/**
- * @brief stop PLC 
- * @param the plc
- * @return plc with updated status
- */
-plc_t plc_stop(plc_t p);
-
-/**
   * @brief parse IL program
   * @param a unique program identifier
   * @param the program as an allocated buffer of allocated strings
@@ -272,15 +259,6 @@ plc_t parse_il_program(const char* name,
 plc_t parse_ld_program(const char * name, 
                        const char lines[][MAXSTR], 
                        plc_t p);                       
-
-/**
- * @brief load a PLC program
- * @param the local filename (path relative to config file) 
- * @param the plc
- * @return plc with updated status
- */
-plc_t plc_load_program_file(const char * path, plc_t plc);
-
 
           
 /**
@@ -314,25 +292,6 @@ int plc_project_init();
  */
 int plc_project_task( plc_t p);
 
-/**
- * @brief PLC initialization executed once
- * @param ref to plc
- * @return OK or error
- */
-int plc_init(plc_t p);
-
-/**
- * @brief PLC realtime loop
- * Anything in this function normally (ie. when not in error)
- * satisfies the realtime @conditions:
- * 1. No disk I/O
- * 2. No mallocs
- * This way the time it takes to execute is predictable
- * Heavy parts can timeout
- * @param the PLC
- * @return PLC with updated state
- */
-plc_t plc_func( plc_t p);
 
 /**
  * @brief force operand with value
@@ -361,35 +320,6 @@ plc_t plc_unforce(plc_t p, int op, BYTE i);
  * @return true if forced, false if not, error if out of bounds
  */
 int plc_is_forced(plc_t p, int op, BYTE i);
-
-
-
-/**
- * @brief construct a new plc with a configuration
- * @param number of digital inputs
- * @param number of digital outputs
- * @param number of analog inputs 
- * @param number of analog outputs
- * @param number of timers
- * @param number of pulses
- * @param number of integer memory variables
- * @param number of real memory variables
- * @param cycle time in milliseconds
- * @param hardware identifier        
-
- * @return configured plc
- */
-plc_t plc_new(
-    int di, 
-    int dq,
-    int ai,
-    int aq,
-    int nt, 
-    int ns,
-    int nm,
-    int nr,
-    int step,
-    hardware_t hw);
 
 /**
  * @brief copy constructor

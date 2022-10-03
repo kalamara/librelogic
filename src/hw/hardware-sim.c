@@ -28,7 +28,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "util.h"
 
-#include "hardware.h"
+#include "plc_iface.h"
 
 #define ASCIISTART 0x30
 

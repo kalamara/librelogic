@@ -7,7 +7,6 @@
 #include "CUnit/Console.h"
 #include "CUnit/Automated.h"
 
-#include "hardware.h"
 #include "data.h"
 #include "instruction.h"
 #include "rung.h"

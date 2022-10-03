@@ -16,8 +16,12 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "hardware.h"
 #include <stddef.h>
+#include <stdint.h>
+
+#include "plc_iface.h"
+#include "util.h"
+
 
 extern struct hardware Comedi;
 extern struct hardware Uspace;
@@ -28,7 +32,8 @@ extern struct hardware Dry;
 hardware_t plc_get_hardware( int type){
     switch(type){
         case HW_GPIOD:
-#ifdef GPIOD        
+#ifdef GPIOD       
+            plc_log("Using GPIOD"); 
             return &Gpiod;
 #else
             return NULL;

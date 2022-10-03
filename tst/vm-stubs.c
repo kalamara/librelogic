@@ -3,8 +3,6 @@
 #include <string.h>
 #include <stdarg.h>
 
-//#include "config.h"
-#include "hardware.h"
 #include "data.h"
 #include "instruction.h"
 #include "rung.h"

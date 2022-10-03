@@ -17,12 +17,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include <gpiod.h>
+
 #include "data.h"
 #include "instruction.h"
 #include "rung.h"
 
 #include "util.h"
-#include "hardware.h"
+#include "plc_iface.h"
 
 static struct gpiod_chip *Chip;
 

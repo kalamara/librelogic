@@ -17,7 +17,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "data.h"
 
-#include "hardware.h"
 #include "instruction.h"
 #include "parser-tree.h"
 

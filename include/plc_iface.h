@@ -1,10 +1,8 @@
-#ifndef _HARDWARE_H_
-#define _HARDWARE_H_
 /**
- *@file hardware.h
- *@brief hardware interface
+ *@file plc_iface.h
+ *@brief interface towards python CFFI.
+ * NOTE: this file is not preproccessed, so no # macros (#define, #include, etc.)
 */
-#include <inttypes.h>
 
 typedef enum{
     HW_DRY,
@@ -51,6 +49,7 @@ typedef struct config_gpiod {
     unsigned int  out_size; 
     const char * label;
 } * conf_gpiod_t;
+
 
 typedef int (*helper_f)(); //generic helper functions only return an error code
 
@@ -123,14 +122,79 @@ typedef struct hardware{
  * @param the configuration
  */
    config_f configure;
-
 } * hardware_t;
+typedef struct PLC_regs * plc_t;
 
+/**
+ * @brief start PLC 
+ * @param the plc
+ * @return plc with updated status
+ */
+plc_t plc_start(plc_t p);
+
+/**
+ * @brief stop PLC 
+ * @param the plc
+ * @return plc with updated status
+ */
+plc_t plc_stop(plc_t p);
+
+/**
+ * @brief load a PLC program
+ * @param the local filename (path relative to config file) 
+ * @param the plc
+ * @return plc with updated status
+ */
+plc_t plc_load_program_file(const char * path, plc_t plc);
+          
+/**
+ * @brief PLC initialization executed once
+ * @param ref to plc
+ * @return OK or error
+ */
+int plc_init(plc_t p);
+
+/**
+ * @brief PLC realtime loop
+ * Anything in this function normally (ie. when not in error)
+ * satisfies the realtime @conditions:
+ * 1. No disk I/O
+ * 2. No mallocs
+ * This way the time it takes to execute is predictable
+ * Heavy parts can timeout
+ * @param the PLC
+ * @return PLC with updated state
+ */
+plc_t plc_func( plc_t p);
+
+/**
+ * @brief construct a new plc with a configuration
+ * @param number of digital inputs
+ * @param number of digital outputs
+ * @param number of analog inputs 
+ * @param number of analog outputs
+ * @param number of timers
+ * @param number of pulses
+ * @param number of integer memory variables
+ * @param number of real memory variables
+ * @param cycle time in milliseconds
+ * @param hardware identifier        
+
+ * @return configured plc
+ */
+plc_t plc_new(
+    int di, 
+    int dq,
+    int ai,
+    int aq,
+    int nt, 
+    int ns,
+    int nm,
+    int nr,
+    int step,
+    hardware_t hw);
 
 /**
  * hardware ctor factory
  */
 hardware_t plc_get_hardware(int type);
-
-
-#endif //_HARDWARE_H_

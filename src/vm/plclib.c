@@ -21,7 +21,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <sys/time.h>
 #include <unistd.h>
 
-#include "hardware.h"
 #include "data.h"
 #include "instruction.h"
 #include "rung.h"

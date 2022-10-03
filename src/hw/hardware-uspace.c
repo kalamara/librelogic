@@ -26,7 +26,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "instruction.h"
 #include "rung.h"
 #include "util.h"
-#include "hardware.h"
+#include "plc_iface.h"
 
 int Io_base = 0;
 int Wr_offs = 0;

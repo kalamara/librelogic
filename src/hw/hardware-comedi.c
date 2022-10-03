@@ -23,7 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "data.h"
 #include "instruction.h"
 #include "rung.h"
-#include "hardware.h"
+#include "plc_iface.h"
 
 struct hardware Comedi;
 
