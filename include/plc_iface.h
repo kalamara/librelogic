@@ -1,7 +1,21 @@
-/**
- *@file plc_iface.h
- *@brief interface towards python CFFI.
- * NOTE: this file is not preproccessed, so no # macros (#define, #include, etc.)
+/*******************************************************************************
+LibreLogic : a free PLC library
+Copyright (C) 2022, Antonis K. (kalamara AT ceid DOT upatras DOT gr)
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+NOTE: this file is not preproccessed, so no # macros (#define, #include, etc.)
 */
 
 typedef enum{
@@ -123,6 +137,10 @@ typedef struct hardware{
  */
    config_f configure;
 } * hardware_t;
+
+/**
+ * Forward declaration plc_t
+ */
 typedef struct PLC_regs * plc_t;
 
 /**
@@ -195,6 +213,69 @@ plc_t plc_new(
     hardware_t hw);
 
 /**
- * hardware ctor factory
+ * @brief hardware ctor factory
+ * @param hardware type (enum HARDWARES)
+ * @return handle to hardware instance
  */
 hardware_t plc_get_hardware(int type);
+
+/**
+ * @brief get digital input value
+ * @param the PLC
+ * @param input index
+ * @return 0 or 1
+ */
+unsigned char plc_get_di_val(plc_t p, unsigned int i);
+
+/**
+ * @brief get digital output value
+ * @param the PLC
+ * @param output index
+ * @return 0 or 1
+ */
+unsigned char plc_get_dq_val(plc_t p, unsigned int i);
+
+/**
+ * @brief get memory register value
+ * @param the PLC
+ * @param register index
+ * @return value
+ */
+unsigned int plc_get_m_val(plc_t p, unsigned int i);
+
+/**
+ * @brief get timer value
+ * @param the PLC
+ * @param t index
+ * @return val
+ */
+unsigned int plc_get_t_val(plc_t p, unsigned int i);
+
+/**
+ * @brief get timer output
+ * @param the PLC
+ * @param input index
+ * @return 0 or 1
+ */
+unsigned char plc_get_t_out(plc_t p, unsigned int i);
+
+/**
+ * @brief is plc running?
+ * @param the PLC
+ * @return 1 if running, 0 if stopped, negative if error
+ */
+int plc_is_running(plc_t p);
+
+/**
+ * @brief is plc updated?
+ * @param the PLC
+ * @return update mask if updated, 0 otherwise
+ */
+unsigned char plc_is_updated(plc_t p);
+
+/**
+ * @brief reset update mask
+ * @param the PLC
+ * @return plc handle
+ */
+plc_t plc_reset_update(plc_t p);

@@ -2047,3 +2047,59 @@ plc_t plc_configure_pulse_scale(const plc_t p,
     return r;
 }
 
+unsigned char plc_get_di_val(plc_t p, unsigned int i){
+    if(!p){
+        return -1;
+    }
+    return p->di[i].I;
+}
+
+unsigned char plc_get_dq_val(plc_t p, unsigned int i){
+    if(!p){
+        return -1;
+    }
+    return p->dq[i].Q;
+
+}
+
+unsigned int plc_get_m_val(plc_t p, unsigned int i){
+    if(!p){
+        return -1;
+    }
+    return p->m[i].V;
+}
+
+unsigned int plc_get_t_val(plc_t p, unsigned int i){
+    if(!p){
+        return -1;
+    }
+    return p->t[i].V;
+}
+
+unsigned char plc_get_t_out(plc_t p, unsigned int i){
+    if(!p){
+        return -1;
+    }
+    return p->t[i].Q;
+}
+
+int plc_is_running(plc_t p){
+    if(!p){
+        return 0;
+    }
+    return p->status;
+}
+
+unsigned char plc_is_updated(plc_t p){
+    if(!p){
+        return 0;
+    }
+    return p->update;
+}
+
+plc_t plc_reset_update(plc_t p){
+    if(p){
+        p->update = 0;
+    }
+    return p;
+}
