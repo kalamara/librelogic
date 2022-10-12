@@ -28,9 +28,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "util.h"
 #include "plc_iface.h"
 
-int Io_base = 0;
-int Wr_offs = 0;
-int Rd_offs = 0;
+uint32_t Io_base = 0;
+uint8_t Wr_offs = 0;
+uint8_t Rd_offs = 0;
 
 struct hardware Uspace;
 
@@ -41,10 +41,8 @@ int usp_config(void * conf)
     Wr_offs = u->write;
     Rd_offs = u->read;
     Uspace.label = u->label;
-    if(Io_base >= 0 && Wr_offs >=0 && Rd_offs >=0)        
-        return PLC_OK;
-    else 
-        return PLC_ERR;
+        
+    return PLC_OK;
 }
 
 int usp_enable() /* Enable bus communication */

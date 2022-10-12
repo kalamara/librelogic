@@ -39,10 +39,10 @@ char * BufOut = NULL;
 char * AdcIn = NULL;
 char * AdcOut = NULL;
 
-unsigned int Ni = 0;
-unsigned int Nq = 0;
-unsigned int Nai = 0;
-unsigned int Naq = 0;
+uint32_t Ni = 0;
+uint32_t Nq = 0;
+uint32_t Nai = 0;
+uint32_t Naq = 0;
 
 struct hardware Sim;
 

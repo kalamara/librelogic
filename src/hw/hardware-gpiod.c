@@ -28,10 +28,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 static struct gpiod_chip *Chip;
 
 static struct gpiod_line ** InLines = NULL;
-static unsigned int MaxIn = 0;
+static uint8_t MaxIn = 0;
 
 static struct gpiod_line ** OutLines = NULL;
-static unsigned int MaxOut = 0;
+static uint8_t MaxOut = 0;
 
 int gpiod_config(void * conf)
 {
@@ -49,26 +49,33 @@ int gpiod_config(void * conf)
     InLines = calloc(MaxIn, sizeof(void *));
     OutLines = calloc(MaxOut, sizeof(void *));
     
-    unsigned int i = 0;
-    unsigned int q = 0;
+    uint32_t i = 0;
+    uint32_t q = 0;
     for(; i < MaxIn ; i++) {// Open GPIO lines
-        InLines[i] = gpiod_chip_get_line(Chip, c->in_lines[i]);    
+        
+        uint32_t v = c->in_lines[i];
+        InLines[i] = gpiod_chip_get_line(Chip, v);    
 
         if(!InLines[i]){
-            plc_log("Could not get line %d ",  c->in_lines[i]); 
+            plc_log("Could not get input line %d ",  v); 
         
             return PLC_ERR;    
         }
+        plc_log("IN %d => GPIO %d", i, v);
     }
     
     for(; q < MaxOut ; q++) {
-        OutLines[q] = gpiod_chip_get_line(Chip, c->out_lines[q]);    
+
+        uint32_t v = c->out_lines[q];
+        OutLines[q] = gpiod_chip_get_line(Chip, v);    
 
         if(!OutLines[q]){
-            plc_log("Could not get line %d ",  c->out_lines[q]); 
+            plc_log("Could not get line %d ", v); 
         
             return PLC_ERR;    
         }
+ 
+        plc_log("OUT %d => GPIO %d", q, v);
     }
 
     return PLC_OK;

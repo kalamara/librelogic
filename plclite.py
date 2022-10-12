@@ -23,10 +23,11 @@ from _librelogic import ffi, lib
 hardware_conf = ffi.new("struct config_gpiod *",
 {   
     'chipname' : ffi.new("char[]", "gpiochip0".encode('ascii')),
-    'in_lines' : ffi.new("int[]", INPUTS),
-    'in_size'  : len(OUTPUTS),
-    'out_lines': ffi.new("int[]", OUTPUTS),
+    'in_lines' : ffi.new("uint32_t[]", INPUTS),
+    'in_size'  : len(INPUTS),
+    'out_lines': ffi.new("uint32_t[]", OUTPUTS),
     'out_size' : len(OUTPUTS),
+    'label' : ffi.new("char[]", "gpiod".encode('ascii')),
 }
 )
 
@@ -46,10 +47,8 @@ def logic(prog):
     hw_gpiod = lib.plc_get_hardware(lib.HW_GPIOD); 
     hw_gpiod.configure(hardware_conf);
     plc = lib.plc_new( 1, 1, 0, 0, 1, 0, 2, 0, STEP, hw_gpiod); 
-    plc = lib.plc_load_program_file(ffi.new("char[]", prog.encode('ascii')), plc);
-    plc = lib.plc_start(plc);
-
-    return plc
+    
+    return lib.plc_load_program_file(ffi.new("char[]", prog.encode('ascii')), plc);
 
 def main(args=None):
     import getopt

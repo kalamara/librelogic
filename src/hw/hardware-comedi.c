@@ -31,11 +31,11 @@ struct hardware Comedi;
 #include <comedilib.h>
 
 static comedi_t * it;
-int Comedi_file;
-int Comedi_subdev_i;
-int Comedi_subdev_q;
-int Comedi_subdev_ai;
-int Comedi_subdev_aq;
+uint32_t Comedi_file;
+uint8_t Comedi_subdev_i;
+uint8_t Comedi_subdev_q;
+uint8_t Comedi_subdev_ai;
+uint8_t Comedi_subdev_aq;
 
 int com_config(void * conf)
 {
@@ -50,14 +50,7 @@ int com_config(void * conf)
     
     Comedi.label = (char *)c->label;
     
-     if(Comedi_file >= 0) 
-         
-        return PLC_OK;
-    else 
-        plc_log("Unable to get COMEDI file descriptor!");
-        return PLC_ERR;
-    
-    return 0;
+    return PLC_OK;
 }
 
 int com_enable() /* Enable bus communication */

@@ -30,37 +30,37 @@ typedef enum{
 }HARDWARES;
 
 typedef struct config_uspace {
-    int  base;
-    int  write; 
-    int  read;
+    uint32_t  base;
+    uint8_t  write; 
+    uint8_t  read;
     const char * label;
 } * conf_uspace_t;  
 
 typedef struct config_sim {
     const char * ifname;
     const char * ofname;
-    unsigned int  in_size; //bytes
-    unsigned int  out_size; 
-    unsigned int  adc_size;
-    unsigned int  dac_size;
+    uint32_t  in_size; //bytes
+    uint32_t  out_size; 
+    uint32_t  adc_size;
+    uint32_t  dac_size;
     const char * label;
 } * conf_sim_t;
 
 typedef struct config_comedi {
-    int  file;
-    int  sub_i;
-    int  sub_q;
-    int  sub_adc;
-    int  sub_dac;
+    uint32_t  file;
+    uint8_t  sub_i;
+    uint8_t  sub_q;
+    uint8_t  sub_adc;
+    uint8_t  sub_dac;
     const char * label;
 } * conf_comedi_t;
 
 typedef struct config_gpiod {
     const char * chipname;
-    const int * in_lines;
-    const int * out_lines;
-    unsigned int  in_size; 
-    unsigned int  out_size; 
+    const uint32_t * in_lines;
+    const uint32_t * out_lines;
+    uint32_t  in_size; 
+    uint32_t  out_size; 
     const char * label;
 } * conf_gpiod_t;
 
