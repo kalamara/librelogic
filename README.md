@@ -22,7 +22,7 @@ can as well be configured by the user.
 
 # Hardware
 LibreLogic is designed to support several IO hardware. 
-On Linux box, it can work with GPIOD, Comedi, and in user space. 
+On Linux, it can work with GPIOD, Comedi, and in user space. 
 Additionally, in case no hardware is available there is File Simulation mode and Dry mode.
 
 ## GPIOD
@@ -116,7 +116,6 @@ Accepted symbols (case sensitive) are:
 
 'b' output of blinker
 
-'c' true, if serial input byte equals following index
 
 ### Output operands
 These symbols must follow operator '(' and be followed by a valid index.
@@ -128,7 +127,6 @@ Each output operand should appear only once.
 
 'T' timer 
 
-'W' write following number to serial output.
 
 ## LD Example : Triple Majority Circuit
 
@@ -178,7 +176,7 @@ Instruction |Modifiers      |Data Types
 )           |N/A            |N/A
 S 	    |N/A	    |BOOL
 R 	    |N/A	    |BOOL
-AND 	    |!,(	    |BOOL/WORD
+AND 	|!,(	    |BOOL/WORD
 OR	    |!,(	    |BOOL/WORD
 XOR	    |!,(	    |BOOL/WORD
 LD 	    |!		    |BOOL/WORD
@@ -227,6 +225,100 @@ JMP	    |?		    |CHARACTER STRING
     endwhile:LD %m0 ; 
     ST %q0 ; output gcd 
     end: LD %m3;
+
+# USE CASE: LibreLogic on the Raspberry pi
+Hardware: Raspberry pi 3
+
+OS: Raspbian 11
+
+## Installing required packets:
+apt-get install ninja-build cmake python3 python3-dev gcc gpiod libgpiod-dev
+
+## Python environment:
+pip install cffi
+
+## Wiring
+Connect buttons on GPIO 16, 20, 21 and a LED to GPIO 3
+
+## Build librelogic
+Clone librelogic repository
+
+### Configure
+./Config.sh
+
+### Build
+cmake --build build-lib
+
+### Build python interface
+python cffi_build.py
+
+### run python example
+This will load the default program, program.ld
+which is the majority circuit above:
+
+
+     i0---i1----+---------(Q0
+     i2---i0----+
+     i1---i2----+
+
+
+
+     python plclite.py &
+     Using GPIOD
+     IN 0 => GPIO 16
+     IN 1 => GPIO 20
+     IN 2 => GPIO 21
+     OUT 0 => GPIO 3
+     Loading LD code from program.ld...
+     program.ld
+     0.LD  i0/2
+     1.AND (i0/1
+     2.)
+     3.OR (i0/0
+     4.AND (i0/2
+     5.)
+     6.OR (i0/1
+     7.AND (i0/0
+     8.)
+     9.)
+     10.)
+     11.ST  Q0/0
+     
+     In:  0 0 0 
+     Out: 0 
+
+
+### confirm GPIOs are used:
+
+     gpioinfo
+     gpiochip0 - 54 lines:
+     	line   0:      unnamed       unused   input  active-high 
+     	line   1:      unnamed       unused   input  active-high 
+     	line   2:      unnamed       unused   input  active-high 
+     	line   3:      unnamed "librelogic"  output  active-high [used]
+     	line   4:      unnamed       unused   input  active-high 
+     	line   5:      unnamed       unused   input  active-high 
+     	line   6:      unnamed       unused   input  active-high 
+     	line   7:      unnamed       unused   input  active-high 
+     	line   8:      unnamed       unused   input  active-high 
+     	line   9:      unnamed       unused   input  active-high 
+     	line  10:      unnamed       unused   input  active-high 
+     	line  11:      unnamed       unused   input  active-high 
+     	line  12:      unnamed       unused   input  active-high 
+     	line  13:      unnamed       unused   input  active-high 
+     	line  14:      unnamed       unused   input  active-high 
+     	line  15:      unnamed       unused   input  active-high 
+     	line  16:      unnamed "librelogic"   input  active-high [used]
+     	line  17:      unnamed       unused   input  active-high 
+     	line  18:      unnamed       unused   input  active-high 
+     	line  19:      unnamed       unused   input  active-high 
+     	line  20:      unnamed "librelogic"   input  active-high [used]
+     	line  21:      unnamed "librelogic"   input  active-high [used]
+
+## Congratulations, you are running ladder logic on the Raspberry pi!
+
+When the state of a button is changed, the LED flashes according the logic in the program.ld:
+It is ON when and only when any 2 buttons are pressed!
 
 # API reference 
 TBD
