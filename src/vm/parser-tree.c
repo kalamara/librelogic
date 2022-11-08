@@ -81,7 +81,7 @@ item_t clear_tree(item_t root) {
     }
     // tree leaves
     if (r != NULL) {
-      free(r);
+      //free(r);
       memset(r, 0, sizeof(struct item));
       r = (item_t)NULL;
     }
