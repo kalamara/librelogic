@@ -121,9 +121,9 @@ void deepcopy(const instruction_t from, instruction_t to)
         to->modifier = from->modifier;
         to->byte = from->byte;
         to->bit = from->bit;
-        if(from->label != NULL)
+        if(from != NULL)
             strcpy(to->label, from->label);
-         if(from->lookup != NULL)
+         if(from != NULL)
             strcpy(to->lookup, from->lookup);
 }
 
