@@ -146,9 +146,11 @@ A line of an IL program, shall follow the format:
 
     [label:]<operator>[<modifier>[%<operand\><byte>[</bit>]]|<label>][;comment]
 Supported Operators are:
-    ) close parenthesis (pop instruction from stack)
+ ```console
+    ) close parenthesis (pop instruction from stack)    
     S set output
     R reset output
+```
     AND
     OR
     XOR
@@ -166,9 +168,12 @@ Supported Operators are:
     LT	<
     JMP	jump to label
 Modifier symbols recognized are:
+
+```console
     (	open parenthesis (push instruction to stack)
     !	negate
     ?	conditional
+```
 Operands are the same as in LD, with the difference that it is assumed that they are Words (unsigned Integers), unless noted otherwise with the symbol '/'. As defined in the IEC standard, each instruction supports its own set of data types and modifiers, according to the following scheme:
 
 Instruction |Modifiers      |Data Types
