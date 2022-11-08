@@ -39,12 +39,12 @@ int gen_expr(const item_t expression, rung_t rung, BYTE recursive_operation)
                
     BYTE operator = expression->v.exp.op;
     if(! IS_OPERATION(operator) && operator != IL_LD){
-        return ERR_BADOPERATOR;
+        return PLC_ERR_BADOPERATOR;
     }
         
     BYTE modifier = expression->v.exp.mod;
     if(! IS_MODIFIER(modifier)){
-        return ERR_BADOPERATOR; 
+        return PLC_ERR_BADOPERATOR;
     }   
     
     //left operand
@@ -78,7 +78,7 @@ int gen_expr_left(const item_t left, rung_t rung, BYTE recursive, BYTE mod)
 {
     int rv =  PLC_OK;
     if(left == NULL)
-        return ERR_BADOPERAND;
+        return PLC_ERR_BADOPERAND;
     BYTE inner = IL_LD;
  
     if(IS_OPERATION(recursive)){
@@ -103,7 +103,7 @@ int gen_expr_left(const item_t left, rung_t rung, BYTE recursive, BYTE mod)
             rv = gen_expr(left, rung, inner);
             break;
         default:
-            rv = ERR_BADOPERAND;
+            rv = PLC_ERR_BADOPERAND;
     }
     return rv;
 }
@@ -129,7 +129,7 @@ int gen_expr_right(const item_t right, rung_t rung, BYTE op, BYTE mod)
                 rv = gen_expr(right, rung, op);
                 break;
             default:
-                rv = ERR_BADOPERAND;
+                rv = PLC_ERR_BADOPERAND;
         }
     }
     return rv;
@@ -146,11 +146,11 @@ int gen_ass(const item_t assignment, rung_t rung)
               
     if(assignment->v.ass.left == NULL
     || assignment->v.ass.left->tag != TAG_IDENTIFIER)
-        return ERR_BADOPERAND;
+        return PLC_ERR_BADOPERAND;
     
     BYTE type = assignment->v.ass.type;
     if(! IS_COIL(type))
-        return ERR_BADCOIL;
+        return PLC_ERR_BADCOIL;
     
     item_t left = assignment->v.ass.left;
     
@@ -158,7 +158,7 @@ int gen_ass(const item_t assignment, rung_t rung)
     memset(&ins, 0, sizeof(struct instruction));
     
     if(assignment->v.ass.right == NULL)
-        return ERR_BADOPERATOR;
+        return PLC_ERR_BADOPERATOR;
         
     item_t right = assignment->v.ass.right;
     switch(right->tag){
@@ -174,7 +174,7 @@ int gen_ass(const item_t assignment, rung_t rung)
             rv = gen_expr(right, rung, 0);
             break;
         default:
-            return ERR_BADOPERATOR;        
+            return PLC_ERR_BADOPERATOR;
     }
         
     if(rv == PLC_OK){

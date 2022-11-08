@@ -21,13 +21,13 @@ void ut_gen_expr() {
   // ERROR: bad operator
   item_t it = mk_expression(NULL, NULL, -1, -1);
   result = gen_expr(it, &ru, 0);
-  CU_ASSERT(result == ERR_BADOPERATOR);
+  CU_ASSERT(result == PLC_ERR_BADOPERATOR);
   clear_tree(it);
 
   // ERROR: null left operand
   it = mk_expression(NULL, NULL, IL_AND, IL_NORM);
   result = gen_expr(it, &ru, 0);
-  CU_ASSERT(result == ERR_BADOPERAND);
+  CU_ASSERT(result == PLC_ERR_BADOPERAND);
   clear_tree(it);
 
   // I0.0 AND M1.5 =>
@@ -278,19 +278,19 @@ void ut_gen_ass() {
 
   item_t ass = mk_assignment(exp, id1, LD_COIL);
   result = gen_ass(ass, &ru);
-  CU_ASSERT(result == ERR_BADOPERAND);
+  CU_ASSERT(result == PLC_ERR_BADOPERAND);
   // clear_tree(ass);
 
   // ERROR: wrong type
   ass = mk_assignment(id1, NULL, 0);
   result = gen_ass(ass, &ru);
-  CU_ASSERT(result == ERR_BADCOIL);
+  CU_ASSERT(result == PLC_ERR_BADCOIL);
   // clear_tree(ass);
 
   // ERROR: right part not an identifier or expression
   ass = mk_assignment(id1, NULL, LD_COIL);
   result = gen_ass(ass, &ru);
-  CU_ASSERT(result == ERR_BADOPERATOR);
+  CU_ASSERT(result == PLC_ERR_BADOPERATOR);
   // clear_tree(ass);
 
   ////////////// assign identifier1 := identifier2 ////////////////

@@ -102,13 +102,13 @@ static int set(plc_t p,  int type,  int idx) {
 	switch (type){
     case BOOL_DQ:
         if(idx / BYTESIZE >= p->nq)
-            return ERR_BADOPERAND;
+            return PLC_ERR_BADOPERAND;
 		p->dq[idx].SET = TRUE;
 		p->dq[idx].RESET = FALSE;
 		break;
     case BOOL_COUNTER:
         if(idx >= p->nm)
-            return ERR_BADOPERAND;
+            return PLC_ERR_BADOPERAND;
 		p->m[idx].SET = TRUE;
 		p->m[idx].RESET = FALSE;
 		if (!p->m[idx].PULSE)
@@ -116,7 +116,7 @@ static int set(plc_t p,  int type,  int idx) {
 		break;
     case BOOL_TIMER:
         if(idx >= p->nt)
-            return ERR_BADOPERAND;
+            return PLC_ERR_BADOPERAND;
 		p->t[idx].START = TRUE;
 		break;
 	default:
@@ -137,14 +137,14 @@ static int reset(plc_t p,  int type, int idx) {
 	switch (type){
     case BOOL_DQ:
         if(idx / BYTESIZE >= p->nq)
-            return ERR_BADOPERAND;
+            return PLC_ERR_BADOPERAND;
             
 		p->dq[idx].RESET = TRUE;
 		p->dq[idx].SET = FALSE;
 		break;
     case BOOL_COUNTER:
         if(idx >= p->nm)
-            return ERR_BADOPERAND;
+            return PLC_ERR_BADOPERAND;
             
 		p->m[idx].RESET = TRUE;
 		p->m[idx].SET = FALSE;
@@ -153,7 +153,7 @@ static int reset(plc_t p,  int type, int idx) {
 		break;
     case BOOL_TIMER:
         if(idx >= p->nt)
-            return ERR_BADOPERAND;
+            return PLC_ERR_BADOPERAND;
             
 		p->t[idx].START = FALSE;
 		break;
@@ -179,13 +179,13 @@ static int contact( plc_t p,
 	switch (type){
     case BOOL_DQ:
         if(idx / BYTESIZE >= p->nq)
-            return ERR_BADOPERAND;
+            return PLC_ERR_BADOPERAND;
             
 		p->dq[idx].Q = val;
 		break;
     case BOOL_COUNTER:
         if(idx >= p->nm)
-            return ERR_BADOPERAND;
+            return PLC_ERR_BADOPERAND;
             
 		if (p->m[idx].PULSE != val)
 			p->m[idx].EDGE = TRUE;
@@ -195,7 +195,7 @@ static int contact( plc_t p,
 		break;
     case BOOL_TIMER:
         if(idx >= p->nt)
-            return ERR_BADOPERAND;
+            return PLC_ERR_BADOPERAND;
             
 		p->t[idx].START = TRUE;
 		break;
@@ -265,10 +265,10 @@ int handle_jmp( const rung_t r, unsigned int * pc) {
         
     instruction_t op;
     if(get(r, *pc, &op) < PLC_OK)
-        return ERR_BADOPERAND;
+        return PLC_ERR_BADOPERAND;
       
     if(op->operation != IL_JMP)
-        return ERR_BADOPERATOR; //sanity
+        return PLC_ERR_BADOPERATOR; //sanity
     
     if(!(op->modifier==IL_COND
     && r->acc.u == 0))
@@ -299,7 +299,7 @@ int handle_set( const instruction_t op,
     }    
     if(op->operation != IL_SET){
     
-        return ERR_BADOPERATOR; //sanity
+        return PLC_ERR_BADOPERATOR; //sanity
     }    
     if(op->modifier == IL_COND
     && acc.u == FALSE){
@@ -310,7 +310,7 @@ int handle_set( const instruction_t op,
     
         case OP_CONTACT:	//set output %QX.Y
             if(!is_bit) {//only gets called when bit is defined
-                r = ERR_BADOPERAND;
+                r = PLC_ERR_BADOPERAND;
             } else {
                 r = set(p, 
                         BOOL_DQ, 
@@ -327,7 +327,7 @@ int handle_set( const instruction_t op,
             break;
             
         default:
-            r = ERR_BADOPERAND;
+            r = PLC_ERR_BADOPERAND;
             break;
     }
     return r;
@@ -352,7 +352,7 @@ int handle_reset(const instruction_t op,
         return PLC_ERR;
     
     if(op->operation != IL_RESET)
-        return ERR_BADOPERATOR; //sanity
+        return PLC_ERR_BADOPERATOR; //sanity
     
     if(op->modifier == IL_COND
     && acc.u == FALSE)
@@ -361,7 +361,7 @@ int handle_reset(const instruction_t op,
     switch (op->operand){
         case OP_CONTACT:	//set output %QX.Y
             if (!is_bit)	//only gets called when bit is defined
-                r = ERR_BADOPERAND;
+                r = PLC_ERR_BADOPERAND;
             else
                 r = reset(p, BOOL_DQ, (op->byte) * BYTESIZE + op->bit);
             break;
@@ -375,7 +375,7 @@ int handle_reset(const instruction_t op,
             break;
             
         default:
-            r = ERR_BADOPERAND;
+            r = PLC_ERR_BADOPERAND;
     }
     return r;
 }
@@ -390,7 +390,7 @@ int st_out_r( const instruction_t op,
               double val,
               plc_t p) {
     if(op->byte >= p->naq)
-        return ERR_BADOPERAND;
+        return PLC_ERR_BADOPERAND;
     BYTE i = op->byte;
     p->aq[i].V = val;    
     return PLC_OK;
@@ -415,7 +415,7 @@ int st_out( const instruction_t op,
             if (op->modifier == IL_NEG)
                 val = TRUE - BOOL(val);
             if(op->byte >= p->nq)
-                r = ERR_BADOPERAND; 
+                r = PLC_ERR_BADOPERAND;
             else    
                 r = contact(p, 
                         BOOL_DQ, 
@@ -430,7 +430,7 @@ int st_out( const instruction_t op,
             if (op->modifier == IL_NEG)
                 val = - val;
             if(op->byte + offs >= p->nq)
-                r = ERR_BADOPERAND; 
+                r = PLC_ERR_BADOPERAND;
             else for(;i<=offs;i++){
                     p->outputs[op->byte + i] = 
                     (val >> ((offs-i)*BYTESIZE)) % (0x100);    
@@ -439,7 +439,7 @@ int st_out( const instruction_t op,
             break;    
                 
         default: 
-            r = ERR_BADOPERAND;
+            r = PLC_ERR_BADOPERAND;
     }
     return r;    
 }
@@ -454,7 +454,7 @@ int st_mem_r( const instruction_t op,
               double val,
               plc_t p) {
     if(op->byte >= p->nmr)
-                return ERR_BADOPERAND; 
+                return PLC_ERR_BADOPERAND;
     p->mr[op->byte].V = val;
    // plc_log("store %lf to m%d", val, op->byte);
     return PLC_OK; 
@@ -475,7 +475,7 @@ int st_mem( const instruction_t op,
     uint64_t compl = 0x100;
  
     if(op->byte >= p->nm)
-                return ERR_BADOPERAND; 
+                return PLC_ERR_BADOPERAND;
     switch(t){
         case T_BOOL:
              r = contact(p, 
@@ -494,7 +494,7 @@ int st_mem( const instruction_t op,
              break;           
                  
         default: 
-            return ERR_BADOPERAND;
+            return PLC_ERR_BADOPERAND;
     }
     return r;    
 }
@@ -516,7 +516,7 @@ int handle_st(  const instruction_t op,
         return PLC_ERR;
         
     if(op->operation != IL_ST)
-        return ERR_BADOPERATOR; //sanity
+        return PLC_ERR_BADOPERATOR; //sanity
      
     switch (op->operand){
         case OP_REAL_CONTACT:	    //set output %QX.Y
@@ -544,7 +544,7 @@ int handle_st(  const instruction_t op,
             break;
             
         default:
-            r = ERR_BADOPERAND;
+            r = PLC_ERR_BADOPERAND;
     }
     return r;
 }
@@ -579,7 +579,7 @@ static int ld_in( const instruction_t op,
     switch(t){
         case T_BOOL:
             if(op->byte >= p->ni)
-                return ERR_BADOPERAND;
+                return PLC_ERR_BADOPERAND;
             *val = resolve(p, BOOL_DI, 
                             (op->byte) * BYTESIZE + op->bit);
             if (op->modifier == IL_NEG)
@@ -591,7 +591,7 @@ static int ld_in( const instruction_t op,
         case T_DWORD:
         case T_LWORD:
             if(op->byte + offs >= p->ni)
-                return ERR_BADOPERAND;
+                return PLC_ERR_BADOPERAND;
                 
             *val = ld_bytes(op->byte, offs, p->inputs);    
             
@@ -600,7 +600,7 @@ static int ld_in( const instruction_t op,
             break;
       
         default: 
-            return ERR_BADOPERAND;
+            return PLC_ERR_BADOPERAND;
     }
     return r;    
 }
@@ -617,11 +617,11 @@ static int ld_re( const instruction_t op,
     int r = PLC_OK;
     int t = get_type(op);
     if(op->byte >= p->ni)
-                return ERR_BADOPERAND;
+                return PLC_ERR_BADOPERAND;
     if(t == T_BOOL)
             *val = re(p, BOOL_DI, (op->byte) * BYTESIZE + op->bit);
     else
-            r = ERR_BADOPERAND;
+            r = PLC_ERR_BADOPERAND;
     return r;    
 }
                           
@@ -637,12 +637,12 @@ static int ld_fe( const instruction_t op,
     int r = PLC_OK;
     int t = get_type(op);
     if(op->byte >= p->ni)
-                return ERR_BADOPERAND;
+                return PLC_ERR_BADOPERAND;
     if(t == T_BOOL)
             *val = fe(p, BOOL_DI, 
                       (op->byte) * BYTESIZE + op->bit);
     else 
-            r = ERR_BADOPERAND;
+            r = PLC_ERR_BADOPERAND;
     return r;    
 }              
 
@@ -656,7 +656,7 @@ int ld_in_r( const instruction_t op,
              double * val,
              plc_t p) {
     if(op->byte >= p->nai)
-                return ERR_BADOPERAND;
+                return PLC_ERR_BADOPERAND;
     BYTE i = op->byte;
     *val = p->ai[i].V;
     return PLC_OK;    
@@ -672,7 +672,7 @@ int ld_out_r( const instruction_t op,
             double * val,
             plc_t p) {
     if(op->byte >= p->naq)
-                return ERR_BADOPERAND;
+                return PLC_ERR_BADOPERAND;
     BYTE i = op->byte;
     *val = p->aq[i].V;
     return PLC_OK;    
@@ -694,7 +694,7 @@ int ld_out( const instruction_t op,
     switch(t){
         case T_BOOL:
              if(op->byte >= p->nq)
-                return ERR_BADOPERAND;
+                return PLC_ERR_BADOPERAND;
             *val = resolve(p, BOOL_DQ, 
                            (op->byte) * BYTESIZE + op->bit);
             if (op->modifier == IL_NEG)
@@ -706,7 +706,7 @@ int ld_out( const instruction_t op,
         case T_DWORD:
         case T_LWORD:
             if(op->byte + offs >= p->nq)
-                return ERR_BADOPERAND;
+                return PLC_ERR_BADOPERAND;
                 
             *val = ld_bytes(op->byte, offs, p->outputs);    
             
@@ -715,7 +715,7 @@ int ld_out( const instruction_t op,
             break;
         
         default: 
-            return ERR_BADOPERAND;
+            return PLC_ERR_BADOPERAND;
     }
     return r;    
 }
@@ -733,7 +733,7 @@ int ld_mem( const instruction_t op,
     int r = PLC_OK;
     int t = get_type(op);
     if(op->byte >= p->nm)
-                return ERR_BADOPERAND;
+                return PLC_ERR_BADOPERAND;
     int offs = (op->bit / BYTESIZE) - 1;
     uint64_t compl = 0x100;
                 
@@ -755,7 +755,7 @@ int ld_mem( const instruction_t op,
             break;
                 
         default: 
-            return ERR_BADOPERAND;
+            return PLC_ERR_BADOPERAND;
     } 
     return r;    
 }
@@ -770,7 +770,7 @@ int ld_mem_r( const instruction_t op,
               double * val,
               plc_t p) {
     if(op->byte >= p->nmr)
-                return ERR_BADOPERAND;
+                return PLC_ERR_BADOPERAND;
                 
     *val = p->mr[op->byte].V;
      if( op->modifier == IL_NEG )
@@ -797,7 +797,7 @@ static int ld_timer( const instruction_t op,
   but defining it means we are referring to t.Q, otherwise t.V
 */
     if(op->byte >= p->nt)
-                return ERR_BADOPERAND;
+                return PLC_ERR_BADOPERAND;
     switch(t){
         case T_BOOL:
             *val = resolve(p, BOOL_TIMER, op->byte);
@@ -817,7 +817,7 @@ static int ld_timer( const instruction_t op,
             break;
                 
         default: 
-            r = ERR_BADOPERAND;
+            r = PLC_ERR_BADOPERAND;
     }
     return r;    
 }
@@ -843,7 +843,7 @@ int handle_ld(  const instruction_t op,
     if((op->operation != IL_LD 
     && op->operation < FIRST_BITWISE)  
     || op->operation >= N_IL_INSN)
-        return ERR_BADOPERATOR; //sanity
+        return PLC_ERR_BADOPERATOR; //sanity
         
     switch (op->operand){
         case OP_OUTPUT:	//set output %QX.Y
@@ -876,7 +876,7 @@ int handle_ld(  const instruction_t op,
             
         case OP_BLINKOUT:	//bit is irrelevant
             if(op->byte >= p->ns)
-                return ERR_BADOPERAND;
+                return PLC_ERR_BADOPERAND;
             acc->u = resolve(p, BOOL_BLINKER, op->byte);
             break;
             
@@ -895,7 +895,7 @@ int handle_ld(  const instruction_t op,
             break;
             
         default:
-            r = ERR_BADOPERAND;
+            r = PLC_ERR_BADOPERAND;
             break;
     }
     return r;
@@ -922,11 +922,11 @@ int handle_stackable(   const instruction_t op,
     
     if(op->operation < FIRST_BITWISE 
     || op->operation >=  N_IL_INSN)
-        return ERR_BADOPERATOR; //sanity
+        return PLC_ERR_BADOPERATOR; //sanity
     
     int type = get_type(op);
     if(type == PLC_ERR)
-        return ERR_BADOPERAND;
+        return PLC_ERR_BADOPERAND;
     
     struct instruction loader;
     deepcopy(op, &loader);
@@ -969,12 +969,12 @@ int instruct(plc_t p, rung_t r, unsigned int *pc)
     }
     if(get(r, *pc , &op) < PLC_OK){   
         (*pc)++;
-        return ERR_BADOPERAND;
+        return PLC_ERR_BADOPERAND;
     }
     
     type = get_type(op);
     if(type == PLC_ERR)
-        return ERR_BADOPERAND;
+        return PLC_ERR_BADOPERAND;
     /*
     char dump[MAXSTR] = "";
     dump_instruction(op, dump);
@@ -1053,7 +1053,7 @@ int task(long timeout, plc_t p, rung_t r) {
     int rv = 0;    
 	while(rv >= PLC_OK && i < r->insno){
 	    if(delta >= timeout){
-	        rv = ERR_TIMEOUT;
+	        rv = PLC_ERR_TIMEOUT;
 	        break;
 	    }    
 	    pc = i;
@@ -1064,27 +1064,27 @@ int task(long timeout, plc_t p, rung_t r) {
                     plc_log("Instruction %d :%s", i, 
                             LibErrors[IE_PLC]);
                     break;
-                case ERR_BADOPERATOR:
+                case PLC_ERR_BADOPERATOR:
                     plc_log("Instruction %d :%s", i, 
                             LibErrors[IE_BADOPERATOR]);
                     break;
-                case ERR_BADCOIL:
+                case PLC_ERR_BADCOIL:
                     plc_log("Instruction %d :%s", i, 
                             LibErrors[IE_BADCOIL]);
                     break;
-                case ERR_BADINDEX:
+                case PLC_ERR_BADINDEX:
                     plc_log("Instruction %d :%s", i, 
                             LibErrors[IE_BADINDEX]);
                     break;
-                case ERR_BADOPERAND:
+                case PLC_ERR_BADOPERAND:
                     plc_log("Instruction %d :%s", i, 
                             LibErrors[IE_BADOPERAND]);
                     break;
-                case ERR_BADFILE:
+                case PLC_ERR_BADFILE:
                     plc_log("Instruction %d :%s", i, 
                              LibErrors[IE_BADFILE]);
                     break;
-                case ERR_BADCHAR:
+                case PLC_ERR_BADCHAR:
                     plc_log("Instruction %d :%s", i, 
                              LibErrors[IE_BADCHAR]);
                     break;    
@@ -1516,7 +1516,7 @@ BYTE manage_blinkers(plc_t p) {
 
 plc_t plc_load_program_file(const char * path, plc_t plc) {
     FILE * f;
-    int r = ERR_BADFILE;
+    int r = PLC_ERR_BADFILE;
     char program_lines[MAXBUF][MAXSTR];///program lines
     char line[MAXSTR];
     int i=0;
@@ -1569,7 +1569,7 @@ plc_t plc_start(plc_t p){
     || p->hw->status != PLC_OK
     || p->hw->enable() != PLC_OK
     ){
-       p->status = ERR_HARDWARE;
+       p->status = PLC_ERR_HARDWARE;
        //p->hw->status = PLC_ERR;
     } 
     if(p->status == ST_STOPPED){
@@ -1585,7 +1585,7 @@ plc_t plc_stop(plc_t p){
         return NULL;
     }
     if(p->hw == NULL){
-       p->status = ERR_HARDWARE;
+       p->status = PLC_ERR_HARDWARE;
        
        return p;
     } 
@@ -1656,7 +1656,7 @@ plc_t plc_func(plc_t p) {//TODO: this is a callback, supposed to be
         run_time =  dt.tv_usec;
         compute_variance((double)(run_time + poll_time + io_time));
         
-        if(r == ERR_TIMEOUT){    
+        if(r == PLC_ERR_TIMEOUT){
                 plc_log("timeout! i/o: %d us, poll: %d us, run: %d us",
                         io_time, poll_time, run_time);
         }
@@ -1866,10 +1866,10 @@ plc_t plc_declare_variable(const plc_t p,
     
     if(max == 0){
         
-        r->status = ERR_BADOPERAND;
+        r->status = PLC_ERR_BADOPERAND;
     } else if(idx >= max){
         
-        r->status = ERR_BADINDEX;
+        r->status = PLC_ERR_BADINDEX;
     } else {        
         //*nick = strdup_r(*nick, val);
         *nick = strdup(val);
@@ -1886,7 +1886,7 @@ plc_t plc_init_variable(const plc_t p, int var, BYTE idx, const char* val){
        case OP_REAL_MEMORY:
             len = r->nmr;
             if(idx >= len){
-                r->status = ERR_BADINDEX;
+                r->status = PLC_ERR_BADINDEX;
             } else {
                 r->mr[idx].V = atof(val);
             }
@@ -1895,14 +1895,14 @@ plc_t plc_init_variable(const plc_t p, int var, BYTE idx, const char* val){
         case OP_MEMORY:
             len = r->nm;
             if(idx >= len){
-                r->status = ERR_BADINDEX;
+                r->status = PLC_ERR_BADINDEX;
             } else {
                 r->m[idx].V = atol(val);
             }
             break;    
         
         default:
-            r->status = ERR_BADOPERAND; 
+            r->status = PLC_ERR_BADOPERAND;
             break;
     }
     return r;
@@ -1918,7 +1918,7 @@ plc_t plc_configure_variable_readonly(const plc_t p,
        case OP_REAL_MEMORY:
             len = r->nmr;
             if(idx >= len){
-                r->status = ERR_BADINDEX;
+                r->status = PLC_ERR_BADINDEX;
             } else {
                 r->mr[idx].RO = !strcmp(val, "TRUE");
             }
@@ -1927,14 +1927,14 @@ plc_t plc_configure_variable_readonly(const plc_t p,
         case OP_MEMORY:
             len = r->nm;
             if(idx >= len){
-                r->status = ERR_BADINDEX;
+                r->status = PLC_ERR_BADINDEX;
             } else {
                 r->m[idx].RO = !strcmp(val, "TRUE");
             }
             break;    
         
         default:
-            r->status = ERR_BADOPERAND; 
+            r->status = PLC_ERR_BADOPERAND;
             break;
     }
     return r;
@@ -1964,10 +1964,10 @@ plc_t plc_configure_io_limit(const plc_t p,
     
     if(io == NULL){
         
-        r->status = ERR_BADOPERAND;
+        r->status = PLC_ERR_BADOPERAND;
     } else if(idx >= len){
         
-        r->status = ERR_BADINDEX;
+        r->status = PLC_ERR_BADINDEX;
     } else if(upper) {        
         
         io[idx].max = atof(val);
@@ -1985,7 +1985,7 @@ plc_t plc_configure_counter_direction(const plc_t p,
     BYTE len = r->nm;
     
     if(idx >= len){
-        r->status = ERR_BADINDEX;
+        r->status = PLC_ERR_BADINDEX;
     } else {
         r->m[idx].DOWN = !strcmp(val, "DOWN");
     }
@@ -1999,7 +1999,7 @@ plc_t plc_configure_timer_scale(const plc_t p,
     BYTE len = r->nt;
     
     if(idx >= len){
-        r->status = ERR_BADINDEX;
+        r->status = PLC_ERR_BADINDEX;
     } else {
         r->t[idx].S = atol(val);
     }
@@ -2013,7 +2013,7 @@ plc_t plc_configure_timer_preset(const plc_t p,
     BYTE len = r->nt;
 
     if(idx >= len){
-        r->status = ERR_BADINDEX;
+        r->status = PLC_ERR_BADINDEX;
     } else {
         r->t[idx].P = atol(val);
     }
@@ -2026,7 +2026,7 @@ plc_t plc_configure_timer_delay_mode(const plc_t p,
     plc_t r = p;
     BYTE len = r->nt;
      if(idx >= len){
-        r->status = ERR_BADINDEX;
+        r->status = PLC_ERR_BADINDEX;
     } else {
         r->t[idx].ONDELAY = !strcmp(val, "ON");
     }
@@ -2040,7 +2040,7 @@ plc_t plc_configure_pulse_scale(const plc_t p,
     BYTE len = r->ns;
     
     if(idx >= len){
-        r->status = ERR_BADINDEX;
+        r->status = PLC_ERR_BADINDEX;
     } else {
         r->s[idx].S = atol(val);
     }

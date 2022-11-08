@@ -255,7 +255,7 @@ void ut_jmp()
     memset(&r, 0, sizeof(struct rung));
     
     result = handle_jmp(&r, &pc);
-    CU_ASSERT(result == ERR_BADOPERAND);
+    CU_ASSERT(result == PLC_ERR_BADOPERAND);
     
     struct instruction ins; 
     memset(&ins, 0, sizeof(struct instruction));
@@ -268,7 +268,7 @@ void ut_jmp()
     
    
     result = handle_jmp(&r, &pc);
-    CU_ASSERT(result == ERR_BADOPERATOR);
+    CU_ASSERT(result == PLC_ERR_BADOPERATOR);
     
  //jump to instruction 5   
     pc = 1;
@@ -320,23 +320,23 @@ void ut_set_reset()
     CU_ASSERT(result == PLC_ERR);
     
     result = handle_set( &ins, acc, FALSE, &p);
-    CU_ASSERT(result == ERR_BADOPERATOR);
+    CU_ASSERT(result == PLC_ERR_BADOPERATOR);
    
     result = handle_reset( NULL, acc, FALSE, &p);
     CU_ASSERT(result == PLC_ERR);
     
     result = handle_reset( &ins, acc, FALSE, &p);
-    CU_ASSERT(result == ERR_BADOPERATOR);
+    CU_ASSERT(result == PLC_ERR_BADOPERATOR);
     
     ins.operand = -1;
     
     ins.operation = IL_SET;
     result = handle_set( &ins, acc, FALSE, &p);
-    CU_ASSERT(result == ERR_BADOPERAND);
+    CU_ASSERT(result == PLC_ERR_BADOPERAND);
     
     ins.operation = IL_RESET;
     result = handle_reset( &ins, acc, FALSE, &p);
-    CU_ASSERT(result == ERR_BADOPERAND);
+    CU_ASSERT(result == PLC_ERR_BADOPERAND);
     memset(&ins, 0, sizeof(struct instruction));
     
     
@@ -346,11 +346,11 @@ void ut_set_reset()
     //only boolean
     ins.operation = IL_SET;
     result = handle_set(&ins, acc, FALSE, &p);
-    CU_ASSERT(result == ERR_BADOPERAND);
+    CU_ASSERT(result == PLC_ERR_BADOPERAND);
     
     ins.operation = IL_RESET;
     result = handle_reset( &ins, acc, FALSE, &p);
-    CU_ASSERT(result == ERR_BADOPERAND);
+    CU_ASSERT(result == PLC_ERR_BADOPERAND);
     
     acc.u = TRUE;
     ins.byte = p.nq;
@@ -358,12 +358,12 @@ void ut_set_reset()
     ins.operation = IL_SET;
     ins.modifier = IL_COND;
     result = handle_set( &ins, acc, TRUE, &p);
-    CU_ASSERT(result == ERR_BADOPERAND);
+    CU_ASSERT(result == PLC_ERR_BADOPERAND);
     
     ins.operation = IL_RESET;
     ins.modifier = IL_COND;
     result = handle_reset( &ins, acc, TRUE, &p);
-    CU_ASSERT(result == ERR_BADOPERAND);
+    CU_ASSERT(result == PLC_ERR_BADOPERAND);
     
     ins.byte = 1;
     ins.bit = 2;
@@ -394,7 +394,7 @@ void ut_set_reset()
     
     ins.byte = p.nt;
     result = handle_set(&ins, acc, TRUE, &p);
-    CU_ASSERT(result == ERR_BADOPERAND);
+    CU_ASSERT(result == PLC_ERR_BADOPERAND);
     
     ins.byte = 1;
     result = handle_set( &ins, acc, TRUE, &p);
@@ -404,7 +404,7 @@ void ut_set_reset()
     ins.operation = IL_RESET;
     ins.byte = p.nt;
     result = handle_reset( &ins, acc, TRUE, &p);
-    CU_ASSERT(result == ERR_BADOPERAND);
+    CU_ASSERT(result == PLC_ERR_BADOPERAND);
     
     ins.byte = 1;
     result = handle_reset( &ins, acc, FALSE, &p);
@@ -419,7 +419,7 @@ void ut_set_reset()
     
     ins.byte = p.nm;
     result = handle_set(&ins, acc, TRUE, &p);
-    CU_ASSERT(result == ERR_BADOPERAND);
+    CU_ASSERT(result == PLC_ERR_BADOPERAND);
     
     ins.byte = 1;
     result = handle_set( &ins, acc, TRUE, &p);
@@ -430,7 +430,7 @@ void ut_set_reset()
     ins.operation = IL_RESET;
     ins.byte = p.nm;
     result = handle_reset( &ins, acc, TRUE, &p);
-    CU_ASSERT(result == ERR_BADOPERAND);
+    CU_ASSERT(result == PLC_ERR_BADOPERAND);
     
     ins.byte = 1;
     result = handle_reset( &ins, acc, FALSE, &p);
@@ -457,13 +457,13 @@ void ut_st()
     CU_ASSERT(result == PLC_ERR);
     
     result = handle_st( &ins, acc, &p);
-    CU_ASSERT(result == ERR_BADOPERATOR);
+    CU_ASSERT(result == PLC_ERR_BADOPERATOR);
     
     ins.operand = -1;
     
     ins.operation = IL_ST;
     result = handle_st( &ins, acc, &p);
-    CU_ASSERT(result == ERR_BADOPERAND);
+    CU_ASSERT(result == PLC_ERR_BADOPERAND);
     
     //CONTACT
     ins.operand = OP_CONTACT;
@@ -474,7 +474,7 @@ void ut_st()
     ins.bit = 8;
     ins.byte = p.nq;
     result = handle_st( &ins, acc, &p);
-    CU_ASSERT(result == ERR_BADOPERAND);
+    CU_ASSERT(result == PLC_ERR_BADOPERAND);
     
     ins.byte = 1;
     result = handle_st(&ins, acc, &p);
@@ -484,7 +484,7 @@ void ut_st()
     //bool
     ins.byte = p.nq;
     result = handle_st(&ins, acc, &p);
-    CU_ASSERT(result == ERR_BADOPERAND);
+    CU_ASSERT(result == PLC_ERR_BADOPERAND);
     
     ins.byte = 1;
     ins.bit = 2;
@@ -502,7 +502,7 @@ void ut_st()
     p.aq[1].max = 5.0l;
     ins.byte = p.nq;
     result = handle_st( &ins, acc, &p);
-    CU_ASSERT(result == ERR_BADOPERAND);
+    CU_ASSERT(result == PLC_ERR_BADOPERAND);
     
     ins.byte = 1;
     result = handle_st(&ins, acc, &p);
@@ -520,7 +520,7 @@ void ut_st()
     ins.operand = OP_START;
     ins.byte = p.nt;
     result = handle_st( &ins, acc, &p);
-    CU_ASSERT(result == ERR_BADOPERAND);
+    CU_ASSERT(result == PLC_ERR_BADOPERAND);
     
     ins.byte = 1;
     result = handle_st( &ins, acc, &p);
@@ -534,7 +534,7 @@ void ut_st()
 
     ins.byte = p.nm;
     result = handle_st( &ins, acc, &p);
-    CU_ASSERT(result == ERR_BADOPERAND);
+    CU_ASSERT(result == PLC_ERR_BADOPERAND);
     
     ins.byte = 1;
     result = handle_st( &ins, acc, &p);
@@ -560,7 +560,7 @@ void ut_st()
 
     ins.byte = p.nmr;
     result = handle_st( &ins, acc, &p);
-    CU_ASSERT(result == ERR_BADOPERAND);
+    CU_ASSERT(result == PLC_ERR_BADOPERAND);
     
     ins.byte = 1;
     acc.r = -1.25l;
@@ -598,7 +598,7 @@ void ut_st_discrete()
     
     //overflow
     result = st_out(&ins, acc, &p);
-    CU_ASSERT(result == ERR_BADOPERAND);
+    CU_ASSERT(result == PLC_ERR_BADOPERAND);
     
     ins.byte = 1;
     //BIG endianness
@@ -719,13 +719,13 @@ void ut_ld()
     CU_ASSERT(result == PLC_ERR);
    
     result = handle_ld( &ins, &acc, &p);
-    CU_ASSERT(result == ERR_BADOPERATOR);
+    CU_ASSERT(result == PLC_ERR_BADOPERATOR);
     
     ins.operand = -1;
    
     ins.operation = IL_LD;
     result = handle_ld(&ins, &acc, &p);
-    CU_ASSERT(result == ERR_BADOPERAND);
+    CU_ASSERT(result == PLC_ERR_BADOPERAND);
 
     //OUTPUT
     ins.operand = OP_OUTPUT;
@@ -733,7 +733,7 @@ void ut_ld()
     ins.byte = p.nq;
     
     result = handle_ld( &ins, &acc, &p);
-    CU_ASSERT(result == ERR_BADOPERAND);
+    CU_ASSERT(result == PLC_ERR_BADOPERAND);
     ins.bit = 8;
     ins.byte = 1;
     
@@ -757,7 +757,7 @@ void ut_ld()
     ins.byte = p.nq;
     
     result = handle_ld( &ins, &acc, &p);
-    CU_ASSERT(result == ERR_BADOPERAND);
+    CU_ASSERT(result == PLC_ERR_BADOPERAND);
     ins.byte = 1;
     
     result = handle_ld( &ins, &acc, &p);
@@ -773,7 +773,7 @@ void ut_ld()
     ins.byte = p.ni;
     
     result = handle_ld( &ins, &acc, &p);
-    CU_ASSERT(result == ERR_BADOPERAND);
+    CU_ASSERT(result == PLC_ERR_BADOPERAND);
     ins.bit = 8;
     ins.byte = 1;
     p.inputs[1] = 123;
@@ -794,7 +794,7 @@ void ut_ld()
     ins.byte = p.ni;
     
     result = handle_ld( &ins, &acc, &p);
-    CU_ASSERT(result == ERR_BADOPERAND);
+    CU_ASSERT(result == PLC_ERR_BADOPERAND);
     ins.byte = 1;
     p.ai[1].V = 0.0l;
    // 0x8000000000000000;
@@ -811,7 +811,7 @@ void ut_ld()
     ins.byte = p.nm;
     
     result = handle_ld( &ins, &acc, &p);
-    CU_ASSERT(result == ERR_BADOPERAND);
+    CU_ASSERT(result == PLC_ERR_BADOPERAND);
     
     ins.modifier = IL_NEG;
     ins.byte = 1;
@@ -835,7 +835,7 @@ void ut_ld()
     ins.byte = p.nm;
     
     result = handle_ld( &ins, &acc, &p);
-    CU_ASSERT(result == ERR_BADOPERAND);
+    CU_ASSERT(result == PLC_ERR_BADOPERAND);
     
     ins.modifier = IL_NEG;
     ins.byte = 1;
@@ -854,7 +854,7 @@ void ut_ld()
     ins.byte = p.nt;
     
     result = handle_ld( &ins, &acc, &p);
-    CU_ASSERT(result == ERR_BADOPERAND);
+    CU_ASSERT(result == PLC_ERR_BADOPERAND);
     
     ins.bit = 8;
     ins.byte = 1;
@@ -875,7 +875,7 @@ void ut_ld()
     ins.byte = p.ns;
     
     result = handle_ld( &ins, &acc, &p);
-    CU_ASSERT(result == ERR_BADOPERAND);
+    CU_ASSERT(result == PLC_ERR_BADOPERAND);
     
     ins.byte = 1;
     p.s[1].Q = TRUE;
@@ -896,12 +896,12 @@ void ut_ld()
     ins.byte = p.ni;
     
     result = handle_ld( &ins, &acc, &p);
-    CU_ASSERT(result == ERR_BADOPERAND);
+    CU_ASSERT(result == PLC_ERR_BADOPERAND);
     
     ins.byte = 1;
     ins.bit = 8;  
     result = handle_ld( &ins, &acc, &p);
-    CU_ASSERT(result == ERR_BADOPERAND);
+    CU_ASSERT(result == PLC_ERR_BADOPERAND);
     ins.bit = 2;
     p.di[10].RE = TRUE;
     result = handle_ld( &ins, &acc, &p);
@@ -914,11 +914,11 @@ void ut_ld()
     ins.byte = p.ni;
     
     result = handle_ld( &ins, &acc, &p);
-    CU_ASSERT(result == ERR_BADOPERAND);
+    CU_ASSERT(result == PLC_ERR_BADOPERAND);
     ins.bit = 8;  
     ins.byte = 1;
     result = handle_ld(&ins, &acc, &p);
-    CU_ASSERT(result == ERR_BADOPERAND);
+    CU_ASSERT(result == PLC_ERR_BADOPERAND);
     ins.bit = 2;
     p.di[10].FE = TRUE;
     result = handle_ld(&ins, &acc, &p);
@@ -1082,7 +1082,7 @@ void ut_stackable()
     CU_ASSERT(result == PLC_ERR);
 
     result = handle_stackable( &ins, &r, &p);
-    CU_ASSERT(result == ERR_BADOPERATOR);
+    CU_ASSERT(result == PLC_ERR_BADOPERATOR);
      
     //no modifier should be the same as operate()
     BYTE op = FIRST_BITWISE;
@@ -2693,7 +2693,7 @@ void ut_task_timeout()
     long timeout = 0;
     
     result = task(timeout, &p, &r);
-    CU_ASSERT(result == ERR_TIMEOUT);
+    CU_ASSERT(result == PLC_ERR_TIMEOUT);
     
     //JMP while
     ins.operation = IL_JMP;
@@ -2708,7 +2708,7 @@ void ut_task_timeout()
     timeout = 10000;
     
     result = task(timeout, &p, &r);
-    CU_ASSERT(result == ERR_TIMEOUT);
+    CU_ASSERT(result == PLC_ERR_TIMEOUT);
     deinit_mock_plc(&p);
 }
 

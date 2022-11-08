@@ -35,14 +35,14 @@ void ut_parse_ld_line() {
   memset(&line, 0, sizeof(line));
   line.buf = " ---Y--";
   result = parse_ld_line(&line);
-  CU_ASSERT(result == ERR_BADOPERAND);
+  CU_ASSERT(result == PLC_ERR_BADOPERAND);
   CU_ASSERT(line.cursor == strlen(line.buf) - 2);
   CU_ASSERT(line.status == STATUS_ERROR);
 
   memset(&line, 0, sizeof(line));
   line.buf = " ---i--";
   result = parse_ld_line(&line);
-  CU_ASSERT(result == ERR_BADINDEX);
+  CU_ASSERT(result == PLC_ERR_BADINDEX);
   CU_ASSERT(line.cursor == strlen(line.buf) - 1);
   CU_ASSERT(line.status == STATUS_ERROR);
 
@@ -57,7 +57,7 @@ void ut_parse_ld_line() {
   memset(&line, 0, sizeof(line));
   line.buf = " ---i0/5--( ";
   result = parse_ld_line(&line);
-  CU_ASSERT(result == ERR_BADCOIL);
+  CU_ASSERT(result == PLC_ERR_BADCOIL);
   CU_ASSERT(line.cursor == strlen(line.buf) - 1);
   CU_ASSERT(line.status == STATUS_ERROR);
   CU_ASSERT(line.stmt == NULL);
@@ -65,7 +65,7 @@ void ut_parse_ld_line() {
   memset(&line, 0, sizeof(line));
   line.buf = " ---i0/5--(QQ ";
   result = parse_ld_line(&line);
-  CU_ASSERT(result == ERR_BADINDEX);
+  CU_ASSERT(result == PLC_ERR_BADINDEX);
   CU_ASSERT(line.cursor == strlen(line.buf) - 2);
   CU_ASSERT(line.status == STATUS_ERROR);
   CU_ASSERT(line.stmt == NULL);

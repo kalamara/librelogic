@@ -132,7 +132,7 @@ int extract_arguments(const char* buf,
     *byte = extract_number(buf);
     if (*byte == (BYTE)PLC_ERR){
     
-        return ERR_BADINDEX;
+        return PLC_ERR_BADINDEX;
     }    
     //find '/'. if not found truncate, return.
     char * cursor = strchr(buf, '/');
@@ -140,7 +140,7 @@ int extract_arguments(const char* buf,
     if (cursor){
         if (!isdigit(cursor[1]) || cursor[1] > '7'){
         
-            return ERR_BADINDEX;
+            return PLC_ERR_BADINDEX;
         } else {
             *bit = cursor[1] - '0';
         }
@@ -184,7 +184,7 @@ BYTE read_operand(const char *line, unsigned int index)
         r = OP_OUTPUT;
 		break;
 	default:
-		r = (BYTE)ERR_BADCHAR; //error
+		r = (BYTE)PLC_ERR_BADCHAR; //error
 	}
 //return value or error
 	return r;
@@ -368,7 +368,7 @@ int find_arguments(const char* buf,
         
     char* str = strchr(buf, '%');
     if (!str)
-        return ERR_BADCHAR;
+        return PLC_ERR_BADCHAR;
    
     //read first non-numeric char after '%'. if not found return error. store operand. chack if invalid (return error).
     int index = 1;
@@ -377,11 +377,11 @@ int find_arguments(const char* buf,
         index++;
     } else {
     
-        return ERR_BADOPERAND;
+        return PLC_ERR_BADOPERAND;
     }
-    if(*operand == (BYTE)ERR_BADCHAR){
+    if(*operand == (BYTE)PLC_ERR_BADCHAR){
     
-        return ERR_BADCHAR;    
+        return PLC_ERR_BADCHAR;
     }
     if (isalpha(str[index])){
         ret = read_type(str, operand, index);
@@ -393,7 +393,7 @@ int find_arguments(const char* buf,
     }
     if(index > strlen(str)){
     
-        return ERR_BADINDEX;
+        return PLC_ERR_BADINDEX;
     }
     ret = extract_arguments(str + index, byte, bit);
 
@@ -438,7 +438,7 @@ int parse_il_line(const char * line, rung_t r)
     oper = read_operator(buf, pos);
 
     if (oper == N_IL_INSN)
-		return ERR_BADOPERATOR;
+		return PLC_ERR_BADOPERATOR;
 
     if (oper > IL_CAL)
 	    find_arguments(buf, &operand, &byte, &bit);
@@ -452,10 +452,10 @@ int parse_il_line(const char * line, rung_t r)
 	op.bit = bit;
 	
 	if(check_modifier(&op)<0){
-        return ERR_BADOPERATOR;
+        return PLC_ERR_BADOPERATOR;
     }
     if(check_operand(&op)<0){
-        return ERR_BADOPERAND;
+        return PLC_ERR_BADOPERAND;
 	}
 	if(op.operation != IL_NOP){
 	    append(&op, r);
@@ -479,22 +479,22 @@ plc_t parse_il_program(const char * name,
             case PLC_ERR:
                 plc_log("Line %d :%s %s", i, IlErrors[IE_PLC], line);
                 break;
-            case ERR_BADOPERATOR:
+            case PLC_ERR_BADOPERATOR:
                 plc_log("Line %d :%s %s", i, IlErrors[IE_BADOPERATOR], line);
                 break;
-            case ERR_BADCOIL:
+            case PLC_ERR_BADCOIL:
                 plc_log("Line %d :%s %s", i, IlErrors[IE_BADCOIL], line);
                 break;
-            case ERR_BADINDEX:
+            case PLC_ERR_BADINDEX:
                 plc_log("Line %d :%s %s", i, IlErrors[IE_BADINDEX], line);
                 break;
-            case ERR_BADOPERAND:
+            case PLC_ERR_BADOPERAND:
                 plc_log("Line %d :%s %s", i, IlErrors[IE_BADOPERAND], line);
                 break;
-            case ERR_BADFILE:
+            case PLC_ERR_BADFILE:
                 plc_log("Line %d :%s %s", i, IlErrors[IE_BADFILE], line);
                 break;
-            case ERR_BADCHAR:
+            case PLC_ERR_BADCHAR:
                 plc_log("Line %d :%s %s", i, IlErrors[IE_BADCHAR], line);
                 break;    
             default: break;
@@ -516,17 +516,17 @@ int check_modifier(const instruction_t op)
     && op->operation < IL_ADD
     && op->modifier != IL_NEG 
     && op->modifier != IL_NORM) //only negation
-        r = ERR_BADOPERATOR;
+        r = PLC_ERR_BADOPERATOR;
 
     if (op->operation > IL_ST    // only push
     && op->modifier != IL_PUSH 
     && op->modifier != IL_NORM)
-        r = ERR_BADOPERATOR;
+        r = PLC_ERR_BADOPERATOR;
 
     if (op->operation > IL_CAL 
     && op->operation < IL_AND
     && op->modifier != IL_NORM)    //no modifier
-        r = ERR_BADOPERATOR;
+        r = PLC_ERR_BADOPERATOR;
     return r;
 }
 
@@ -548,12 +548,12 @@ int check_operand(instruction_t op)
             else if (op->operand == OP_REAL_MEMORY)
                 op->operand = OP_REAL_MEMIN;
             else    
-                r = ERR_BADOPERAND;    //outputs
+                r = PLC_ERR_BADOPERAND;    //outputs
         }
     }
     else if (op->operation > IL_CAL
          && (op->operand < OP_INPUT || op->operand > OP_CONTACT))
-        r = ERR_BADOPERAND;
+        r = PLC_ERR_BADOPERAND;
     return r;
 }
 

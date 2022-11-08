@@ -116,11 +116,11 @@ int handle_coil(const int type, ld_line_t line) {
 		                               type);
 		    line->status = STATUS_RESOLVED;
 		} else {
-			rv = ERR_BADINDEX;
+			rv = PLC_ERR_BADINDEX;
 			line->status = STATUS_ERROR;
 	    }
 	} else {
-		rv = ERR_BADCOIL;
+		rv = PLC_ERR_BADCOIL;
 		line->status = STATUS_ERROR;
     }
     return rv;
@@ -148,11 +148,11 @@ int handle_operand(int operand,
 			                                 IL_AND,
 			                                 IL_PUSH | (negate?IL_NEG:IL_NORM));
 		} else {
-			rv = ERR_BADINDEX;
+			rv = PLC_ERR_BADINDEX;
 			line->status = STATUS_ERROR;		    
 		}
 	} else {
-		rv = ERR_BADOPERAND;
+		rv = PLC_ERR_BADOPERAND;
 	    line->status = STATUS_ERROR;
 	}
 	line->cursor++;
@@ -236,7 +236,7 @@ BYTE read_char(const char *line, unsigned int c) {
         r = OP_WRITE;
 		break;
 	default:
-		r = (BYTE)ERR_BADCHAR; //error
+		r = (BYTE)PLC_ERR_BADCHAR; //error
 	}
 //return value or error
 	return r;
@@ -256,7 +256,7 @@ int parse_ld_line(ld_line_t line) {
 		switch (c) {
 		    case LD_NODE://PAUSE
 				break;	
-			case ERR_BADCHAR:
+			case PLC_ERR_BADCHAR:
 			case (BYTE)PLC_ERR:
 				rv = PLC_ERR;
 				line->status = STATUS_ERROR;

@@ -155,19 +155,19 @@ void ut_arguments()
     
     sprintf(line, "%s", "aqhsgdf");
     result = find_arguments(line, &operand, &byte, &bit); 
-    CU_ASSERT(result == ERR_BADCHAR);
+    CU_ASSERT(result == PLC_ERR_BADCHAR);
     
     sprintf(line, "%s", "aqh\%9df");
     result = find_arguments(line, &operand, &byte, &bit); 
-    CU_ASSERT(result == ERR_BADOPERAND);
+    CU_ASSERT(result == PLC_ERR_BADOPERAND);
     
     sprintf(line, "%s", "aqh\%zdf");
     result = find_arguments(line, &operand, &byte, &bit); 
-    CU_ASSERT(result == ERR_BADCHAR);
+    CU_ASSERT(result == PLC_ERR_BADCHAR);
     
     sprintf(line, "%s", "aqh\%mdf");
     result = find_arguments(line, &operand, &byte, &bit); 
-    CU_ASSERT(result ==  ERR_BADINDEX);
+    CU_ASSERT(result ==  PLC_ERR_BADINDEX);
     CU_ASSERT(operand == OP_MEMORY);
     
     sprintf(line, "%s", "aqh\%i25f");
@@ -179,14 +179,14 @@ void ut_arguments()
     
     sprintf(line, "%s", "\%t25/f");
     result = find_arguments(line, &operand, &byte, &bit); 
-    CU_ASSERT(result == ERR_BADINDEX);
+    CU_ASSERT(result == PLC_ERR_BADINDEX);
     CU_ASSERT(operand == OP_TIMEOUT);
     CU_ASSERT(byte == 25);
     CU_ASSERT(bit == BYTESIZE);
     
     sprintf(line, "%s", "\%q25/9");
     result = find_arguments(line, &operand, &byte, &bit); 
-    CU_ASSERT(result == ERR_BADINDEX);
+    CU_ASSERT(result == PLC_ERR_BADINDEX);
     CU_ASSERT(operand == OP_OUTPUT);
     CU_ASSERT(byte == 25);
     CU_ASSERT(bit == BYTESIZE);

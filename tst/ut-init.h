@@ -74,11 +74,11 @@ void ut_config(){
     plc_t plc = plc_new(8,8,4,4,4,4,4,4,100,NULL);
 
     plc = plc_declare_variable(plc, 0, 99, "input_1");
-    CU_ASSERT(plc->status == ERR_BADOPERAND);
+    CU_ASSERT(plc->status == PLC_ERR_BADOPERAND);
 
     plc->status = PLC_OK;
     plc = plc_declare_variable(plc, OP_INPUT, 99, "input_1");
-    CU_ASSERT(plc->status == ERR_BADINDEX);
+    CU_ASSERT(plc->status == PLC_ERR_BADINDEX);
 
     plc->status = PLC_OK;
     plc = plc_declare_variable(plc, OP_INPUT, 1, "input_1");
@@ -89,7 +89,7 @@ void ut_config(){
     CU_ASSERT_STRING_EQUAL(plc->dq[2].nick, "output_1");
     
     plc = plc_declare_variable(plc, OP_REAL_INPUT, 5, "input_1");
-    CU_ASSERT(plc->status == ERR_BADINDEX);
+    CU_ASSERT(plc->status == PLC_ERR_BADINDEX);
 
     plc->status = PLC_OK;
 
@@ -99,11 +99,11 @@ void ut_config(){
 /*******************************************************************/
 
     plc = plc_configure_io_limit(plc, 0, 99, "0.0", TRUE);
-    CU_ASSERT(plc->status == ERR_BADOPERAND);
+    CU_ASSERT(plc->status == PLC_ERR_BADOPERAND);
 
     plc->status = PLC_OK;
     plc = plc_configure_io_limit(plc, OP_REAL_OUTPUT, 99, "", FALSE);
-    CU_ASSERT(plc->status == ERR_BADINDEX);
+    CU_ASSERT(plc->status == PLC_ERR_BADINDEX);
 
     plc->status = PLC_OK;
     plc = plc_configure_io_limit(plc, OP_REAL_INPUT, 1, "-10.0", FALSE);
@@ -113,11 +113,11 @@ void ut_config(){
 /*******************************************************************/    
     
     plc = plc_init_variable(plc, 0, 99, "0.0");
-    CU_ASSERT(plc->status == ERR_BADOPERAND);
+    CU_ASSERT(plc->status == PLC_ERR_BADOPERAND);
 
     plc->status = PLC_OK;
     plc = plc_init_variable(plc, OP_MEMORY, 99, "");
-    CU_ASSERT(plc->status == ERR_BADINDEX);
+    CU_ASSERT(plc->status == PLC_ERR_BADINDEX);
 
     plc->status = PLC_OK;
     plc = plc_init_variable(plc, OP_REAL_MEMORY, 1, "-10.0");
@@ -127,10 +127,10 @@ void ut_config(){
 /*******************************************************************/    
     
     plc = plc_configure_variable_readonly(plc, 0, 99, "FALSE");
-    CU_ASSERT(plc->status == ERR_BADOPERAND);
+    CU_ASSERT(plc->status == PLC_ERR_BADOPERAND);
 
     plc = plc_configure_variable_readonly(plc, OP_MEMORY, 99, "TRUE");
-    CU_ASSERT(plc->status == ERR_BADINDEX);
+    CU_ASSERT(plc->status == PLC_ERR_BADINDEX);
 
     plc->status = PLC_OK;
     plc = plc_configure_variable_readonly(plc, OP_REAL_MEMORY, 1, "TRUE");
@@ -140,7 +140,7 @@ void ut_config(){
 /*******************************************************************/
 
     plc = plc_configure_counter_direction(plc, 99, "UP");
-    CU_ASSERT(plc->status == ERR_BADINDEX);
+    CU_ASSERT(plc->status == PLC_ERR_BADINDEX);
 
     plc->status = PLC_OK;
     plc = plc_configure_counter_direction(plc, 1, "DOWN");
@@ -150,7 +150,7 @@ void ut_config(){
 /*******************************************************************/
 
     plc = plc_configure_timer_scale(plc, 99, "105");
-    CU_ASSERT(plc->status == ERR_BADINDEX);
+    CU_ASSERT(plc->status == PLC_ERR_BADINDEX);
 
     plc->status = PLC_OK;
     plc = plc_configure_timer_scale(plc, 1, "105");
@@ -160,7 +160,7 @@ void ut_config(){
 /*******************************************************************/
     
     plc = plc_configure_timer_preset(plc, 99, "105");
-    CU_ASSERT(plc->status == ERR_BADINDEX);
+    CU_ASSERT(plc->status == PLC_ERR_BADINDEX);
 
     plc->status = PLC_OK;
     plc = plc_configure_timer_preset(plc, 1, "105");
@@ -170,7 +170,7 @@ void ut_config(){
 /*******************************************************************/
 
     plc = plc_configure_timer_delay_mode(plc, 99, "OFF");
-    CU_ASSERT(plc->status == ERR_BADINDEX);
+    CU_ASSERT(plc->status == PLC_ERR_BADINDEX);
 
     plc->status = PLC_OK;
     plc = plc_configure_timer_delay_mode(plc, 1, "ON");
@@ -180,7 +180,7 @@ void ut_config(){
 /******************************************************************/  
    
     plc = plc_configure_pulse_scale(plc, 99, "105");
-    CU_ASSERT(plc->status == ERR_BADINDEX);
+    CU_ASSERT(plc->status == PLC_ERR_BADINDEX);
 
     plc->status = PLC_OK;
     plc = plc_configure_pulse_scale(plc, 1, "105");
@@ -202,24 +202,24 @@ void ut_start_stop()
      CU_ASSERT_PTR_NULL(r);
      plc_t plc = plc_new(8,8,4,4,4,4,4,4,100,NULL);
      r = plc_start(plc);
-     CU_ASSERT(r->status == ERR_HARDWARE);
+     CU_ASSERT(r->status == PLC_ERR_HARDWARE);
      
      r = plc_stop(NULL);
      CU_ASSERT_PTR_NULL(r);
      
      r = plc_stop(plc);
-     CU_ASSERT(r->status == ERR_HARDWARE);
+     CU_ASSERT(r->status == PLC_ERR_HARDWARE);
      
      //hardware is not configured correctly
      plc->hw = plc_get_hardware(HW_SIM);
      plc->hw->status = PLC_ERR;
 
      r = plc_start(plc);
-     CU_ASSERT(plc->status == ERR_HARDWARE);
+     CU_ASSERT(plc->status == PLC_ERR_HARDWARE);
      
      //stop should have no effect
      r = plc_stop(plc);        
-     CU_ASSERT(plc->status == ERR_HARDWARE);
+     CU_ASSERT(plc->status == PLC_ERR_HARDWARE);
      
      //hardware is configured correctly but fails to start
      plc->hw->enable = stub_enable_fails;
@@ -232,7 +232,7 @@ void ut_start_stop()
      
      r = plc_start(plc);
      
-     CU_ASSERT(plc->status == ERR_HARDWARE);
+     CU_ASSERT(plc->status == PLC_ERR_HARDWARE);
      plc->hw->enable = stub_enable;
      
      //status other than ST_STOPPED
