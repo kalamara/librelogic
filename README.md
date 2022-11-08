@@ -150,7 +150,7 @@ Supported Operators are:
     ) close parenthesis (pop instruction from stack)    
     S set output
     R reset output
-```
+
     AND
     OR
     XOR
@@ -167,6 +167,7 @@ Supported Operators are:
     LE	<=
     LT	<
     JMP	jump to label
+```
 Modifier symbols recognized are:
 
 ```console
