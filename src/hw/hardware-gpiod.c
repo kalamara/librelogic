@@ -16,12 +16,9 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _HARDWARE_GPIOD_H_
-#define _HARDWARE_GPIOD_H_
-
 #ifdef GPIOD
-
 #include <gpiod.h>
+#include <stddef.h>
 
 #include "data.h"
 #include "instruction.h"
@@ -85,8 +82,7 @@ int gpiod_config(void *conf) {
     return PLC_OK;
 }
 
-int gpiod_enable() // Enable
-{
+int gpiod_enable() { // Enable
     unsigned int i = 0;
     unsigned int q = 0;
     int ok = 0;
@@ -112,8 +108,7 @@ int gpiod_enable() // Enable
     return PLC_OK;
 }
 
-int gpiod_disable() // Disable
-{
+int gpiod_disable() { // Disable
     unsigned int i = 0;
     unsigned int q = 0;
     for (; i < MaxIn; i++) { // Release GPIO lines
@@ -139,7 +134,7 @@ int gpiod_flush() {
 void gpiod_dio_read(unsigned int n, PLC_BYTE *bit) {
     if (n < MaxIn) {
         int v = gpiod_line_get_value(InLines[n]);
-        *bit = (PLC_BYTE) v;
+        *bit = (BYTE) v;
     }
     return;
 }
@@ -167,7 +162,7 @@ void gpiod_data_write(unsigned int index, uint64_t value) {
 
 struct hardware Gpiod = {
         HW_GPIOD,
-        0,                  // errorcode
+        0,                  // error code
         "GPIOD",
         gpiod_enable,       // enable
         gpiod_disable,      // disable
@@ -182,5 +177,3 @@ struct hardware Gpiod = {
 };
 
 #endif
-
-#endif /* _HARDWARE_GPIOD_H_ */

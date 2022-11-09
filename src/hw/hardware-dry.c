@@ -16,9 +16,6 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _HARDWARE_DRY_H_
-#define _HARDWARE_DRY_H_
-
 #include "data.h"
 #include "instruction.h"
 #include "rung.h"
@@ -67,7 +64,7 @@ void dry_data_write(unsigned int index, uint64_t value) {
 
 struct hardware Dry = {
         HW_DRY,
-        0,               // errorcode
+        0,                // error code
         "no hardware",
         dry_enable,       // enable
         dry_disable,      // disable
@@ -80,5 +77,3 @@ struct hardware Dry = {
         dry_data_write,   // data_write
         dry_config,       // hw_config
 };
-
-#endif /* _HARDWARE_DRY_H_ */

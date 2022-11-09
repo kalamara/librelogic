@@ -16,11 +16,6 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _HARDWARE_USPACE_H_
-#define _HARDWARE_USPACE_H_
-
-#ifdef USPACE
-
 #include <unistd.h>
 #include <sys/io.h>
 #include <sys/types.h>
@@ -75,7 +70,7 @@ int usp_disable() { // Disable bus communication
         fprintf(stderr, "Unable to change id to root\nExiting\n");
         return PLC_ERR;
     }
-    if (iopl(0)) { // Normal i/o prevelege level
+    if (iopl(0)) { // Normal i/o privilege level
         perror("iopl() ");
         r = setuid(uid);
         return PLC_ERR;
@@ -94,7 +89,7 @@ int usp_flush() {
 
 void usp_dio_read(unsigned int n, PLC_BYTE *bit) { // write input n to bit
     unsigned int b;
-    PLC_BYTEi;
+    PLC_BYTE i;
     i = inb(Io_base + Rd_offs + n / BYTESIZE);
     b = (i >> n % BYTESIZE) % 2;
     *bit = (PLC_BYTE) b;
@@ -126,7 +121,7 @@ void usp_data_write(unsigned int index, uint64_t value) {
 
 struct hardware Uspace = {
         HW_USPACE,
-        0,                // errorcode
+        0,                // error code
         "",
         usp_enable,       // enable
         usp_disable,      // disable
@@ -139,7 +134,3 @@ struct hardware Uspace = {
         usp_data_write,   // data_write
         usp_config,       // hw_config
 };
-
-#endif
-
-#endif /* _HARDWARE_USPACE_H_ */
