@@ -56,4 +56,4 @@ int gen_expr_right(const item_t right, rung_t rung, BYTE op, BYTE mod);
  */
 int gen_ass(const item_t assignment, rung_t rung);
 
-#endif //_CODEGEN_H_
+#endif /* _CODEGEN_H_ */

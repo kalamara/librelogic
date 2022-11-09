@@ -76,9 +76,9 @@ int sim_config(void *conf) {
     return r;
 }
 
-int sim_enable() { /* Enable bus communication */
+int sim_enable() { // Enable bus communication
     int r = PLC_OK;
-    /*open input and output streams*/
+    // open input and output streams
 
     if (!(BufIn = (char*) malloc(Ni))) {
         r = PLC_ERR;
@@ -103,9 +103,9 @@ int sim_enable() { /* Enable bus communication */
     return r;
 }
 
-int sim_disable() { /* Disable bus communication */
+int sim_disable() { // Disable bus communication
     int r = PLC_OK;
-    /*close streams*/
+    // close streams
     if (Ifd && !fclose(Ifd)) {
         r = PLC_ERR;
     }
@@ -166,21 +166,19 @@ int sim_flush() {
     return bytes_written;
 }
 
-void sim_dio_read(unsigned int n, BYTE *bit) {    //write input n to bit
+void sim_dio_read(unsigned int n, BYTE *bit) { // write input n to bit
     unsigned int b, position;
     position = n / BYTESIZE;
     BYTE i = 0;
     if (strlen(BufIn) > position) {
-        /*read a byte from input stream*/
+        // read a byte from input stream
         i = BufIn[position];
     }
     b = (i >> n % BYTESIZE) % 2;
     *bit = (BYTE) b;
 }
 
-void sim_dio_write(const unsigned char *buf, unsigned int n, BYTE bit)
-
-{    //write bit to n output
+void sim_dio_write(const unsigned char *buf, unsigned int n, BYTE bit) { //write bit to n output
     BYTE q;
     unsigned int position = n / BYTESIZE;
     q = buf[position];
@@ -193,7 +191,7 @@ void sim_dio_write(const unsigned char *buf, unsigned int n, BYTE bit)
     }
 }
 
-void sim_dio_bitfield(const BYTE *mask, BYTE *bits) {    //simultaneusly write output bits defined by mask and read all inputs
+void sim_dio_bitfield(const BYTE *mask, BYTE *bits) { // simultaneusly write output bits defined by mask and read all inputs
     /* FIXME
      int i=0;
      unsigned int w = (unsigned int) (*mask);

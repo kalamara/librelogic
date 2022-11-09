@@ -43,39 +43,39 @@ int usp_config(void *conf) {
     return PLC_OK;
 }
 
-int usp_enable() { /* Enable bus communication */
-    int uid = getuid(); /* get User id */
-    int r = seteuid(0); /* set User Id to root (0) */
+int usp_enable() { // Enable bus communication
+    int uid = getuid(); // get User id
+    int r = seteuid(0); // set User Id to root (0)
     if (r < 0 || geteuid() != 0) {
         fprintf(stderr, "FATAL ERROR: UNABLE TO CHANGE TO ROOT\n");
         return PLC_ERR;
     }
     if (iopl(3)) {
-        /* request bus WR i/o permission */
+        // request bus WR i/o permission
         fprintf(stderr, "FATAL ERROR: UNABLE TO GET I/O PORT PERMISSION\n");
         perror("iopl() ");
         r = seteuid(uid);
         return PLC_ERR;
     }
-    r = seteuid(uid); /* reset User Id */
-    outb(0, Io_base + Wr_offs); //clear outputs port
+    r = seteuid(uid); // reset User Id
+    outb(0, Io_base + Wr_offs); // clear outputs port
     printf("io card enabled\n");
     return PLC_OK;
 }
 
-int usp_disable() { /* Disable bus communication */
-    int uid = getuid(); /* get User id */
-    int r = setuid(0); /* set User Id to root (0) */
+int usp_disable() { // Disable bus communication
+    int uid = getuid(); // get User id
+    int r = setuid(0); // set User Id to root (0)
     if (r < 0 || getuid() != 0) {
         fprintf(stderr, "Unable to change id to root\nExiting\n");
         return PLC_ERR;
     }
-    if (iopl(0)) { /* Normal i/o prevelege level */
+    if (iopl(0)) { // Normal i/o prevelege level
         perror("iopl() ");
         r = setuid(uid);
         return PLC_ERR;
     }
-    r = setuid(uid); /* reset User Id */
+    r = setuid(uid); // reset User Id
     return PLC_OK;
 }
 
@@ -87,7 +87,7 @@ int usp_flush() {
     return 0;
 }
 
-void usp_dio_read(unsigned int n, BYTE *bit) {    //write input n to bit
+void usp_dio_read(unsigned int n, BYTE *bit) { // write input n to bit
     unsigned int b;
     BYTE i;
     i = inb(Io_base + Rd_offs + n / BYTESIZE);
@@ -95,14 +95,14 @@ void usp_dio_read(unsigned int n, BYTE *bit) {    //write input n to bit
     *bit = (BYTE) b;
 }
 
-void usp_dio_write(const BYTE *buf, unsigned int n, unsigned char bit) {    //write bit to n output
+void usp_dio_write(const BYTE *buf, unsigned int n, unsigned char bit) { // write bit to n output
     BYTE q;
     q = buf[n / BYTESIZE];
     q |= bit << n % BYTESIZE;
     outb(q, Io_base + Wr_offs + n / BYTESIZE);
 }
 
-void usp_dio_bitfield(const BYTE *write_mask, BYTE *bits) {    //simultaneusly write output bits defined my mask and read all inputs
+void usp_dio_bitfield(const BYTE *write_mask, BYTE *bits) { // simultaneusly write output bits defined my mask and read all inputs
     /*FIXME
      int i;
      for (i = 0; i < Dq; i++)
@@ -112,11 +112,11 @@ void usp_dio_bitfield(const BYTE *write_mask, BYTE *bits) {    //simultaneusly w
 }
 
 void usp_data_read(unsigned int index, uint64_t *value) {
-    return; //unimplemented for user space
+    return; // unimplemented for user space
 }
 
 void usp_data_write(unsigned int index, uint64_t value) {
-    return; //unimplemented for user space
+    return; // unimplemented for user space
 }
 
 struct hardware Uspace = {

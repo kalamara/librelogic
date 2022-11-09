@@ -82,7 +82,7 @@ int gpiod_config(void *conf) {
     return PLC_OK;
 }
 
-int gpiod_enable() { /* Enable */
+int gpiod_enable() { // Enable
     unsigned int i = 0;
     unsigned int q = 0;
     int ok = 0;
@@ -108,7 +108,7 @@ int gpiod_enable() { /* Enable */
     return PLC_OK;
 }
 
-int gpiod_disable() { /* Disable */
+int gpiod_disable() { // Disable
     unsigned int i = 0;
     unsigned int q = 0;
     for (; i < MaxIn; i++) { // Release GPIO lines

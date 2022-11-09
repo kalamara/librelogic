@@ -26,11 +26,11 @@ int dry_config(void *conf) {
     return PLC_OK;
 }
 
-int dry_enable() { /* Enable bus communication */
+int dry_enable() { // Enable bus communication
     return PLC_OK;
 }
 
-int dry_disable() { /* Disable bus communication */
+int dry_disable() { // Disable bus communication
     return PLC_OK;
 }
 

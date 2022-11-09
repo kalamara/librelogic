@@ -25,15 +25,15 @@
  *IL modifiers
  */
 typedef enum {
-    IL_NORM = 0x0,    /// ' '
-    IL_NEG = 0x1,    /// '!'
-    IL_PUSH = 0x2,    /// '('
-    IL_COND = 0x4,    ///'?'
+    IL_NORM = 0x0, // ' '
+    IL_NEG  = 0x1, // '!'
+    IL_PUSH = 0x2, // '('
+    IL_COND = 0x4, // '?'
 } IL_MODIFIERS;
 #define N_IL_MODIFIERS 4
 #define IS_MODIFIER(x) (x >= IL_NORM && x <= IL_COND)
 
-#define MAX_LABEL 1024
+#define MAX_LABEL      1024
 
 /**
  * @brief The instruction struct
@@ -67,4 +67,4 @@ void deepcopy(const instruction_t from, instruction_t to);
 
 void dump_instruction(instruction_t ins, char *dump);
 
-#endif // _INSTRUCTION_H_
+#endif /* _INSTRUCTION_H_ */

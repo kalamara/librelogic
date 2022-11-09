@@ -24,60 +24,60 @@
 #include "instruction.h"
 
 const char IlCommands[N_IL_INSN][LABELLEN] = {
-        "",
-        ")",
-        "RET",
-        "JMP",
-        "CAL",
-        "S",
-        "R",
-        "LD",
-        "ST",
-        "AND",
-        "OR",
-        "XOR",
-        "ADD",
-        "SUB",
-        "MUL",
-        "DIV",
-        "GT",
-        "GE",
-        "EQ",
-        "NE",
-        "LT",
-        "LE"
+        "",    //
+        ")",   //
+        "RET", //
+        "JMP", //
+        "CAL", //
+        "S",   //
+        "R",   //
+        "LD",  //
+        "ST",  //
+        "AND", //
+        "OR",  //
+        "XOR", //
+        "ADD", //
+        "SUB", //
+        "MUL", //
+        "DIV", //
+        "GT",  //
+        "GE",  //
+        "EQ",  //
+        "NE",  //
+        "LT",  //
+        "LE"   //
 };
 
 const char IlOperands[N_OPERANDS][3] = {
-        "i",
-        "if",
-        "f",
-        "r",
-        "m",
-        "mf",
-        "c",
-        "b",
-        "t",
-        "q",
-        "qf",
-        "Q",
-        "QF",
-        "T",
-        "M",
-        "MF",
-        "W",
-        "",
+        "i",  //
+        "if", //
+        "f",  //
+        "r",  //
+        "m",  //
+        "mf", //
+        "c",  //
+        "b",  //
+        "t",  //
+        "q",  //
+        "qf", //
+        "Q",  //
+        "QF", //
+        "T",  //
+        "M",  //
+        "MF", //
+        "W",  //
+        "",   //
 };
 
 const char IlModifiers[N_IL_MODIFIERS][2] = {
-        "!",
-        "(",
-        " ",
-        "?",
+        "!", //
+        "(", //
+        " ", //
+        "?", //
 };
 
 int get_type(const instruction_t ins) {
-    int rv = -1; //ERR
+    int rv = -1; // ERR
     
     if (ins != NULL && OP_VALID(ins->operand)) {
         unsigned char x = ins->bit;
@@ -111,7 +111,7 @@ int get_type(const instruction_t ins) {
 }
 
 void deepcopy(const instruction_t from, instruction_t to) {
-    //deepcopy        
+    // deepcopy
     to->operation = from->operation;
     to->operand = from->operand;
     to->modifier = from->modifier;
@@ -132,7 +132,7 @@ void dump_label(char *label, char *dump) {
     }
 }
 
-//print correct modifier
+// print correct modifier
 const char* get_mod(int mod) {
     switch (mod) {
         case IL_NEG:

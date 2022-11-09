@@ -51,7 +51,7 @@ int com_config(void *conf) {
     return PLC_OK;
 }
 
-int com_enable() { /* Enable bus communication */
+int com_enable() { // Enable bus communication
     int r = 0;
 
     char filestr[MEDSTR];
@@ -60,16 +60,16 @@ int com_enable() { /* Enable bus communication */
     printf("%s\n", filestr);
     if ((it = comedi_open(filestr)) == NULL)
         r = -1;
-    //    printf("io card enabled\n");
+    //printf("io card enabled\n");
     return r;
 }
 
-int com_disable() { /* Disable bus communication */
+int com_disable() { // Disable bus communication
     comedi_close(it);
     return PLC_OK;
 }
 
-int com_fetch() { //COMEDI has already fetched them for you
+int com_fetch() { // COMEDI has already fetched them for you
     return 0;
 }
 
@@ -77,17 +77,17 @@ int com_flush() {
     return 0;
 }
 
-void com_dio_read(unsigned int index, BYTE *value) {    //write input n to bit
+void com_dio_read(unsigned int index, BYTE *value) { // write input n to bit
     unsigned int b;
     comedi_dio_read(it, Comedi_subdev_i, index, &b);
     *value = (BYTE) b;
 }
 
-void com_dio_write(const BYTE *value, unsigned int n, unsigned char bit) {    //write bit to n output
+void com_dio_write(const BYTE *value, unsigned int n, unsigned char bit) { // write bit to n output
     comedi_dio_write(it, Comedi_subdev_q, n, bit);
 }
 
-void com_dio_bitfield(const unsigned char *mask, unsigned char *bits) {    //simultaneusly write output bits defined my mask and read all inputs
+void com_dio_bitfield(const unsigned char *mask, unsigned char *bits) { // simultaneously write output bits defined my mask and read all inputs
     /*    FIXME int i;
      unsigned int w, b;
      w = (unsigned int) (*mask);
@@ -97,16 +97,16 @@ void com_dio_bitfield(const unsigned char *mask, unsigned char *bits) {    //sim
 
 void com_data_read(unsigned int index, uint64_t *value) {
     lsampl_t data;
-    comedi_data_read(it, Comedi_subdev_ai, index, 0,    //unsigned int range,
-            AREF_GROUND,    //unsigned int aref,
+    comedi_data_read(it, Comedi_subdev_ai, index, 0, // unsigned int range,
+            AREF_GROUND, // unsigned int aref,
             &data);
     *value = (uint64_t) data;
 }
 
 void com_data_write(unsigned int index, uint64_t value) {
     lsampl_t data = (lsampl_t)(value % 0x100000000);
-    comedi_data_write(it, Comedi_subdev_aq, index, 0,    //unsigned int range,
-            AREF_GROUND,    //unsigned int aref,
+    comedi_data_write(it, Comedi_subdev_aq, index, 0, // unsigned int range,
+            AREF_GROUND, // unsigned int aref,
             data);
 }
 

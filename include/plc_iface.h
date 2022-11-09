@@ -22,10 +22,10 @@ typedef enum {
     HW_DRY,
     HW_SIM,
     HW_COMEDI,
-    HW_USPACE, //TODO: update with current linux kernels
+    HW_USPACE, // TODO: update with current linux kernels
     HW_GPIOD,
-    HW_IIO, //TODO Linux industrial I/O
-    HW_USB, //TODO FAR IN THE FUTURE
+    HW_IIO,    // TODO Linux industrial I/O
+    HW_USB,    // TODO FAR IN THE FUTURE
     N_HW
 } HARDWARES;
 
@@ -39,7 +39,7 @@ typedef struct config_uspace {
 typedef struct config_sim {
     const char *ifname;
     const char *ofname;
-    uint32_t in_size; //bytes
+    uint32_t in_size; // bytes
     uint32_t out_size;
     uint32_t adc_size;
     uint32_t dac_size;
@@ -64,7 +64,7 @@ typedef struct config_gpiod {
     const char *label;
 } *conf_gpiod_t;
 
-typedef int (*helper_f)(); //generic helper functions only return an error code
+typedef int (*helper_f)(); // generic helper functions only return an error code
 
 typedef void (*dio_rd_f)(unsigned int, unsigned char*);
 typedef void (*dio_wr_f)(const unsigned char*, unsigned int, unsigned char);

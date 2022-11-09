@@ -24,8 +24,7 @@
 
 #include "plclib.h"
 
-/*TODO: memory optimization: create a factory to allocate different
- size per node type*/
+// TODO: memory optimization: create a factory to allocate different size per node type
 
 item_t mk_identifier(const BYTE operand, const BYTE byte, const BYTE bit) {
     item_t r = (item_t) calloc(1, sizeof(struct item));

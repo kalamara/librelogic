@@ -45,12 +45,12 @@ int gen_expr(const item_t expression, rung_t rung, BYTE recursive_operation) {
         return PLC_ERR_BADOPERATOR;
     }
     
-    //left operand
+    // left operand
     rv = gen_expr_left(expression->v.exp.a, rung, recursive_operation, modifier);
     if (rv < 0) {
         return rv;
     }
-    //right operand
+    // right operand
     rv = gen_expr_right(expression->v.exp.b, rung, operator, modifier);
 
     struct instruction ins;
@@ -176,7 +176,8 @@ int gen_ass(const item_t assignment, rung_t rung) {
                 ins.operation = IL_SET;
                 ins.modifier = IL_COND;
                 break;
-            default: //coil
+
+            default: // coil
                 ins.operation = IL_ST;
                 ins.modifier = IL_NORM;
         }

@@ -20,8 +20,8 @@
 #define _RUNG_H_
 
 #define MAXSTACK 256
-#define PLC_OK 0
-#define PLC_ERR -1
+#define PLC_OK   0
+#define PLC_ERR  -1
 
 /**
  * @brief The opcode struct
@@ -48,12 +48,12 @@ typedef struct codeline {
 typedef struct rung {
     instruction_t *instructions;
     char *id;
-    codeline_t code; ///original code for visual representation
-    unsigned int insno; ///actual no of active lines
-    struct rung *next; ///linked list of rungs
-    opcode_t stack; ///head of stack
-    struct opcode prealloc[MAXSTACK]; ///preallocated stack
-    union accdata acc;    ///accumulator
+    codeline_t code;                  // original code for visual representation
+    unsigned int insno;               // actual no of active lines
+    struct rung *next;                // linked list of rungs
+    opcode_t stack;                   // head of stack
+    struct opcode prealloc[MAXSTACK]; // preallocated stack
+    union accdata acc;                // accumulator
 } *rung_t;
 
 /**
@@ -138,4 +138,4 @@ int intern(rung_t r);
 
 void dump_rung(rung_t ins, char *dump);
 
-#endif //_RUNG_H_
+#endif /* _RUNG_H_ */

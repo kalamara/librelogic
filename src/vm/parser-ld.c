@@ -66,7 +66,6 @@
  a. if '|' do nothing
  b. Make OR expression of all '+' lines
  c. Replace expression at each '+' line with total OR
-
  
  */
 
@@ -74,7 +73,7 @@ int minmin(const int *arr, int min, int max) {
 //for an array arr of integers ,return the smallest of indices i so that 
 //arr[i] =  min(arr) >= min 
     int i;
-    int v = MAXSTR;        //cant be more than length  of line
+    int v = MAXSTR; // can't be more than length  of line
     int r = PLC_ERR;
     for (i = max - 1; i >= 0; i--) {
         if (arr[i] <= v && arr[i] >= min) {
@@ -96,7 +95,7 @@ BYTE digits(unsigned int i) {
 
 /***********************************************************************/
 int handle_coil(const int type, ld_line_t line) {
-//(expect Q,T,M,W followed by byte / bit)
+// (expect Q,T,M,W followed by byte / bit)
     int rv = PLC_OK;
     BYTE byte = 0;
     BYTE bit = 0;
@@ -125,7 +124,7 @@ int handle_operand(int operand, BYTE negate, ld_line_t line) {
     int rv = PLC_OK;
     BYTE byte = 0;
     BYTE bit = 0;
-    if (operand >= OP_INPUT && operand < OP_CONTACT) {    //valid input symbol
+    if (operand >= OP_INPUT && operand < OP_CONTACT) { //valid input symbol
         rv = extract_arguments(line->buf + (++line->cursor), &byte, &bit);
         //extract_number(line->buf, ++line->cursor);
         if (rv == PLC_OK) {
@@ -147,8 +146,8 @@ int handle_operand(int operand, BYTE negate, ld_line_t line) {
 }
 
 BYTE read_char(const char *line, unsigned int c) {
-//read ONE character from line[idx]
-//parse grammatically:
+// read ONE character from line[idx]
+// parse grammatically:
     int r = 0;
     if (line == NULL || c > strlen(line))
         return PLC_ERR;
@@ -159,70 +158,70 @@ BYTE read_char(const char *line, unsigned int c) {
     if (isdigit(line[c]))
         return line[c] - '0';
     switch (line[c]) {
-        case '(': //COIL
+        case '(': // COIL
             r = LD_COIL;
             break;
-        case '-': //horizontal line
+        case '-': // horizontal line
             r = LD_AND;
             break;
-        case '|': //vertical line
+        case '|': // vertical line
             r = LD_OR;
             break;
-        case '!': //normally clozed
+        case '!': // normally clozed
             r = LD_NOT;
             break;
         case '+': //
             r = LD_NODE;
             break;
-        case '[': //set output
+        case '[': // set output
             r = LD_SET;
             break;
-        case ']': //reset output
+        case ']': // reset output
             r = LD_RESET;
             break;
-        case ')': //down timer
+        case ')': // down timer
             r = LD_DOWN;
             break;
-        case 'i': //input
+        case 'i': // input
             r = OP_INPUT;
             break;
-        case 'f': //falling edge
+        case 'f': // falling edge
             r = OP_FALLING;
             break;
-        case 'r': //rising Edge
+        case 'r': // rising Edge
             r = OP_RISING;
             break;
-        case 'm': //pulse of counter
+        case 'm': // pulse of counter
             r = OP_MEMORY;
             break;
-        case 't': //timer.q
+        case 't': // timer.q
             r = OP_TIMEOUT;
             break;
-        case 'c': //read command
+        case 'c': // read command
             r = OP_COMMAND;
             break;
-        case 'b': //blinker
+        case 'b': // blinker
             r = OP_BLINKOUT;
             break;
-        case 'q': //output value
+        case 'q': // output value
             r = OP_OUTPUT;
             break;
-        case 'Q': //dry contact output
+        case 'Q': // dry contact output
             r = OP_CONTACT;
             break;
-        case 'T': //start timer
+        case 'T': // start timer
             r = OP_START;
             break;
-        case 'M': //pulse to counter
+        case 'M': // pulse to counter
             r = OP_PULSEIN;
             break;
-        case 'W': //write response
+        case 'W': // write response
             r = OP_WRITE;
             break;
         default:
-            r = (BYTE) PLC_ERR_BADCHAR; //error
+            r = (BYTE) PLC_ERR_BADCHAR; // error
     }
-//return value or error
+// return value or error
     return r;
 }
 
@@ -231,10 +230,10 @@ int parse_ld_line(ld_line_t line) {
     if (line == (ld_line_t) NULL)
         return PLC_ERR;
     
-    int c = LD_AND; //default character = '-'
+    int c = LD_AND; // default character = '-'
     BYTE n_mode = FALSE;
     
-    while (line->status == STATUS_UNRESOLVED && c != LD_NODE) {    //loop
+    while (line->status == STATUS_UNRESOLVED && c != LD_NODE) { //loop
         c = read_char(line->buf, line->cursor);
         switch (c) {
             case LD_NODE:    //PAUSE
@@ -244,18 +243,17 @@ int parse_ld_line(ld_line_t line) {
                 rv = PLC_ERR;
                 line->status = STATUS_ERROR;
                 break;
-            case OP_END:/*this should happen only if line ends without 
-             a valid coil*/
+            case OP_END: // this should happen only if line ends without a valid coil
                 line->status = STATUS_RESOLVED;
-                line->stmt = NULL;    //clear_tree(line->stmt);
+                line->stmt = NULL; // clear_tree(line->stmt);
                 break;
             case LD_OR:
-            case LD_BLANK:    //if blank or '|', empty value for the line.
+            case LD_BLANK: // if blank or '|', empty value for the line.
                 line->cursor++;
-                line->stmt = NULL;    //clear_tree(line->stmt);
+                line->stmt = NULL; // clear_tree(line->stmt);
                 break;
             case LD_NOT:
-                n_mode = TRUE;    //normally closed mode
+                n_mode = TRUE; // normally closed mode
             case LD_AND:
                 line->cursor++;
                 break;
@@ -265,7 +263,7 @@ int parse_ld_line(ld_line_t line) {
             case LD_DOWN:
                 rv = handle_coil(c, line);
                 break;
-            default:    //otherwise operand is expected(i,q,f,r,m,t,c,b)
+            default: // otherwise operand is expected(i,q,f,r,m,t,c,b)
                 rv = handle_operand(c, n_mode, line);
                 n_mode = FALSE;
                 break;
@@ -317,13 +315,13 @@ int vertical_parse(unsigned int start, unsigned int length, ld_line_t *program) 
     int current = start;
     int backtrack = start;
     int last = start;
-    //first pass: generate OR expression
-    for (; current < length + 1; current++) {    //for each line
+    // first pass: generate OR expression
+    for (; current < length + 1; current++) { // for each line
         if (current == length //overflow
         || program[current]->cursor < cursor || !IS_VERTICAL(read_char(program[current]->buf, cursor))) {
-            //vertical line interrupted, reset OR expression
+            // vertical line interrupted, reset OR expression
             for (backtrack = current - 1; backtrack >= last; backtrack--) {
-                //backtrack, replace all expressions on nodes with OR
+                // backtrack, replace all expressions on nodes with OR
                 if (read_char(program[backtrack]->buf, cursor) == LD_NODE)
                     program[backtrack]->stmt = or;
             }
@@ -332,10 +330,10 @@ int vertical_parse(unsigned int start, unsigned int length, ld_line_t *program) 
             continue;
         }
         if (read_char(program[current]->buf, cursor) == LD_NODE) {
-            //do an OR of all nodes expressions
+            // do an OR of all nodes expressions
             if (program[current]->stmt != NULL)
                 or = mk_expression(program[current]->stmt, or, IL_OR, IL_PUSH);
-        } //otherwise it's LD_OR, just continue
+        } // otherwise it's LD_OR, just continue
         program[current]->cursor++;
     }
     return rv;
@@ -356,7 +354,7 @@ ld_line_t* construct_program(const char lines[][MAXSTR], unsigned int length) {
     ld_line_t *program = (ld_line_t*) calloc(length, sizeof(ld_line_t));
     
     int i = 0;
-    for (; i < length; i++) {/* for each line construct ld_line*/
+    for (; i < length; i++) { // for each line construct ld_line
         if (lines != NULL) {
             ld_line_t line = (ld_line_t) calloc(1, sizeof(struct ld_line));
             line->cursor = 0;
@@ -373,7 +371,7 @@ ld_line_t* construct_program(const char lines[][MAXSTR], unsigned int length) {
 
 void destroy_program(unsigned int length, ld_line_t *program) {
     int i = 0;
-    for (; i < length; i++) {/* for each line destroy ld_line*/
+    for (; i < length; i++) { // for each line destroy ld_line
         free(program[i]);
         program[i] = NULL;
     }

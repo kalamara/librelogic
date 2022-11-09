@@ -45,7 +45,7 @@ typedef struct expression {
 typedef struct assignment {
     struct item *left;
     struct item *right;
-    BYTE type; //contact, down, set, reset
+    BYTE type; // contact, down, set, reset
 } *assignment_t;
 
 /**
@@ -94,4 +94,4 @@ item_t mk_assignment(const item_t identifier, const item_t expression, const BYT
  */
 item_t clear_tree(item_t root);
 
-#endif //__PARSER_TREE_H_
+#endif /* _PARSER_TREE_H_ */

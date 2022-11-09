@@ -32,10 +32,10 @@
 
 #include "plc_iface.h"
 
-#define MILLION 1000000
+#define MILLION  1000000
 #define THOUSAND 1000
 
-#define MAXRUNG 256 
+#define MAXRUNG  256
 
 #define FLOAT_PRECISION 0.000001
 
@@ -45,7 +45,7 @@ typedef enum {
 } STATUSES;
 
 typedef enum {
-    N_ERR = -20, ///ERROR CODES are negative
+    N_ERR = -20, // ERROR CODES are negative
     PLC_ERR_OVFLOW,
     PLC_ERR_TIMEOUT,
     PLC_ERR_HARDWARE,
@@ -74,12 +74,12 @@ typedef enum {
     LANG_ST
 } LANGUAGES;
 
-typedef enum { ///boolean function blocks supported
-    BOOL_DI,        ///digital input
-    BOOL_DQ,        ///digital output
-    BOOL_COUNTER,   ///pulse of counter
-    BOOL_TIMER,     ///output of timer
-    BOOL_BLINKER,   ///output of blinker
+typedef enum { // boolean function blocks supported
+    BOOL_DI,      // digital input
+    BOOL_DQ,      // digital output
+    BOOL_COUNTER, // pulse of counter
+    BOOL_TIMER,   // output of timer
+    BOOL_BLINKER, // output of blinker
     N_BOOL
 } BOOL_FB;
 
@@ -87,11 +87,11 @@ typedef enum { ///boolean function blocks supported
  * @brief what changed since the last cycle
  */
 typedef enum {
-    CHANGED_I = 0x1,
-    CHANGED_O = 0x2,
-    CHANGED_M = 0x4,
-    CHANGED_T = 0x8,
-    CHANGED_S = 0x10,
+    CHANGED_I      = 0x1,
+    CHANGED_O      = 0x2,
+    CHANGED_M      = 0x4,
+    CHANGED_T      = 0x8,
+    CHANGED_S      = 0x10,
     CHANGED_STATUS = 0x20
 } CHANGE_DELTA;
 
@@ -100,36 +100,36 @@ typedef enum {
  * @brief The digital_input struct
  */
 typedef struct digital_input {
-    BIT(I);   ///contact value
-    BIT(RE);   ///rising edge
-    BIT(FE);   ///falling edge
-    BIT(EDGE); ///true if value changed
-    BIT(MASK); /// true if forced 1
-    BIT(N_MASK); /// true if forced 0
-    char *nick; //[NICKLEN];///nickname
+    BIT(I);      // contact value
+    BIT(RE);     // rising edge
+    BIT(FE);     // falling edge
+    BIT(EDGE);   // true if value changed
+    BIT(MASK);   //  true if forced 1
+    BIT(N_MASK); //  true if forced 0
+    char *nick;  // [NICKLEN]; // nickname
 } *di_t;
 
 /**
  * @brief The digital_output struct
  */
 typedef struct digital_output {
-    BIT(Q); //contact
-    BIT(SET); //set
-    BIT(RESET); //reset
-    BIT(MASK); /// true if forced true 
-    BIT(N_MASK); /// true if forced false
-    char *nick; //[NICKLEN];//nickname
+    BIT(Q);      // contact
+    BIT(SET);    // set
+    BIT(RESET);  // reset
+    BIT(MASK);   // true if forced true
+    BIT(N_MASK); // true if forced false
+    char *nick;  // [NICKLEN];//nickname
 } *do_t;
 
 /**
  * @brief The analog_io  struct
  */
 typedef struct analog_io {
-    double V; /// data value
-    double min; ///range for conversion to/from raw data
+    double V;    // data value
+    double min;  // range for conversion to/from raw data
     double max;
-    double mask; ///forced value mask
-    char *nick; //[NICKLEN];///nickname
+    double mask; // forced value mask
+    char *nick;  // [NICKLEN]; // nickname
 } *aio_t;
 
 /**
@@ -137,16 +137,16 @@ typedef struct analog_io {
  * struct which represents  a timer state at a given cycle
  */
 typedef struct timer {
-    long S; ///scale; S=1000=>increase every 1000 cycles. STEP= 10 msec=> increase every 10 sec
-    long sn; ///internal counter used for scaling
-    long V; ///value
-    BIT(Q); ///output
-    long P; ///Preset value
-    BIT(ONDELAY); ///1=on delay, 0 = off delay
-    BIT(START); ///start command: must be on to count
-    BIT(RESET); ///down command: sets V = 0
-    //BIT(MASK);///true if timer is forced to up or down
-    char *nick;    //[NICKLEN];
+    long S;       // scale; S=1000=>increase every 1000 cycles. STEP= 10 msec=> increase every 10 sec
+    long sn;      // internal counter used for scaling
+    long V;       // value
+    BIT(Q);       // output
+    long P;       // Preset value
+    BIT(ONDELAY); // 1=on delay, 0 = off delay
+    BIT(START);   // start command: must be on to count
+    BIT(RESET);   // down command: sets V = 0
+    //BIT(MASK);  // true if timer is forced to up or down
+    char *nick;   // [NICKLEN];
 } *dt_t;
 
 /**
@@ -154,10 +154,10 @@ typedef struct timer {
  * struct which represents a blinker
  */
 typedef struct blink {
-    BIT(Q); ///output
-    long S; ///scale; S=1000=>toggle every 1000 cycles. STEP= 10 msec=> toggle every 10 sec
-    long sn; ///internal counter for scaling
-    char *nick; //[NICKLEN];
+    BIT(Q);     // output
+    long S;     // scale; S=1000=>toggle every 1000 cycles. STEP= 10 msec=> toggle every 10 sec
+    long sn;    // internal counter for scaling
+    char *nick; // [NICKLEN];
 } *blink_t;
 
 /**
@@ -165,15 +165,15 @@ typedef struct blink {
  * struct which represents a memory register / counter
  */
 typedef struct mvar {
-    uint64_t V;     ///TODO: add type
-    BIT(RO);    ///1 if read only;
-    BIT(DOWN);  ///1: can be used as a down counter
-    BIT(PULSE);     ///pulse for up/downcounting
-    BIT(EDGE);      ///edge of pulse
-    BIT(SET);       ///set pulse
-    BIT(RESET);     ///reset pulse
-    //BIT(MASK); ///true if pulse is set
-    char *nick;    //[NICKLEN];   ///nickname
+    uint64_t V;  // TODO: add type
+    BIT(RO);     // 1 if read only;
+    BIT(DOWN);   // 1: can be used as a down counter
+    BIT(PULSE);  // pulse for up/downcounting
+    BIT(EDGE);   // edge of pulse
+    BIT(SET);    // set pulse
+    BIT(RESET);  // reset pulse
+    //BIT(MASK); // true if pulse is set
+    char *nick;  // [NICKLEN]; // nickname
 } *mvar_t;
 
 /**
@@ -181,59 +181,59 @@ typedef struct mvar {
  * struct which represents a real number memory register
  */
 typedef struct mreal {
-    double V;     ///TODO: add type
-    BIT(RO);    ///1 if read only;
-    char *nick;    //[NICKLEN];   ///nickname
+    double V;   // TODO: add type
+    BIT(RO);    // 1 if read only;
+    char *nick; // [NICKLEN]; // nickname
 } *mreal_t;
 
 /**
  * @brief The PLC_regs struct
  * The struct which contains all the software PLC registers
  */
-//TODO: should masks and edges be packed inside di_t, dq_t?
+// TODO: should masks and edges be packed inside di_t, dq_t?
 typedef struct PLC_regs {
     hardware_t hw;
-    ///hardware interface
-    BYTE *inputs;   ///digital input values buffer
-    uint64_t *real_in; ///analog raw input values buffer
-    BYTE *outputs;  ///digital output values buffer
-    uint64_t *real_out; ///analog raw output values buffer
+    // hardware interface
+    BYTE *inputs;         // digital input values buffer
+    uint64_t *real_in;    // analog raw input values buffer
+    BYTE *outputs;        // digital output values buffer
+    uint64_t *real_out;   // analog raw output values buffer
     
-    BYTE command;   ///serial command from plcpipe
-    BYTE response;  ///response to named pipe
+    BYTE command;         // serial command from plcpipe
+    BYTE response;        // response to named pipe
     
-    BYTE update; ///binary mask of state update
-    int status;    ///0 = stopped, 1 = running, negative = error
+    BYTE update;          // binary mask of state update
+    int status;           // 0 = stopped, 1 = running, negative = error
     
-    BYTE ni; ///number of bytes for digital inputs 
-    di_t di; ///digital inputs
+    BYTE ni;              // number of bytes for digital inputs
+    di_t di;              // digital inputs
     
-    BYTE nq; ///number of bytes for digital outputs
-    do_t dq; ///the digital outputs
+    BYTE nq;              // number of bytes for digital outputs
+    do_t dq;              // the digital outputs
 
-    BYTE nai; ///number of analog input channels
-    aio_t ai; ///the analog inputs
+    BYTE nai;             // number of analog input channels
+    aio_t ai;             // the analog inputs
     
-    BYTE naq; ///number of analog output channels
-    aio_t aq; ///the analog outputs
+    BYTE naq;             // number of analog output channels
+    aio_t aq;             // the analog outputs
 
-    BYTE nt; ///number of timers
-    dt_t t; ///the timers
+    BYTE nt;              // number of timers
+    dt_t t;               // the timers
     
-    BYTE ns; ///number of blinkers
-    blink_t s; ///the blinkers
+    BYTE ns;              // number of blinkers
+    blink_t s;            // the blinkers
     
-    BYTE nm; ///number of memory counters
-    mvar_t m; ///the memory
+    BYTE nm;              // number of memory counters
+    mvar_t m;             // the memory
     
-    BYTE nmr; ///number of memory registers
-    mreal_t mr; ///the memory
+    BYTE nmr;             // number of memory registers
+    mreal_t mr;           // the memory
 
     rung_t *rungs;
-    BYTE rungno; //256 rungs should suffice
+    BYTE rungno;          // 256 rungs should suffice
     
-    long step; //cycle time in milliseconds
-    struct PLC_regs *old; //pointer to previous state
+    long step;            // cycle time in milliseconds
+    struct PLC_regs *old; // pointer to previous state
 } *plc_t;
 
 /**
@@ -323,7 +323,7 @@ plc_t plc_copy(const plc_t plc);
  */
 void plc_clear(plc_t plc);
 
-/*configurators*/
+// configurators
 
 /**
  * @brief assign name to a plc register variable
@@ -419,4 +419,4 @@ plc_t plc_configure_timer_delay_mode(const plc_t p, BYTE idx, const char *val);
  */
 plc_t plc_configure_pulse_scale(const plc_t p, BYTE idx, const char *val);
 
-#endif //_PLCLIB_H_
+#endif /* _PLCLIB_H_ */

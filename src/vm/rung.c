@@ -99,7 +99,7 @@ int append(const instruction_t i, rung_t r) {
             r->instructions = (instruction_t*) calloc(MAXSTACK, sizeof(instruction_t));
         }
         if (lookup(i->label, r) >= 0)
-            return PLC_ERR; // dont allow duplicate labels
+            return PLC_ERR; // don't allow duplicate labels
 
         instruction_t ins = (instruction_t) calloc(1, sizeof(struct instruction));
         deepcopy(i, ins);
@@ -111,7 +111,6 @@ int append(const instruction_t i, rung_t r) {
 
 codeline_t append_line(const char *l, codeline_t code) {
     if (l == NULL) {
-
         return code;
     }
     codeline_t r = (codeline_t) calloc(1, sizeof(struct codeline));

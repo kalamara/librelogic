@@ -126,4 +126,4 @@ int find_arguments(const char *buf, BYTE *operand, BYTE *byte, BYTE *bit);
  */
 int parse_il_line(const char *line, rung_t r);
 
-#endif //_PARSER-IL_H
+#endif /* _PARSER-IL_H */

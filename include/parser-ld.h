@@ -19,9 +19,9 @@
 #ifndef _PARSER_LD_H_
 #define _PARSER_LD_H_
 
-/*TODO: factor these out*/
-#define RESOLVED     -1
-#define FINAL    2
+// TODO: factor these out
+#define RESOLVED  -1
+#define FINAL     2
 
 /**
  *possible LD line statuses
@@ -38,16 +38,16 @@ typedef enum {
  *accepted LD symbols: 0-9 for digits, and
  */
 typedef enum {
-    /// LD specific operators:
-    LD_BLANK = 10,  ///blank character
-    LD_AND = 11,         ///-
-    LD_NOT = 12,         ///!
-    LD_OR = 13,          ///|
-    LD_NODE = 14,        ///+
-    LD_COIL = 15,        ///( contact coil
-    LD_SET = 16,         ///[ set
-    LD_RESET = 17,       ///] reset,
-    LD_DOWN = 18,        ///) negate coil
+    // LD specific operators:
+    LD_BLANK = 10, // blank character
+    LD_AND   = 11, // -
+    LD_NOT   = 12, // !
+    LD_OR    = 13, // |
+    LD_NODE  = 14, // +
+    LD_COIL  = 15, // ( contact coil
+    LD_SET   = 16, // [ set
+    LD_RESET = 17, // ] reset,
+    LD_DOWN  = 18, // ) negate coil
     N_LD_SYMBOLS
 } LD_SYMBOLS;
 
@@ -140,4 +140,4 @@ int find_next_node(const ld_line_t *program, unsigned int start, unsigned int li
 
 //ld_line_t * mk_lines(char lines[MAXBUF][MAXSTR]);
 
-#endif //_PARSER_LD_H
+#endif /* _PARSER_LD_H */
