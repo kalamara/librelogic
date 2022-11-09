@@ -22,11 +22,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "plc_iface.h"
 #include "util.h"
 
-
+#ifdef COMEDI
 extern struct hardware Comedi;
+#endif
+#ifdef USPACE
 extern struct hardware Uspace;
+#endif
+#ifdef SIM
 extern struct hardware Sim;
+#endif
+#ifdef GPIOD
 extern struct hardware Gpiod;
+#endif
 extern struct hardware Dry;
 
 hardware_t plc_get_hardware( int type){
