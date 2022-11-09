@@ -1,20 +1,20 @@
 /*******************************************************************************
-LibreLogic : a free PLC library
-Copyright (C) 2022, Antonis K. (kalamara AT ceid DOT upatras DOT gr)
+ LibreLogic : a free PLC library
+ Copyright (C) 2022, Antonis K. (kalamara AT ceid DOT upatras DOT gr)
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ You should have received a copy of the GNU General Public License
+ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 #include <ctype.h>
 
@@ -87,15 +87,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 extern const char IlCommands[N_IL_INSN][LABELLEN];
 
-const char * IlErrors[N_IE] = 
-{
-    "Unknown error",
-    "Invalid operator",
-    "Invalid output",
-    "Invalid numeric index",
-    "Invalid operand",
-    "File does not exist",
-    "Unreadable character"
+const char *IlErrors[N_IE] = {
+        "Unknown error",
+        "Invalid operator",
+        "Invalid output",
+        "Invalid numeric index",
+        "Invalid operand",
+        "File does not exist",
+        "Unreadable character"
 };
 
 //TODO: IL multi byte type operations
@@ -106,17 +105,16 @@ const char * IlErrors[N_IE] =
 
 /***LEX**/
 
-int extract_number(const char *line)
-{ //read characters from string line
-    int i, n= 0;
-    if(line == NULL){
-    
+int extract_number(const char *line) { //read characters from string line
+    int i, n = 0;
+    if (line == NULL) {
+
         return PLC_ERR;
     }
-    for (i = 0; isdigit(line[i]); i++){
+    for (i = 0; isdigit(line[i]); i++) {
         n = 10 * n + (line[i] - '0');
     }
-    if (i == 0){
+    if (i == 0) {
         //no digits read
         return PLC_ERR;
     }
@@ -124,22 +122,20 @@ int extract_number(const char *line)
 //return number read or error 
 }
 
-int extract_arguments(const char* buf, 
-                     BYTE* byte, 
-                     BYTE* bit){
+int extract_arguments(const char *buf, BYTE *byte, BYTE *bit) {
     //read first numeric chars after operand
     //store byte
     *byte = extract_number(buf);
-    if (*byte == (BYTE)PLC_ERR){
-    
+    if (*byte == (BYTE) PLC_ERR) {
+
         return PLC_ERR_BADINDEX;
-    }    
+    }
     //find '/'. if not found truncate, return.
-    char * cursor = strchr(buf, '/');
+    char *cursor = strchr(buf, '/');
     *bit = BYTESIZE;
-    if (cursor){
-        if (!isdigit(cursor[1]) || cursor[1] > '7'){
-        
+    if (cursor) {
+        if (!isdigit(cursor[1]) || cursor[1] > '7') {
+
             return PLC_ERR_BADINDEX;
         } else {
             *bit = cursor[1] - '0';
@@ -148,63 +144,56 @@ int extract_arguments(const char* buf,
     return PLC_OK;
 }
 
-BYTE read_operand(const char *line, unsigned int index)
-{ //read ONE character from line[idx]
+BYTE read_operand(const char *line, unsigned int index) { //read ONE character from line[idx]
 //parse grammatically:
     int r = PLC_OK;
-    if (line == NULL
-    ||  index > strlen(line))
+    if (line == NULL || index > strlen(line))
         return PLC_ERR;
     
     char c = tolower(line[index]);
     
-    switch (c){
-    case 'i': //input
-        r = OP_INPUT;
-        break;
-    case 'f': //falling edge
-        r = OP_FALLING;
-        break;
-    case 'r': //rising Edge
-        r = OP_RISING;
-        break;
-    case 'm': //pulse of counter
-        r = OP_MEMORY;
-        break;
-    case 't': //timer.q
-        r = OP_TIMEOUT;
-        break;
-    case 'c': //read command
-        r = OP_COMMAND;
-        break;
-    case 'b': //blinker
-        r = OP_BLINKOUT;
-        break;
-    case 'q': //output value
-        r = OP_OUTPUT;
-        break;
-    default:
-        r = (BYTE)PLC_ERR_BADCHAR; //error
+    switch (c) {
+        case 'i': //input
+            r = OP_INPUT;
+            break;
+        case 'f': //falling edge
+            r = OP_FALLING;
+            break;
+        case 'r': //rising Edge
+            r = OP_RISING;
+            break;
+        case 'm': //pulse of counter
+            r = OP_MEMORY;
+            break;
+        case 't': //timer.q
+            r = OP_TIMEOUT;
+            break;
+        case 'c': //read command
+            r = OP_COMMAND;
+            break;
+        case 'b': //blinker
+            r = OP_BLINKOUT;
+            break;
+        case 'q': //output value
+            r = OP_OUTPUT;
+            break;
+        default:
+            r = (BYTE) PLC_ERR_BADCHAR; //error
     }
 //return value or error
     return r;
 }
 
-BYTE read_type(const char *line, 
-                BYTE *operand,                 
-                unsigned int index)
-{ //read characters from line[idx]
+BYTE read_type(const char *line, BYTE *operand, unsigned int index) { //read characters from line[idx]
 //parse grammatically:
     int r = PLC_OK;
-    if (line == NULL
-    ||  index > strlen(line))
+    if (line == NULL || index > strlen(line))
         return PLC_ERR;
 
-    if(tolower(line[index])=='f'){
-        switch(*operand)
-        {
+    if (tolower(line[index]) == 'f') {
+        switch (*operand) {
             case OP_INPUT:
-                *operand = OP_REAL_INPUT; 
+                *operand = OP_REAL_INPUT;
                 break;
             case OP_MEMORY:
                 *operand = OP_REAL_MEMORY;
@@ -216,72 +205,61 @@ BYTE read_type(const char *line,
                 r = PLC_ERR;
                 break;
         }
-    }    
+    }
 //return ok or error
     return r;
 }
 
-void read_line_trunk_comments(char* line)
-{
+void read_line_trunk_comments(char *line) {
     unsigned int i = 0;
-    unsigned int idx=0;
-    while(  line != NULL
-         && line[idx] != 0
-         && line[idx] != '\n' 
-         && line[idx] != ';')
+    unsigned int idx = 0;
+    while (line != NULL && line[idx] != 0 && line[idx] != '\n' && line[idx] != ';')
         idx++;
 
-    for(i = idx; line != NULL && i < MAXSTR; i++)
+    for (i = idx; line != NULL && i < MAXSTR; i++)
         line[i] = 0; //trunc comments
 }
 
-void trunk_label(const char* line,  
-                char* buf, 
-                char* label_buf)
-{
+void trunk_label(const char *line, char *buf, char *label_buf) {
     int i = 0;
-    if(line == NULL
-    || buf == NULL
-    || label_buf == NULL)
+    if (line == NULL || buf == NULL || label_buf == NULL)
         return;
-        
-    char* str = strrchr(line, ':');
-    if (str){
-        while (line + i + 1 != str + 1){
+
+    char *str = strrchr(line, ':');
+    if (str) {
+        while (line + i + 1 != str + 1) {
             label_buf[i] = line[i];
             i++;
         }
         strcpy(buf, str + 1);
-    }
-    else
-        strcpy(buf, line);   
+    } else
+        strcpy(buf, line);
 }
 
 #define IS_WHITESPACE(x) (x == ' ' || x == '\t' || x == '\n' || x == '\r')
 
-char * trunk_whitespace(char* line)
-{   
-    if(line == NULL){
-    
+char* trunk_whitespace(char *line) {
+    if (line == NULL) {
+
         return NULL;
     }
     int n = strlen(line);
-    char * buf = (char *)calloc(1, n + 1);
+    char *buf = (char*) calloc(1, n + 1);
     //memset(buf, 0, n + 1);
     
     //trim left
     int i = 0;
-    while(i < n && IS_WHITESPACE(line[i]))
+    while (i < n && IS_WHITESPACE(line[i]))
         i++;
     int j = 0;
-    while(i < n)
+    while (i < n)
         buf[j++] = line[i++];
     
     //trim right
-    for(j = strlen(buf) -1; j >= 0; j--)
-        if( IS_WHITESPACE(buf[j]) )
+    for (j = strlen(buf) - 1; j >= 0; j--)
+        if (IS_WHITESPACE(buf[j]))
             buf[j] = 0;
-        else if( buf[j] != 0 )
+        else if (buf[j] != 0)
             break;
     memset(line, 0, n);
     sprintf(line, "%s", buf);
@@ -290,26 +268,23 @@ char * trunk_whitespace(char* line)
     return line;
 }
 
-
-BYTE read_modifier(const char* buf, char** pos)
-{
-    BYTE modifier=0;
-    if(buf == NULL
-    || pos == NULL)
+BYTE read_modifier(const char *buf, char **pos) {
+    BYTE modifier = 0;
+    if (buf == NULL || pos == NULL)
         return PLC_ERR;
-        
-    char* str = strchr(buf, '(');
+
+    char *str = strchr(buf, '(');
     if (str) //push stack
         modifier = IL_PUSH;
-    else{ //negate
+    else { //negate
         str = strchr(buf, '!');
         if (str)
             modifier = IL_NEG;
-        else{ //conditional branch
+        else { //conditional branch
             str = strchr(buf, '?');
             if (str)
                 modifier = IL_COND;
-            else{ //normal
+            else { //normal
                 str = strchr(buf, ' ');
                 if (str)
                     modifier = IL_NORM;
@@ -322,77 +297,70 @@ BYTE read_modifier(const char* buf, char** pos)
     return modifier;
 }
 
-BYTE read_operator(const char* buf, const char* stop)
-{
+BYTE read_operator(const char *buf, const char *stop) {
     BYTE op = 0;
     int i = 0;
-    char * cursor = 0;
+    char *cursor = 0;
     char op_buf[LABELLEN];
     memset(op_buf, 0, LABELLEN);
-    if(buf == NULL)
+    if (buf == NULL)
         return PLC_ERR;
-    if (stop){
-        cursor = (char *)buf;
+    if (stop) {
+        cursor = (char*) buf;
         i = 0;
         memset(op_buf, 0, LABELLEN);
-        while (cursor + i != stop && i < LABELLEN){
+        while (cursor + i != stop && i < LABELLEN) {
             op_buf[i] = cursor[i];
             i++;
         }
-    }
-    else{
+    } else {
         if (strlen(buf) < LABELLEN)
             strcpy(op_buf, buf);
         else
-           return N_IL_INSN;
+            return N_IL_INSN;
     }
 //printf("operator:%s\n",op_buf);
     op = N_IL_INSN;
-    for (i = 0; i < N_IL_INSN; ++i){
+    for (i = 0; i < N_IL_INSN; ++i) {
         if (!strcmp(op_buf, IlCommands[i]))
             op = i;
     }
     return op;
 }
 
-
-int find_arguments(const char* buf,   
-                   BYTE* operand, 
-                   BYTE* byte,
-                   BYTE* bit)
-{
+int find_arguments(const char *buf, BYTE *operand, BYTE *byte, BYTE *bit) {
     int ret = PLC_OK;
     
-    if(buf == NULL)
+    if (buf == NULL)
         return PLC_ERR;
-        
-    char* str = strchr(buf, '%');
+
+    char *str = strchr(buf, '%');
     if (!str)
         return PLC_ERR_BADCHAR;
-   
+
     //read first non-numeric char after '%'. if not found return error. store operand. chack if invalid (return error).
     int index = 1;
-    if (isalpha(str[index])){
+    if (isalpha(str[index])) {
         *operand = read_operand(str, index);
         index++;
     } else {
-    
+
         return PLC_ERR_BADOPERAND;
     }
-    if(*operand == (BYTE)PLC_ERR_BADCHAR){
-    
+    if (*operand == (BYTE) PLC_ERR_BADCHAR) {
+
         return PLC_ERR_BADCHAR;
     }
-    if (isalpha(str[index])){
+    if (isalpha(str[index])) {
         ret = read_type(str, operand, index);
         index++;
-        if(ret != PLC_OK){
-        
+        if (ret != PLC_OK) {
+
             return ret;
         }
     }
-    if(index > strlen(str)){
-    
+    if (index > strlen(str)) {
+
         return PLC_ERR_BADINDEX;
     }
     ret = extract_arguments(str + index, byte, bit);
@@ -401,17 +369,16 @@ int find_arguments(const char* buf,
 }
 
 /***PARSE & GENERATE CODE**/
-int parse_il_line(const char * line, rung_t r)
-{ //    line format:[label:]<operator>[<modifier>[%<operand><byte>[/<bit>]]|<label>][;comment]
+int parse_il_line(const char *line, rung_t r) { //    line format:[label:]<operator>[<modifier>[%<operand><byte>[/<bit>]]|<label>][;comment]
     char tmp[MAXSTR];
     char buf[MAXSTR];
     char label_buf[MAXSTR];
-    char * pos = NULL;
-    BYTE byte=0;
-    BYTE bit=0;
-    BYTE modifier=0;
-    BYTE operand=0;
-    BYTE oper=0;
+    char *pos = NULL;
+    BYTE byte = 0;
+    BYTE bit = 0;
+    BYTE modifier = 0;
+    BYTE operand = 0;
+    BYTE oper = 0;
     struct instruction op;
     
     memset(&op, 0, sizeof(struct instruction));
@@ -419,8 +386,7 @@ int parse_il_line(const char * line, rung_t r)
     memset(tmp, 0, MAXSTR);
     memset(buf, 0, MAXSTR);
 
-    if(line == NULL
-    || r == NULL)
+    if (line == NULL || r == NULL)
         return PLC_ERR;
 
     sprintf(tmp, "%s", line);
@@ -431,7 +397,7 @@ int parse_il_line(const char * line, rung_t r)
     trunk_label(tmp, buf, label_buf);
     trunk_whitespace(label_buf);
     trunk_whitespace(buf);
-   
+
     sprintf(op.label, "%s", label_buf);
     
     modifier = read_modifier(buf, &pos);
@@ -443,7 +409,7 @@ int parse_il_line(const char * line, rung_t r)
     if (oper > IL_CAL)
         find_arguments(buf, &operand, &byte, &bit);
     else if (oper == IL_JMP)
-        strcpy(op.lookup, pos + 1); 
+        strcpy(op.lookup, pos + 1);
 
     op.operation = oper;
     op.modifier = modifier;
@@ -451,31 +417,27 @@ int parse_il_line(const char * line, rung_t r)
     op.byte = byte;
     op.bit = bit;
 
-    if(check_modifier(&op)<0){
+    if (check_modifier(&op) < 0) {
         return PLC_ERR_BADOPERATOR;
     }
-    if(check_operand(&op)<0){
+    if (check_operand(&op) < 0) {
         return PLC_ERR_BADOPERAND;
     }
-    if(op.operation != IL_NOP){
+    if (op.operation != IL_NOP) {
         append(&op, r);
     }
-    return PLC_OK ;
+    return PLC_OK;
 }
+
 /****************entry point**************************/
-plc_t parse_il_program(const char * name, 
-                       const char lines[][MAXSTR], 
-                       plc_t p)
-{
+plc_t parse_il_program(const char *name, const char lines[][MAXSTR], plc_t p) {
     int rv = PLC_OK;
     unsigned int i = 0;
     rung_t r = plc_mk_rung(name, p);
-    while(rv == PLC_OK 
-    && i < MAXBUF
-    && lines[i][0] != 0){
-        const char * line = lines[i++];
+    while (rv == PLC_OK && i < MAXBUF && lines[i][0] != 0) {
+        const char *line = lines[i++];
         rv = parse_il_line(line, r);
-        switch(rv){
+        switch (rv) {
             case PLC_ERR:
                 plc_log("Line %d :%s %s", i, IlErrors[IE_PLC], line);
                 break;
@@ -496,12 +458,13 @@ plc_t parse_il_program(const char * name,
                 break;
             case PLC_ERR_BADCHAR:
                 plc_log("Line %d :%s %s", i, IlErrors[IE_BADCHAR], line);
-                break;    
-            default: break;
+                break;
+            default:
+                break;
         }
     }
     rv = intern(r);
-    if(rv < PLC_OK){
+    if (rv < PLC_OK) {
         plc_log("Labels are messed up");
     }
     p->status = rv;
@@ -509,34 +472,24 @@ plc_t parse_il_program(const char * name,
 }
 
 /***CHECK**/
-int check_modifier(const instruction_t op)
-{
+int check_modifier(const instruction_t op) {
     int r = 0;
-    if (op->operation > IL_XOR 
-    && op->operation < IL_ADD
-    && op->modifier != IL_NEG 
-    && op->modifier != IL_NORM) //only negation
+    if (op->operation > IL_XOR && op->operation < IL_ADD && op->modifier != IL_NEG && op->modifier != IL_NORM) //only negation
         r = PLC_ERR_BADOPERATOR;
 
     if (op->operation > IL_ST    // only push
-    && op->modifier != IL_PUSH 
-    && op->modifier != IL_NORM)
+    && op->modifier != IL_PUSH && op->modifier != IL_NORM)
         r = PLC_ERR_BADOPERATOR;
 
-    if (op->operation > IL_CAL 
-    && op->operation < IL_AND
-    && op->modifier != IL_NORM)    //no modifier
+    if (op->operation > IL_CAL && op->operation < IL_AND && op->modifier != IL_NORM)    //no modifier
         r = PLC_ERR_BADOPERATOR;
     return r;
 }
 
-int check_operand(instruction_t op)
-{
+int check_operand(instruction_t op) {
     int r = 0;
-    if (op->operation == IL_SET 
-    || op->operation == IL_RESET
-    || op->operation == IL_ST){
-        if (op->operand < OP_CONTACT){
+    if (op->operation == IL_SET || op->operation == IL_RESET || op->operation == IL_ST) {
+        if (op->operand < OP_CONTACT) {
             if (op->operand == OP_OUTPUT)
                 op->operand = OP_CONTACT;
             else if (op->operand == OP_MEMORY)
@@ -547,13 +500,10 @@ int check_operand(instruction_t op)
                 op->operand = OP_REAL_CONTACT;
             else if (op->operand == OP_REAL_MEMORY)
                 op->operand = OP_REAL_MEMIN;
-            else    
+            else
                 r = PLC_ERR_BADOPERAND;    //outputs
         }
-    }
-    else if (op->operation > IL_CAL
-         && (op->operand < OP_INPUT || op->operand > OP_CONTACT))
+    } else if (op->operation > IL_CAL && (op->operand < OP_INPUT || op->operand > OP_CONTACT))
         r = PLC_ERR_BADOPERAND;
     return r;
 }
-

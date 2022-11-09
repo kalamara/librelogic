@@ -1,20 +1,20 @@
 /*******************************************************************************
-LibreLogic : a free PLC library
-Copyright (C) 2022, Antonis K. (kalamara AT ceid DOT upatras DOT gr)
+ LibreLogic : a free PLC library
+ Copyright (C) 2022, Antonis K. (kalamara AT ceid DOT upatras DOT gr)
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ You should have received a copy of the GNU General Public License
+ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 #ifndef _PARSER_LD_H_
 #define _PARSER_LD_H_
@@ -25,31 +25,31 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
  *possible LD line statuses
-*/
+ */
 typedef enum {
     STATUS_UNRESOLVED,
     STATUS_RESOLVED,
     STATUS_FINAL,
     STATUS_ERROR,
     N_STATUS
-}LD_STATUS;
+} LD_STATUS;
 
 /**
  *accepted LD symbols: 0-9 for digits, and
  */
 typedef enum {
     /// LD specific operators:
-    LD_BLANK  = 10,  ///blank character
-    LD_AND    = 11,         ///-
-    LD_NOT    = 12,         ///!
-    LD_OR     = 13,          ///|
-    LD_NODE   = 14,        ///+
-    LD_COIL   = 15,        ///( contact coil
-    LD_SET    = 16,         ///[ set
-    LD_RESET  = 17,       ///] reset,
-    LD_DOWN   = 18,        ///) negate coil
+    LD_BLANK = 10,  ///blank character
+    LD_AND = 11,         ///-
+    LD_NOT = 12,         ///!
+    LD_OR = 13,          ///|
+    LD_NODE = 14,        ///+
+    LD_COIL = 15,        ///( contact coil
+    LD_SET = 16,         ///[ set
+    LD_RESET = 17,       ///] reset,
+    LD_DOWN = 18,        ///) negate coil
     N_LD_SYMBOLS
-}LD_SYMBOLS;
+} LD_SYMBOLS;
 
 #define IS_COIL(x)  (x>=LD_COIL && x<=LD_DOWN) 
 #define IS_VERTICAL(x)  (x>=LD_OR && x<=LD_NODE)
@@ -61,7 +61,6 @@ typedef struct ld_line {
     item_t stmt;
 } *ld_line_t;
 
-
 /**
  * @brief horizontal parse
  * parse up to coil or '+' 
@@ -70,7 +69,7 @@ typedef struct ld_line {
  * -> coil: add assignment statement
  * @param the ld line
  * @return ok or error code
-*/
+ */
 int parse_ld_line(ld_line_t line);
 
 /**
@@ -83,20 +82,19 @@ int parse_ld_line(ld_line_t line);
 int minmin(const int *arr, int min, int max);
 
 /**
-  * @brief construct array of ld lines and initialize with text lines
-  * @param the pre allocated text lines
-  * @param the number of lines
-  * @return newly allocated array
-  */ 
-ld_line_t * construct_program(const char lines[][MAXSTR], 
-                              unsigned int length);
+ * @brief construct array of ld lines and initialize with text lines
+ * @param the pre allocated text lines
+ * @param the number of lines
+ * @return newly allocated array
+ */
+ld_line_t* construct_program(const char lines[][MAXSTR], unsigned int length);
 
 /**
-  * @brief deallocate memory of ld program
-  * @param the program
-  * @param the length 
-  */
-void destroy_program(unsigned int length, ld_line_t * program);
+ * @brief deallocate memory of ld program
+ * @param the program
+ * @param the length
+ */
+void destroy_program(unsigned int length, ld_line_t *program);
 
 /**
  * @brief read ONE character from line at index
@@ -105,48 +103,41 @@ void destroy_program(unsigned int length, ld_line_t * program);
  * @param c index
  * @return LD symbol
  */
-BYTE read_char(const char * line, unsigned int c);
+BYTE read_char(const char *line, unsigned int c);
 
 /**
-  * @brief parse each program line horizontally up to coil or '+' 
-  * -> blank or '|' : discard expression for line
-  * -> operand: add AND expression
-  * -> coil: add assignment statement
-  * @param program length (total lines)
-  * @param the program (allocated array of lines)
-  * @return OK or error
-  */
-int horizontal_parse(unsigned int length, ld_line_t * program);
+ * @brief parse each program line horizontally up to coil or '+'
+ * -> blank or '|' : discard expression for line
+ * -> operand: add AND expression
+ * -> coil: add assignment statement
+ * @param program length (total lines)
+ * @param the program (allocated array of lines)
+ * @return OK or error
+ */
+int horizontal_parse(unsigned int length, ld_line_t *program);
 
 /**
-  * @brief parse all lines vertically at cursor position 
-  * -> '+': add push OR
-  * -> '|': continue
-  * -> default: replace all nodes with OR of all nodes
-  * @param line to start at
-  * @param program length 
-  * @param program
-  * @return OK or error
-  */
-int vertical_parse(unsigned int start,
-                   unsigned int length, 
-                   ld_line_t * program);
+ * @brief parse all lines vertically at cursor position
+ * -> '+': add push OR
+ * -> '|': continue
+ * -> default: replace all nodes with OR of all nodes
+ * @param line to start at
+ * @param program length
+ * @param program
+ * @return OK or error
+ */
+int vertical_parse(unsigned int start, unsigned int length, ld_line_t *program);
 
 /** @brief find next valid node for vertical parse.
-  * status unresolved,
-  * the smallest index of those with the smallest cursor larger than pos
-  * @param buffer of ld lines
-  * @param current horizontal position
-  * @param total number of lines 
-  * @return index of next node or error
-  */
-int find_next_node(const ld_line_t * program,
-                   unsigned int start, 
-                   unsigned int lines);
-
-
+ * status unresolved,
+ * the smallest index of those with the smallest cursor larger than pos
+ * @param buffer of ld lines
+ * @param current horizontal position
+ * @param total number of lines
+ * @return index of next node or error
+ */
+int find_next_node(const ld_line_t *program, unsigned int start, unsigned int lines);
 
 //ld_line_t * mk_lines(char lines[MAXBUF][MAXSTR]);
 
 #endif //_PARSER_LD_H
-

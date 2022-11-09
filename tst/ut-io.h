@@ -4,12 +4,12 @@
 void read_inputs(plc_t p);
 void write_outputs(plc_t p);
 
-void ut_read(){
+void ut_read() {
 
     //nulls shouldn't crash
     read_inputs(NULL);
     struct PLC_regs p;
-    memset(&p,0,sizeof(struct PLC_regs));
+    memset(&p, 0, sizeof(struct PLC_regs));
     read_inputs(&p);
     init_mock_plc(&p);
     //mock fetch makes all digitals 1s, and all analogs magic
@@ -19,23 +19,20 @@ void ut_read(){
     CU_ASSERT(p.real_in[p.nai - 1] == 0xABCDEF01);
 }
 
-void ut_write(){
+void ut_write() {
     extern int Mock_flush_count;
     extern unsigned char Mock_dout;
     extern uint64_t Mock_aout;
     //nulls shouldn't crash
     write_outputs(NULL);
     struct PLC_regs p;
-    memset(&p,0,sizeof(struct PLC_regs));
+    memset(&p, 0, sizeof(struct PLC_regs));
     write_outputs(&p);
     init_mock_plc(&p);
-    unsigned char out[8] = {0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF};
+    unsigned char out[8] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
     memcpy(p.outputs, out, 8);
     
-    uint64_t rout[2] = {
-        0xABCDEF01,
-        0xABCDEF01
-    };
+    uint64_t rout[2] = { 0xABCDEF01, 0xABCDEF01 };
     memcpy(p.real_out, rout, 16);
     //write outputs copies magic numbers to hardware
     //mock flush also should be called
