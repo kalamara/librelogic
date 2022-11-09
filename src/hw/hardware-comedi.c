@@ -112,18 +112,18 @@ void com_data_write(unsigned int index, uint64_t value) {
 
 struct hardware Comedi = {
         HW_COMEDI,
-        0, //errorcode
+        0,                // error code
         "Comedi driver",
-        com_enable, // enable
-        com_disable, //disable
-        com_fetch, //fetch
-        com_flush, //flush
-        com_dio_read, //dio_read
-        com_dio_write, //dio_write
-        com_dio_bitfield, //dio_bitfield
-        com_data_read, //data_read
-        com_data_write, //data_write
-        com_config, //hw_config
+        com_enable,       // enable
+        com_disable,      // disable
+        com_fetch,        // fetch
+        com_flush,        // flush
+        com_dio_read,     // dio_read
+        com_dio_write,    // dio_write
+        com_dio_bitfield, // dio_bitfield
+        com_data_read,    // data_read
+        com_data_write,   // data_write
+        com_config,       // hw_config
 };
 
 #else 

@@ -57,7 +57,7 @@ double M2 = 0;
 unsigned long Loop = 0;
 
 void compute_variance(double x) {
-    if (Loop == 0) { //overflow
+    if (Loop == 0) { // overflow
         Mean = 0;
         M2 = 0;
     }

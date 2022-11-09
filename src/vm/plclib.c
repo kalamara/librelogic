@@ -54,7 +54,7 @@ int plc_init(plc_t p) {
  * @return true if rising edge of operand, false or error otherwise
  */
 static int re(const plc_t p, int type, int idx) {
-//return rising edge of operand
+// return rising edge of operand
 
     switch (type) {
         case BOOL_DI:
@@ -76,7 +76,7 @@ static int re(const plc_t p, int type, int idx) {
  * @return true if falling edge of operand, false or error otherwise
  */
 static int fe(const plc_t p, int type, int idx) {
-//return falling edge of operand
+// return falling edge of operand
 
     switch (type) {
         case BOOL_DI:
@@ -98,7 +98,7 @@ static int fe(const plc_t p, int type, int idx) {
  * @return OK if success or error code
  */
 static int set(plc_t p, int type, int idx) {
-//set operand
+// set operand
     switch (type) {
         case BOOL_DQ:
             if (idx / BYTESIZE >= p->nq)
@@ -133,7 +133,7 @@ static int set(plc_t p, int type, int idx) {
  * @return OK if success or error code
  */
 static int reset(plc_t p, int type, int idx) {
-//reset operand
+// reset operand
     switch (type) {
         case BOOL_DQ:
             if (idx / BYTESIZE >= p->nq)
@@ -172,7 +172,7 @@ static int reset(plc_t p, int type, int idx) {
  * @return OK if success or error code
  */
 static int contact(plc_t p, int type, int idx, BYTE val) {
-//contacts an output with a value
+// contacts an output with a value
     switch (type) {
         case BOOL_DQ:
             if (idx / BYTESIZE >= p->nq)
@@ -210,7 +210,7 @@ static int contact(plc_t p, int type, int idx, BYTE val) {
  * @return return value or error code
  */
 static int resolve(plc_t p, int type, int idx) {
-//return an operand value
+// return an operand value
     switch (type) {
         case BOOL_DQ:
             return p->dq[idx].Q || (p->dq[idx].SET && !p->dq[idx].RESET);
@@ -239,7 +239,7 @@ static int resolve(plc_t p, int type, int idx) {
  * @return OK if success or error code
  */
 static int down_timer(plc_t p, int idx) {
-//RESET timer
+// RESET timer
     p->t[idx].START = FALSE;
     p->t[idx].V = 0;
     p->t[idx].Q = 0;
@@ -289,7 +289,7 @@ int handle_set(const instruction_t op, const data_t acc, BYTE is_bit, plc_t p) {
     }
     if (op->operation != IL_SET) {
 
-        return PLC_ERR_BADOPERATOR; //sanity
+        return PLC_ERR_BADOPERATOR; // sanity
     }
     if (op->modifier == IL_COND && acc.u == FALSE) {
 
@@ -371,6 +371,7 @@ int handle_reset(const instruction_t op, const data_t acc, BYTE is_bit, plc_t p)
 int st_out_r(const instruction_t op, double val, plc_t p) {
     if (op->byte >= p->naq)
         return PLC_ERR_BADOPERAND;
+
     BYTE i = op->byte;
     p->aq[i].V = val;
     return PLC_OK;
@@ -428,6 +429,7 @@ int st_out(const instruction_t op, uint64_t val, plc_t p) {
 int st_mem_r(const instruction_t op, double val, plc_t p) {
     if (op->byte >= p->nmr)
         return PLC_ERR_BADOPERAND;
+
     p->mr[op->byte].V = val;
     //plc_log("store %lf to m%d", val, op->byte);
     return PLC_OK;
@@ -447,6 +449,7 @@ int st_mem(const instruction_t op, uint64_t val, plc_t p) {
 
     if (op->byte >= p->nm)
         return PLC_ERR_BADOPERAND;
+
     switch (t) {
         case T_BOOL:
             r = contact(p, BOOL_COUNTER, op->byte, BOOL(val));
@@ -593,6 +596,7 @@ static int ld_fe(const instruction_t op, BYTE *val, plc_t p) {
     int t = get_type(op);
     if (op->byte >= p->ni)
         return PLC_ERR_BADOPERAND;
+
     if (t == T_BOOL)
         *val = fe(p, BOOL_DI, (op->byte) * BYTESIZE + op->bit);
     else
@@ -609,6 +613,7 @@ static int ld_fe(const instruction_t op, BYTE *val, plc_t p) {
 int ld_in_r(const instruction_t op, double *val, plc_t p) {
     if (op->byte >= p->nai)
         return PLC_ERR_BADOPERAND;
+
     BYTE i = op->byte;
     *val = p->ai[i].V;
     return PLC_OK;
@@ -623,6 +628,7 @@ int ld_in_r(const instruction_t op, double *val, plc_t p) {
 int ld_out_r(const instruction_t op, double *val, plc_t p) {
     if (op->byte >= p->naq)
         return PLC_ERR_BADOPERAND;
+
     BYTE i = op->byte;
     *val = p->aq[i].V;
     return PLC_OK;
@@ -775,7 +781,7 @@ int handle_ld(const instruction_t op, data_t *acc, plc_t p) {
         return PLC_ERR;
     
     if ((op->operation != IL_LD && op->operation < FIRST_BITWISE) || op->operation >= N_IL_INSN)
-        return PLC_ERR_BADOPERATOR; //sanity
+        return PLC_ERR_BADOPERATOR; // sanity
         
     switch (op->operand) {
         case OP_OUTPUT: // set output %QX.Y
@@ -1044,10 +1050,9 @@ rung_t plc_get_rung(const plc_t p, const unsigned int idx) {
 
 /*****************realtime loop************************************/
 static int timeval_subtract(struct timeval *result, struct timeval *x, struct timeval *y) {
-    /* Subtract the `struct timeval' values X and Y,
-     storing the result in RESULT.
-     Return 1 if the difference is negative, otherwise 0.  */
-    /* Perform the carry for the later subtraction by updating y. */
+    // Subtract the `struct timeval' values X and Y, storing the result in RESULT.
+    // Return 1 if the difference is negative, otherwise 0.
+    // Perform the carry for the later subtraction by updating y.
     if (x->tv_usec < y->tv_usec) {
         int nsec = (y->tv_usec - x->tv_usec) / MILLION + 1;
         y->tv_usec -= MILLION * nsec;
@@ -1075,19 +1080,19 @@ void read_inputs(plc_t p) {
     if (p == NULL || p->hw == NULL)
         return;
     
-    p->hw->fetch(); //for simulation
+    p->hw->fetch(); // for simulation
     
-    for (i = 0; i < p->ni; i++) { //for each input byte
+    for (i = 0; i < p->ni; i++) { // for each input byte
         p->inputs[i] = 0;
-        for (j = 0; j < BYTESIZE; j++) { //read n bit into in
+        for (j = 0; j < BYTESIZE; j++) { // read n bit into in
             n = i * BYTESIZE + j;
             i_bit = 0;
             p->hw->dio_read(n, &i_bit);
             p->inputs[i] |= i_bit << j;
-        }    //mask them
+        } // mask them
     }
     
-    for (i = 0; i < p->nai; i++) { //for each input sample
+    for (i = 0; i < p->nai; i++) { // for each input sample
         p->hw->data_read(i, &p->real_in[i]);
     }
 }
@@ -1102,16 +1107,16 @@ void write_outputs(plc_t p) {
         return;
     
     for (i = 0; i < p->nq; i++) {
-        for (j = 0; j < BYTESIZE; j++) { //write n bit out
+        for (j = 0; j < BYTESIZE; j++) { // write n bit out
             n = BYTESIZE * i + j;
             q_bit = (p->outputs[i] >> j) % 2;
             p->hw->dio_write(p->outputs, n, q_bit);
         }
     }
-    for (i = 0; i < p->naq; i++) { //for each output sample
+    for (i = 0; i < p->naq; i++) { // for each output sample
         p->hw->data_write(i, p->real_out[i]);
     }
-    p->hw->flush(); //for simulation
+    p->hw->flush(); // for simulation
 }
 // TODO: how is force implemented for variables and timers?
 plc_t plc_force(plc_t p, int op, BYTE i, char *val) {
@@ -1391,9 +1396,9 @@ BYTE manage_timers(plc_t p) {
                 p->t[i].V++;
                 p->t[i].sn = 0;
             }
-            p->t[i].Q = (p->t[i].ONDELAY) ? 0 : 1; //on delay
+            p->t[i].Q = (p->t[i].ONDELAY) ? 0 : 1; // on delay
         } else if (p->t[i].START) {
-            p->t[i].Q = (p->t[i].ONDELAY) ? 1 : 0; //on delay
+            p->t[i].Q = (p->t[i].ONDELAY) ? 1 : 0; // on delay
         }
     }
     return t_changed;
@@ -1403,10 +1408,10 @@ BYTE manage_blinkers(plc_t p) {
     BYTE s_changed = 0;
     int i = 0;
     for (i = 0; i < p->ns; i++) {
-        if (p->s[i].S > 0) { //if set up
+        if (p->s[i].S > 0) { // if set up
             if (p->s[i].sn > p->s[i].S) {
                 s_changed = TRUE;
-                p->s[i].Q = (p->s[i].Q) ? 0 : 1; //toggle
+                p->s[i].Q = (p->s[i].Q) ? 0 : 1; // toggle
                 p->s[i].sn = 0;
             } else
                 p->s[i].sn++;
@@ -1504,7 +1509,7 @@ plc_t plc_func(plc_t p) { // TODO: this is a callback, supposed to be
     struct timeval tp; // time for poll
     struct timeval tn; // time since beginning of last output
     struct timeval dt;
-    long timeout = p->step * THOUSAND; //timeout in usec
+    long timeout = p->step * THOUSAND; // timeout in usec
     long poll_time = 0;
     long io_time = 0;
     static long run_time = 0;
@@ -1531,20 +1536,20 @@ plc_t plc_func(plc_t p) { // TODO: this is a callback, supposed to be
 // how much time passed since previous cycle?
         timeval_subtract(&dt, &tn, &Curtime);
         dt.tv_usec = dt.tv_usec % (THOUSAND * p->step);
-        io_time = dt.tv_usec; // / THOUSAND;
+        io_time = dt.tv_usec; // THOUSAND;
         timeout -= io_time;
         timeout -= run_time;
         //plc_log("I/O time approx:%d microseconds",dt.tv_usec);
         usleep(timeout);
-        gettimeofday(&tp, NULL);    //how much time did sleep wait?
+        gettimeofday(&tp, NULL); // how much time did sleep wait?
         timeval_subtract(&dt, &tp, &tn);
         poll_time = dt.tv_usec;
         //plc_log("Sleep time approx:%d microseconds",dt.tv_usec);
         //dt = time(input) + time(sleep)
         
-        i_changed = dec_inp(p); //decode inputs
+        i_changed = dec_inp(p); // decode inputs
 // TODO: a better user plugin system when function blocks are implemented
-        // plc_project_task(p); //plugin code
+        // plc_project_task(p); // plugin code
 
         if (r >= PLC_OK) {
             r = all_tasks(p->step * THOUSAND, p);
@@ -1655,7 +1660,8 @@ plc_t plc_copy(const plc_t plc) {
     
     return p;
 }
-/*destroy*/
+
+// destroy
 void plc_clear(plc_t plc) {
     if (plc != NULL) {
         if (plc->ai != NULL) {

@@ -78,7 +78,7 @@ int gen_expr_left(const item_t left, rung_t rung, BYTE recursive, BYTE mod) {
     struct instruction ins;
     memset(&ins, 0, sizeof(struct instruction));
     switch (left->tag) {
-        case TAG_IDENTIFIER: //LD
+        case TAG_IDENTIFIER: // LD
             ins.operation = inner;
             ins.operand = left->v.id.operand;
             ins.modifier = mod;
@@ -87,7 +87,7 @@ int gen_expr_left(const item_t left, rung_t rung, BYTE recursive, BYTE mod) {
             rv = append(&ins, rung);
             break;
         case TAG_EXPRESSION:
-            //recursion
+            // recursion
             rv = gen_expr(left, rung, inner);
             break;
         default:

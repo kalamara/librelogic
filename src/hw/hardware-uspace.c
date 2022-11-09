@@ -70,7 +70,7 @@ int usp_disable() { // Disable bus communication
         fprintf(stderr, "Unable to change id to root\nExiting\n");
         return PLC_ERR;
     }
-    if (iopl(0)) { // Normal i/o prevelege level
+    if (iopl(0)) { // Normal i/o privilege level
         perror("iopl() ");
         r = setuid(uid);
         return PLC_ERR;
@@ -102,7 +102,7 @@ void usp_dio_write(const BYTE *buf, unsigned int n, unsigned char bit) { // writ
     outb(q, Io_base + Wr_offs + n / BYTESIZE);
 }
 
-void usp_dio_bitfield(const BYTE *write_mask, BYTE *bits) { // simultaneusly write output bits defined my mask and read all inputs
+void usp_dio_bitfield(const BYTE *write_mask, BYTE *bits) { // simultaneously write output bits defined my mask and read all inputs
     /*FIXME
      int i;
      for (i = 0; i < Dq; i++)
@@ -121,16 +121,16 @@ void usp_data_write(unsigned int index, uint64_t value) {
 
 struct hardware Uspace = {
         HW_USPACE,
-        0, //errorcode
+        0,                // error code
         "",
-        usp_enable, // enable
-        usp_disable, //disable
-        usp_fetch, //fetch
-        usp_flush, //flush
-        usp_dio_read, //dio_read
-        usp_dio_write, //dio_write
-        usp_dio_bitfield, //dio_bitfield
-        usp_data_read, //data_read
-        usp_data_write, //data_write
-        usp_config, //hw_config
+        usp_enable,       // enable
+        usp_disable,      // disable
+        usp_fetch,        // fetch
+        usp_flush,        // flush
+        usp_dio_read,     // dio_read
+        usp_dio_write,    // dio_write
+        usp_dio_bitfield, // dio_bitfield
+        usp_data_read,    // data_read
+        usp_data_write,   // data_write
+        usp_config,       // hw_config
 };

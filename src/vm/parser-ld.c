@@ -70,8 +70,7 @@
  */
 
 int minmin(const int *arr, int min, int max) {
-//for an array arr of integers ,return the smallest of indices i so that 
-//arr[i] =  min(arr) >= min 
+// for an array arr of integers ,return the smallest of indices i so that  arr[i] =  min(arr) >= min
     int i;
     int v = MAXSTR; // can't be more than length  of line
     int r = PLC_ERR;
@@ -124,7 +123,7 @@ int handle_operand(int operand, BYTE negate, ld_line_t line) {
     int rv = PLC_OK;
     BYTE byte = 0;
     BYTE bit = 0;
-    if (operand >= OP_INPUT && operand < OP_CONTACT) { //valid input symbol
+    if (operand >= OP_INPUT && operand < OP_CONTACT) { // valid input symbol
         rv = extract_arguments(line->buf + (++line->cursor), &byte, &bit);
         //extract_number(line->buf, ++line->cursor);
         if (rv == PLC_OK) {
@@ -236,7 +235,7 @@ int parse_ld_line(ld_line_t line) {
     while (line->status == STATUS_UNRESOLVED && c != LD_NODE) { //loop
         c = read_char(line->buf, line->cursor);
         switch (c) {
-            case LD_NODE:    //PAUSE
+            case LD_NODE: // PAUSE
                 break;
             case PLC_ERR_BADCHAR:
             case (BYTE) PLC_ERR:
@@ -257,7 +256,7 @@ int parse_ld_line(ld_line_t line) {
             case LD_AND:
                 line->cursor++;
                 break;
-            case LD_COIL:    //see if it is a coil: ()[]
+            case LD_COIL: //see if it is a coil: ()[]
             case LD_SET:
             case LD_RESET:
             case LD_DOWN:
@@ -317,7 +316,7 @@ int vertical_parse(unsigned int start, unsigned int length, ld_line_t *program) 
     int last = start;
     // first pass: generate OR expression
     for (; current < length + 1; current++) { // for each line
-        if (current == length //overflow
+        if (current == length // overflow
         || program[current]->cursor < cursor || !IS_VERTICAL(read_char(program[current]->buf, cursor))) {
             // vertical line interrupted, reset OR expression
             for (backtrack = current - 1; backtrack >= last; backtrack--) {

@@ -162,18 +162,18 @@ void gpiod_data_write(unsigned int index, uint64_t value) {
 
 struct hardware Gpiod = {
         HW_GPIOD,
-        0, //errorcode
+        0,                  // error code
         "GPIOD",
-        gpiod_enable, // enable
-        gpiod_disable, //disable
-        gpiod_fetch, //fetch
-        gpiod_flush, //flush
-        gpiod_dio_read, //dio_read
-        gpiod_dio_write, //dio_write
-        gpiod_dio_bitfield, //dio_bitfield
-        gpiod_data_read, //data_read
-        gpiod_data_write, //data_write
-        gpiod_config, //hw_config
+        gpiod_enable,       // enable
+        gpiod_disable,      // disable
+        gpiod_fetch,        // fetch
+        gpiod_flush,        // flush
+        gpiod_dio_read,     // dio_read
+        gpiod_dio_write,    // dio_write
+        gpiod_dio_bitfield, // dio_bitfield
+        gpiod_data_read,    // data_read
+        gpiod_data_write,   // data_write
+        gpiod_config,       // hw_config
 };
 
 #endif

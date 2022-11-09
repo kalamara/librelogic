@@ -104,8 +104,8 @@ typedef struct digital_input {
     BIT(RE);     // rising edge
     BIT(FE);     // falling edge
     BIT(EDGE);   // true if value changed
-    BIT(MASK);   //  true if forced 1
-    BIT(N_MASK); //  true if forced 0
+    BIT(MASK);   // true if forced 1
+    BIT(N_MASK); // true if forced 0
     char *nick;  // [NICKLEN]; // nickname
 } *di_t;
 

@@ -69,8 +69,7 @@ int push(BYTE op, BYTE t, const data_t val, rung_t r) {
 }
 
 data_t pop(const data_t val, opcode_t *stack) {
-    // retrieve stack heads operation and operand, apply it to val and return
-    // result
+    // retrieve stack heads operation and operand, apply it to val and return result
     data_t r = val; // return value
     opcode_t p;
     if (*stack != NULL) {

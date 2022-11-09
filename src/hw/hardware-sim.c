@@ -183,7 +183,7 @@ void sim_dio_write(const unsigned char *buf, unsigned int n, BYTE bit) { //write
     unsigned int position = n / BYTESIZE;
     q = buf[position];
     q |= bit << n % BYTESIZE;
-    /*write a byte to output stream*/
+    // write a byte to output stream
     q += ASCIISTART; //ASCII
     // plc_log("Send %d to byte %d", q, position);
     if (strlen(BufOut) >= position) {
@@ -191,7 +191,7 @@ void sim_dio_write(const unsigned char *buf, unsigned int n, BYTE bit) { //write
     }
 }
 
-void sim_dio_bitfield(const BYTE *mask, BYTE *bits) { // simultaneusly write output bits defined by mask and read all inputs
+void sim_dio_bitfield(const BYTE *mask, BYTE *bits) { // simultaneously write output bits defined by mask and read all inputs
     /* FIXME
      int i=0;
      unsigned int w = (unsigned int) (*mask);
@@ -220,16 +220,16 @@ void sim_data_write(unsigned int index, uint64_t value) {
 
 struct hardware Sim = {
         HW_SIM,
-        0, //errorcode
+        0,                // error code
         "simulated hardware",
-        sim_enable, // enable
-        sim_disable, //disable
-        sim_fetch, //fetch
-        sim_flush, //flush
-        sim_dio_read, //dio_read
-        sim_dio_write, //dio_write
-        sim_dio_bitfield, //dio_bitfield
-        sim_data_read, //data_read
-        sim_data_write, //data_write
-        sim_config, //hw_config
+        sim_enable,       // enable
+        sim_disable,      // disable
+        sim_fetch,        // fetch
+        sim_flush,        // flush
+        sim_dio_read,     // dio_read
+        sim_dio_write,    // dio_write
+        sim_dio_bitfield, // dio_bitfield
+        sim_data_read,    // data_read
+        sim_data_write,   // data_write
+        sim_config,       // hw_config
 };

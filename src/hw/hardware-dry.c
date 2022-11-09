@@ -64,16 +64,16 @@ void dry_data_write(unsigned int index, uint64_t value) {
 
 struct hardware Dry = {
         HW_DRY,
-        0, //errorcode
+        0,                // error code
         "no hardware",
-        dry_enable, // enable
-        dry_disable, //disable
-        dry_fetch, //fetch
-        dry_flush, //flush
-        dry_dio_read, //dio_read
-        dry_dio_write, //dio_write
-        dry_dio_bitfield, //dio_bitfield
-        dry_data_read, //data_read
-        dry_data_write, //data_write
-        dry_config, //hw_config
+        dry_enable,       // enable
+        dry_disable,      // disable
+        dry_fetch,        // fetch
+        dry_flush,        // flush
+        dry_dio_read,     // dio_read
+        dry_dio_write,    // dio_write
+        dry_dio_bitfield, // dio_bitfield
+        dry_data_read,    // data_read
+        dry_data_write,   // data_write
+        dry_config,       // hw_config
 };
