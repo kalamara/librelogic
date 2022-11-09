@@ -16,6 +16,11 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef _HARDWARE_SIM_H_
+#define _HARDWARE_SIM_H_
+
+#ifdef SIM
+
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -158,8 +163,8 @@ int sim_flush() {
     unsigned int digital = Nq;
     unsigned int analog = Naq;
     if (Qfd) {
-        bytes_written = fwrite(BufOut, sizeof(PLC_BYTE), digital, Qfd);
-        bytes_written += fwrite(AdcOut, sizeof(PLC_BYTE), analog * LONG_BYTES, Qfd);
+        bytes_written = fwrite(BufOut, sizeof(BYTE), digital, Qfd);
+        bytes_written += fwrite(AdcOut, sizeof(BYTE), analog * LONG_BYTES, Qfd);
         fputc('\n', Qfd);
         fflush(Qfd);
     }
@@ -169,7 +174,7 @@ int sim_flush() {
 void sim_dio_read(unsigned int n, PLC_BYTE *bit) { // write input n to bit
     unsigned int b, position;
     position = n / BYTESIZE;
-    PLC_BYTE i = 0;
+    PLC_BYTEi = 0;
     if (strlen(BufIn) > position) {
         // read a byte from input stream
         i = BufIn[position];
@@ -178,13 +183,13 @@ void sim_dio_read(unsigned int n, PLC_BYTE *bit) { // write input n to bit
     *bit = (PLC_BYTE) b;
 }
 
-void sim_dio_write(const unsigned char *buf, unsigned int n, PLC_BYTE bit) { //write bit to n output
-    PLC_BYTE q;
+void sim_dio_write(const unsigned char *buf, unsigned int n, PLC_BYTE bit) { // write bit to n output
+    PLC_BYTEq;
     unsigned int position = n / BYTESIZE;
     q = buf[position];
     q |= bit << n % BYTESIZE;
     // write a byte to output stream
-    q += ASCIISTART; //ASCII
+    q += ASCIISTART; // ASCII
     // plc_log("Send %d to byte %d", q, position);
     if (strlen(BufOut) >= position) {
         BufOut[position] = q;
@@ -220,7 +225,7 @@ void sim_data_write(unsigned int index, uint64_t value) {
 
 struct hardware Sim = {
         HW_SIM,
-        0,                // error code
+        0,                // errorcode
         "simulated hardware",
         sim_enable,       // enable
         sim_disable,      // disable
@@ -233,3 +238,7 @@ struct hardware Sim = {
         sim_data_write,   // data_write
         sim_config,       // hw_config
 };
+
+#endif
+
+#endif /* _HARDWARE_SIM_H_ */

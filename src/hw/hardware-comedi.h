@@ -16,6 +16,9 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef _HARDWARE_COMEDI_H_
+#define _HARDWARE_COMEDI_H_
+
 #include <string.h>
 
 #include "util.h"
@@ -51,7 +54,8 @@ int com_config(void *conf) {
     return PLC_OK;
 }
 
-int com_enable() { // Enable bus communication
+int com_enable() // Enable bus communication
+{
     int r = 0;
 
     char filestr[MEDSTR];
@@ -64,7 +68,8 @@ int com_enable() { // Enable bus communication
     return r;
 }
 
-int com_disable() { // Disable bus communication
+int com_disable() // Disable bus communication
+{
     comedi_close(it);
     return PLC_OK;
 }
@@ -80,7 +85,7 @@ int com_flush() {
 void com_dio_read(unsigned int index, PLC_BYTE *value) { // write input n to bit
     unsigned int b;
     comedi_dio_read(it, Comedi_subdev_i, index, &b);
-    *value = (BYTE) b;
+    *value = (PLC_BYTE) b;
 }
 
 void com_dio_write(const PLC_BYTE *value, unsigned int n, unsigned char bit) { // write bit to n output
@@ -112,7 +117,7 @@ void com_data_write(unsigned int index, uint64_t value) {
 
 struct hardware Comedi = {
         HW_COMEDI,
-        0,                // error code
+        0,                // errorcode
         "Comedi driver",
         com_enable,       // enable
         com_disable,      // disable
@@ -131,3 +136,5 @@ struct hardware Comedi = {
 struct hardware Comedi;
 
 #endif //COMEDI
+
+#endif /* _HARDWARE_COMEDI_H_ */

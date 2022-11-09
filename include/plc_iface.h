@@ -18,6 +18,9 @@
  NOTE: this file is not preproccessed, so no # macros (#define, #include, etc.)
  */
 
+#ifndef _PLC_IFACE_H_
+#define _PLC_IFACE_H_
+
 typedef enum {
     HW_DRY,
     HW_SIM,
@@ -26,6 +29,7 @@ typedef enum {
     HW_GPIOD,
     HW_IIO,    // TODO Linux industrial I/O
     HW_USB,    // TODO FAR IN THE FUTURE
+    HW_PORT,   // New hardware
     N_HW
 } HARDWARES;
 
@@ -268,3 +272,6 @@ unsigned char plc_is_updated(plc_t p);
  * @return plc handle
  */
 plc_t plc_reset_update(plc_t p);
+
+#endif /* _PLC_IFACE_H_ */
+
