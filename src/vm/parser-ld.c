@@ -374,7 +374,7 @@ static unsigned int program_length(const char lines[][MAXSTR],
     int i = 0; 
     for(; i < max; i++){
         if(lines == NULL
-        || lines[i] == NULL
+        //|| lines[i] == NULL
         || lines[i][0] == 0)
             break;       
     }

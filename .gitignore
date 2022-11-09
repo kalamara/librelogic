@@ -17,3 +17,4 @@ CUnitAutomated-Results.xml
 build-lib/
 build-tst/
 Release/
+temp/
