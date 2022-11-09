@@ -29,7 +29,7 @@ if(CUNIT)
     )
 
     target_link_libraries(
-    test_vm PUBLIC ${CUNIT} -lgcov    
+    test_vm PUBLIC ${CUNIT} -lgcov # -fsanitize=address
     )	
 endif(CUNIT)    
 

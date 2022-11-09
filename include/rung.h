@@ -1,27 +1,27 @@
 /*******************************************************************************
-LibreLogic : a free PLC library
-Copyright (C) 2022, Antonis K. (kalamara AT ceid DOT upatras DOT gr)
+ LibreLogic : a free PLC library
+ Copyright (C) 2022, Antonis K. (kalamara AT ceid DOT upatras DOT gr)
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ You should have received a copy of the GNU General Public License
+ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 #ifndef _RUNG_H_
 #define _RUNG_H_
 
 #define MAXSTACK 256
-#define PLC_OK 0
-#define PLC_ERR -1
+#define PLC_OK   0
+#define PLC_ERR  -1
 
 /**
  * @brief The opcode struct
@@ -29,32 +29,32 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *TODO: byte type operations.
  *if op > 128 then value is negated first.
  */
-typedef struct opcode{
+typedef struct opcode {
     BYTE operation;
     BYTE type;
     BYTE depth;
     union accdata value;
-    struct opcode * next;
-} * opcode_t;
+    struct opcode *next;
+} *opcode_t;
 
 typedef struct codeline {
-    char * line;
-    struct codeline * next;
-} * codeline_t; 
+    char *line;
+    struct codeline *next;
+} *codeline_t;
 
 /**
  * @brief The instruction list executable rung
  */
-typedef struct rung{
-  instruction_t * instructions;
-  char * id;
-  codeline_t code; ///original code for visual representation
-  unsigned int insno;///actual no of active lines
-  struct rung * next; ///linked list of rungs
-  opcode_t stack; ///head of stack
-  struct opcode prealloc[MAXSTACK]; ///preallocated stack    
-  union accdata acc;    ///accumulator
-} * rung_t;
+typedef struct rung {
+    instruction_t *instructions;
+    char *id;
+    codeline_t code;                  // original code for visual representation
+    unsigned int insno;               // actual no of active lines
+    struct rung *next;                // linked list of rungs
+    opcode_t stack;                   // head of stack
+    struct opcode prealloc[MAXSTACK]; // preallocated stack
+    union accdata acc;                // accumulator
+} *rung_t;
 
 /**
  * @brief take the next available member in the preallocated stack
@@ -67,7 +67,7 @@ opcode_t take(rung_t r);
  * @brief give the stack head back to the stack
  * @param the head to give
  */
-void give( opcode_t head);
+void give(opcode_t head);
 
 /**
  * @brief push an opcode and a value into rung's stack.
@@ -77,11 +77,8 @@ void give( opcode_t head);
  * @param the rung //pointer to head of stack
  * @return OK or error
  */
-int push( BYTE op, 
-          BYTE t, 
-          const data_t val,
-          rung_t r );
-         
+int push(BYTE op, BYTE t, const data_t val, rung_t r);
+
 /**
  * @brief retrieve stack heads operation and operand,
  * apply it to val and return result
@@ -89,7 +86,7 @@ int push( BYTE op,
  * @param pointer to head of stack
  * @return result
  */
-data_t pop( const data_t val, opcode_t *stack);
+data_t pop(const data_t val, opcode_t *stack);
 
 /**
  * @brief get instruction reference from rung
@@ -98,9 +95,7 @@ data_t pop( const data_t val, opcode_t *stack);
  * @param idx the index
  * @return OK or error
  */
-int get( const rung_t r, 
-         unsigned int idx, 
-         instruction_t * i);
+int get(const rung_t r, unsigned int idx, instruction_t *i);
 
 /**
  * @brief append instruction to rung
@@ -108,7 +103,7 @@ int get( const rung_t r,
  * @param r a rung AKA instructions list
  * @return OK or error
  */
-int append( const instruction_t i, rung_t r);
+int append(const instruction_t i, rung_t r);
 
 /**
  * @brief append codeline string to rung code
@@ -116,13 +111,13 @@ int append( const instruction_t i, rung_t r);
  * @param code the existing code lines
  * @return rung code including new line
  */
-codeline_t append_line( const char * l, codeline_t code);
+codeline_t append_line(const char *l, codeline_t code);
 
 /**
  * @brief clear rung from instructions and free memory
  * @param r a rung AKA instructions list
  */
-void clear_rung( rung_t r);
+void clear_rung(rung_t r);
 
 /**
  * @brief lookup instruction by label
@@ -130,7 +125,7 @@ void clear_rung( rung_t r);
  * @param r a rung AKA instructions list
  * @return the index (pc) of the instruction, or error if not found
  */
-int lookup( const char * label, rung_t r);
+int lookup(const char *label, rung_t r);
 
 /**
  * @brief intern  labels
@@ -139,8 +134,8 @@ int lookup( const char * label, rung_t r);
  * @param r a rung AKA instructions list
  * @return OK, or error if : a label is not found or found duplicate
  */
-int intern( rung_t r);
+int intern(rung_t r);
 
-void dump_rung( rung_t ins, char * dump);
+void dump_rung(rung_t ins, char *dump);
 
-#endif //_RUNG_H_
+#endif /* _RUNG_H_ */

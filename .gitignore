@@ -9,3 +9,12 @@ install_manifest.txt
 compile_commands.json
 CTestTestfile.cmake
 _deps
+.cproject
+.project
+.settings/
+CUnitAutomated-Listing.xml
+CUnitAutomated-Results.xml
+build-lib/
+build-tst/
+Release/
+temp/

@@ -1,20 +1,20 @@
 /*******************************************************************************
-LibreLogic : a free PLC library
-Copyright (C) 2022, Antonis K. (kalamara AT ceid DOT upatras DOT gr)
+ LibreLogic : a free PLC library
+ Copyright (C) 2022, Antonis K. (kalamara AT ceid DOT upatras DOT gr)
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ You should have received a copy of the GNU General Public License
+ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 #ifndef _PARSER_IL_H_
 #define _PARSER_IL_H_
@@ -25,7 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * @param line
  * @return number read (positive value) or error (negative value)
  */
-int extract_number(const char * line);
+int extract_number(const char *line);
 
 /**
  * @brief extract bit and byte from X/Y expression starting @ start
@@ -34,9 +34,7 @@ int extract_number(const char * line);
  * @param the bit
  * @return OK or error
  */
-int extract_arguments(const char* buf,  
-                     BYTE* byte, 
-                     BYTE* bit);
+int extract_arguments(const char *buf, BYTE *byte, BYTE *bit);
 
 /**
  * @brief read optional descriptor (currently only f) 
@@ -47,10 +45,7 @@ int extract_arguments(const char* buf,
  * @param c index
  * @return IL operand symbol
  */
-BYTE read_type(const char *line, 
-                BYTE *operand,                 
-                unsigned int index);
-
+BYTE read_type(const char *line, BYTE *operand, unsigned int index);
 
 /**
  * @brief read operand  
@@ -60,29 +55,27 @@ BYTE read_type(const char *line,
  * @param c index
  * @return IL operand symbol
  */
-BYTE read_operand(const char * line, unsigned int index);
+BYTE read_operand(const char *line, unsigned int index);
 
 /**
  * @brief read up to ';' or /n
  * @param the line to trunkate comments from
  */
-void read_line_trunk_comments(char * line);
+void read_line_trunk_comments(char *line);
 
 /**
  * @brief find last ':', truncate up to there, store label.
  * @param buf a place to store labelless lines
  * @param label_buf the extracted label
  */
-void trunk_label(const char * line, 
-                 char * buf, 
-                 char * label_buf);
-                 
+void trunk_label(const char *line, char *buf, char *label_buf);
+
 /**
  * @brief trunkate all whitespaces left and right
  * @param the line to trunkate whitespaces from
  * @return trunkated line
  */
-char * trunk_whitespace(char * line);                 
+char* trunk_whitespace(char *line);
 
 /**
  * @brief find first ' ','!','('. store modifier (0 if not found)
@@ -90,7 +83,7 @@ char * trunk_whitespace(char * line);
  * @param pos points to where was the modifier found
  * @return the modifier
  */
-BYTE read_modifier(const char * buf, char ** pos);
+BYTE read_modifier(const char *buf, char **pos);
 
 /**
  * @brief read operator from beginning to modifier, check if invalid. 
@@ -98,7 +91,7 @@ BYTE read_modifier(const char * buf, char ** pos);
  * @param stop points to end of operator
  * @return error code if invalid, otherwise the operator
  */
-BYTE read_operator(const char * buf, const char * stop);
+BYTE read_operator(const char *buf, const char *stop);
 
 /**
  * @brief check modifier for correctness
@@ -122,10 +115,7 @@ int check_operand(instruction_t op);
  * @param bit
  * @return error code on failure
  */
-int find_arguments(const char* buf,   
-                   BYTE* operand, 
-                   BYTE* byte,
-                   BYTE* bit);
+int find_arguments(const char *buf, BYTE *operand, BYTE *byte, BYTE *bit);
 
 /**
  * @brief parse IL line and generate microcode
@@ -134,9 +124,6 @@ int find_arguments(const char* buf,
  * @param the rung to generate micorcode in
  * @return OK or error
  */
-int parse_il_line(const char * line, rung_t r);
- 
+int parse_il_line(const char *line, rung_t r);
 
-
-
-#endif //_PARSER-IL_H
+#endif /* _PARSER-IL_H */
