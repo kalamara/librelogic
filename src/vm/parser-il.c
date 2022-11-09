@@ -122,11 +122,11 @@ int extract_number(const char *line) { // read characters from string line
 // return number read or error
 }
 
-int extract_arguments(const char *buf, BYTE *byte, BYTE *bit) {
+int extract_arguments(const char *buf, PLC_BYTE *byte, PLC_BYTE *bit) {
     // read first numeric chars after operand
     // store byte
     *byte = extract_number(buf);
-    if (*byte == (BYTE) PLC_ERR) {
+    if (*byte == (PLC_BYTE) PLC_ERR) {
 
         return PLC_ERR_BADINDEX;
     }
@@ -144,7 +144,7 @@ int extract_arguments(const char *buf, BYTE *byte, BYTE *bit) {
     return PLC_OK;
 }
 
-BYTE read_operand(const char *line, unsigned int index) { // read ONE character from line[idx]
+PLC_BYTE read_operand(const char *line, unsigned int index) { // read ONE character from line[idx]
 // parse grammatically:
     int r = PLC_OK;
     if (line == NULL || index > strlen(line))
@@ -178,13 +178,13 @@ BYTE read_operand(const char *line, unsigned int index) { // read ONE character 
             r = OP_OUTPUT;
             break;
         default:
-            r = (BYTE) PLC_ERR_BADCHAR; // error
+            r = (PLC_BYTE) PLC_ERR_BADCHAR; // error
     }
 // return value or error
     return r;
 }
 
-BYTE read_type(const char *line, BYTE *operand, unsigned int index) { // read characters from line[idx]
+PLC_BYTE read_type(const char *line, PLC_BYTE *operand, unsigned int index) { // read characters from line[idx]
 // parse grammatically:
     int r = PLC_OK;
     if (line == NULL || index > strlen(line))
@@ -268,8 +268,8 @@ char* trunk_whitespace(char *line) {
     return line;
 }
 
-BYTE read_modifier(const char *buf, char **pos) {
-    BYTE modifier = 0;
+PLC_BYTE read_modifier(const char *buf, char **pos) {
+    PLC_BYTE modifier = 0;
     if (buf == NULL || pos == NULL)
         return PLC_ERR;
 
@@ -297,8 +297,8 @@ BYTE read_modifier(const char *buf, char **pos) {
     return modifier;
 }
 
-BYTE read_operator(const char *buf, const char *stop) {
-    BYTE op = 0;
+PLC_BYTE read_operator(const char *buf, const char *stop) {
+    PLC_BYTE op = 0;
     int i = 0;
     char *cursor = 0;
     char op_buf[LABELLEN];
@@ -328,7 +328,7 @@ BYTE read_operator(const char *buf, const char *stop) {
     return op;
 }
 
-int find_arguments(const char *buf, BYTE *operand, BYTE *byte, BYTE *bit) {
+int find_arguments(const char *buf, PLC_BYTE *operand, PLC_BYTE *byte, PLC_BYTE *bit) {
     int ret = PLC_OK;
     
     if (buf == NULL)
@@ -347,7 +347,7 @@ int find_arguments(const char *buf, BYTE *operand, BYTE *byte, BYTE *bit) {
 
         return PLC_ERR_BADOPERAND;
     }
-    if (*operand == (BYTE) PLC_ERR_BADCHAR) {
+    if (*operand == (PLC_BYTE) PLC_ERR_BADCHAR) {
 
         return PLC_ERR_BADCHAR;
     }
@@ -374,11 +374,11 @@ int parse_il_line(const char *line, rung_t r) { // line format:[label:]<operator
     char buf[MAXSTR];
     char label_buf[MAXSTR];
     char *pos = NULL;
-    BYTE byte = 0;
-    BYTE bit = 0;
-    BYTE modifier = 0;
-    BYTE operand = 0;
-    BYTE oper = 0;
+    PLC_BYTE byte = 0;
+    PLC_BYTE bit = 0;
+    PLC_BYTE modifier = 0;
+    PLC_BYTE operand = 0;
+    PLC_BYTE oper = 0;
     struct instruction op;
     
     memset(&op, 0, sizeof(struct instruction));

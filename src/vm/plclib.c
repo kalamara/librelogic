@@ -171,7 +171,7 @@ static int reset(plc_t p, int type, int idx) {
  * @param value
  * @return OK if success or error code
  */
-static int contact(plc_t p, int type, int idx, BYTE val) {
+static int contact(plc_t p, int type, int idx, PLC_BYTE val) {
 // contacts an output with a value
     switch (type) {
         case BOOL_DQ:
@@ -281,7 +281,7 @@ int handle_jmp(const rung_t r, unsigned int *pc) {
  * @param reference to the plc
  * @return OK or error
  */
-int handle_set(const instruction_t op, const data_t acc, BYTE is_bit, plc_t p) {
+int handle_set(const instruction_t op, const data_t acc, PLC_BYTE is_bit, plc_t p) {
     int r = PLC_OK;
     if (op == NULL || p == NULL) {
 
@@ -329,7 +329,7 @@ int handle_set(const instruction_t op, const data_t acc, BYTE is_bit, plc_t p) {
  * @param reference to the plc
  * @return OK or error
  */
-int handle_reset(const instruction_t op, const data_t acc, BYTE is_bit, plc_t p) {
+int handle_reset(const instruction_t op, const data_t acc, PLC_BYTE is_bit, plc_t p) {
     int r = PLC_OK;
     if (op == NULL || p == NULL)
         return PLC_ERR;
@@ -372,7 +372,7 @@ int st_out_r(const instruction_t op, double val, plc_t p) {
     if (op->byte >= p->naq)
         return PLC_ERR_BADOPERAND;
 
-    BYTE i = op->byte;
+    PLC_BYTE i = op->byte;
     p->aq[i].V = val;
     return PLC_OK;
 }
@@ -387,7 +387,7 @@ int st_out_r(const instruction_t op, double val, plc_t p) {
 int st_out(const instruction_t op, uint64_t val, plc_t p) {
     int r = PLC_OK;
     int t = get_type(op);
-    BYTE offs = (op->bit / BYTESIZE) - 1;
+    PLC_BYTE offs = (op->bit / BYTESIZE) - 1;
     int i = 0;
     switch (t) {
         case T_BOOL:
@@ -444,7 +444,7 @@ int st_mem_r(const instruction_t op, double val, plc_t p) {
 int st_mem(const instruction_t op, uint64_t val, plc_t p) {
     int r = PLC_OK;
     int t = get_type(op);
-    BYTE offs = (op->bit / BYTESIZE) - 1;
+    PLC_BYTE offs = (op->bit / BYTESIZE) - 1;
     uint64_t compl = 0x100;
 
     if (op->byte >= p->nm)
@@ -516,7 +516,7 @@ int handle_st(const instruction_t op, const data_t acc, plc_t p) {
     return r;
 }
 
-static uint64_t ld_bytes(BYTE start, BYTE offset, BYTE *arr) {
+static uint64_t ld_bytes(PLC_BYTE start, PLC_BYTE offset, PLC_BYTE *arr) {
     uint64_t rv = 0;
     int i = offset;
     for (; i >= 0; i--) {
@@ -536,7 +536,7 @@ static uint64_t ld_bytes(BYTE start, BYTE offset, BYTE *arr) {
 static int ld_in(const instruction_t op, uint64_t *val, plc_t p) {
     int r = PLC_OK;
     int t = get_type(op);
-    BYTE offs = (op->bit / BYTESIZE) - 1;
+    PLC_BYTE offs = (op->bit / BYTESIZE) - 1;
     uint64_t complement = 0x100;
     
     switch (t) {
@@ -573,7 +573,7 @@ static int ld_in(const instruction_t op, uint64_t *val, plc_t p) {
  * @reference to the plc
  * @return OK or error
  */
-static int ld_re(const instruction_t op, BYTE *val, plc_t p) {
+static int ld_re(const instruction_t op, PLC_BYTE *val, plc_t p) {
     int r = PLC_OK;
     int t = get_type(op);
     if (op->byte >= p->ni)
@@ -591,7 +591,7 @@ static int ld_re(const instruction_t op, BYTE *val, plc_t p) {
  * @reference to the plc
  * @return OK or error
  */
-static int ld_fe(const instruction_t op, BYTE *val, plc_t p) {
+static int ld_fe(const instruction_t op, PLC_BYTE *val, plc_t p) {
     int r = PLC_OK;
     int t = get_type(op);
     if (op->byte >= p->ni)
@@ -614,7 +614,7 @@ int ld_in_r(const instruction_t op, double *val, plc_t p) {
     if (op->byte >= p->nai)
         return PLC_ERR_BADOPERAND;
 
-    BYTE i = op->byte;
+    PLC_BYTE i = op->byte;
     *val = p->ai[i].V;
     return PLC_OK;
 }
@@ -629,7 +629,7 @@ int ld_out_r(const instruction_t op, double *val, plc_t p) {
     if (op->byte >= p->naq)
         return PLC_ERR_BADOPERAND;
 
-    BYTE i = op->byte;
+    PLC_BYTE i = op->byte;
     *val = p->aq[i].V;
     return PLC_OK;
 }
@@ -643,7 +643,7 @@ int ld_out_r(const instruction_t op, double *val, plc_t p) {
 int ld_out(const instruction_t op, uint64_t *val, plc_t p) {
     int r = PLC_OK;
     int t = get_type(op);
-    BYTE offs = (op->bit / BYTESIZE) - 1;
+    PLC_BYTE offs = (op->bit / BYTESIZE) - 1;
     uint64_t complement = 0x100;
     switch (t) {
         case T_BOOL:
@@ -776,7 +776,7 @@ static int ld_timer(const instruction_t op, uint64_t *val, plc_t p) {
 
 int handle_ld(const instruction_t op, data_t *acc, plc_t p) {
     int r = 0;
-    BYTE edge = 0;
+    PLC_BYTE edge = 0;
     if (op == NULL || p == NULL || acc == NULL)
         return PLC_ERR;
     
@@ -850,7 +850,7 @@ int handle_stackable(const instruction_t op, rung_t r, plc_t p) { // all others 
     int rv = 0;
     data_t val;
     val.u = 0;
-    BYTE stackable = 0;
+    PLC_BYTE stackable = 0;
     if (r == NULL || p == NULL)
         return PLC_ERR;
     
@@ -888,10 +888,10 @@ int handle_stackable(const instruction_t op, rung_t r, plc_t p) { // all others 
  * @return OK or error
  */
 int instruct(plc_t p, rung_t r, unsigned int *pc) {
-    BYTE type = 0;
+    PLC_BYTE type = 0;
     int error = 0;
     instruction_t op;
-    BYTE increment = TRUE;
+    PLC_BYTE increment = TRUE;
     if (r == NULL || p == NULL || *pc >= r->insno) {
         (*pc)++;
         return PLC_ERR;
@@ -1075,7 +1075,7 @@ void read_inputs(plc_t p) {
     int n = 0;
     int j = 0;
     
-    BYTE i_bit = 0;
+    PLC_BYTE i_bit = 0;
     
     if (p == NULL || p->hw == NULL)
         return;
@@ -1119,7 +1119,7 @@ void write_outputs(plc_t p) {
     p->hw->flush(); // for simulation
 }
 // TODO: how is force implemented for variables and timers?
-plc_t plc_force(plc_t p, int op, BYTE i, char *val) {
+plc_t plc_force(plc_t p, int op, PLC_BYTE i, char *val) {
     if (p == NULL || val == NULL) {
         return NULL;
     }
@@ -1169,7 +1169,7 @@ plc_t plc_force(plc_t p, int op, BYTE i, char *val) {
     return r;
 }
 
-plc_t plc_unforce(plc_t p, int op, BYTE i) {
+plc_t plc_unforce(plc_t p, int op, PLC_BYTE i) {
     if (p == NULL) {
         return NULL;
     }
@@ -1207,7 +1207,7 @@ plc_t plc_unforce(plc_t p, int op, BYTE i) {
     return r;
 }
 
-int plc_is_forced(const plc_t p, int op, BYTE i) {
+int plc_is_forced(const plc_t p, int op, PLC_BYTE i) {
     int r = PLC_ERR;
     switch (op) {
         case OP_INPUT:
@@ -1242,10 +1242,10 @@ int plc_is_forced(const plc_t p, int op, BYTE i) {
  * @param pointer to PLC registers
  * @return true if input changed
  */
-BYTE dec_inp(plc_t p) { // decode input bytes
-    BYTE i = 0;
-    BYTE j = 0;
-    BYTE i_changed = FALSE;
+PLC_BYTE dec_inp(plc_t p) { // decode input bytes
+    PLC_BYTE i = 0;
+    PLC_BYTE j = 0;
+    PLC_BYTE i_changed = FALSE;
 
     for (; i < p->ni; i++) {
         if (p->inputs[i] != p->old->inputs[i]) {
@@ -1255,7 +1255,7 @@ BYTE dec_inp(plc_t p) { // decode input bytes
             unsigned int n = BYTESIZE * i + j;
 // negative mask has precedence
             p->di[n].I = (((p->inputs[i] >> j) % 2) || p->di[n].MASK) && !p->di[n].N_MASK;
-            BYTE edge = p->di[n].I ^ p->old->di[n].I;
+            PLC_BYTE edge = p->di[n].I ^ p->old->di[n].I;
             p->di[n].RE = p->di[n].I && edge;
             p->di[n].FE = !p->di[n].I && edge;
         }
@@ -1283,11 +1283,11 @@ BYTE dec_inp(plc_t p) { // decode input bytes
  * @param pointer to PLC registers
  * @return true if output changed
  */
-BYTE enc_out(plc_t p) { // encode digital outputs to output bytes
-    BYTE i = 0;
-    BYTE j = 0;
-    BYTE o_changed = FALSE;
-    BYTE out[p->nq];
+PLC_BYTE enc_out(plc_t p) { // encode digital outputs to output bytes
+    PLC_BYTE i = 0;
+    PLC_BYTE j = 0;
+    PLC_BYTE o_changed = FALSE;
+    PLC_BYTE out[p->nq];
 
     memcpy(out, p->outputs, p->nq);
 
@@ -1347,8 +1347,8 @@ static void write_mvars(plc_t p) {
     }
 }
 
-BYTE check_pulses(plc_t p) {
-    BYTE changed = 0;
+PLC_BYTE check_pulses(plc_t p) {
+    PLC_BYTE changed = 0;
     int i = 0;
     for (i = 0; i < p->nm; i++) { // check counter pulses
         if (p->m[i].PULSE != p->old->m[i].PULSE) {
@@ -1359,7 +1359,7 @@ BYTE check_pulses(plc_t p) {
     return changed;
 }
 
-plc_t save_state(BYTE mask, plc_t p) {
+plc_t save_state(PLC_BYTE mask, plc_t p) {
     if (mask & CHANGED_I) { // Input changed!
         memcpy(p->old->inputs, p->inputs, p->ni);
         plc_log("%s", "input updated");
@@ -1384,9 +1384,9 @@ plc_t save_state(BYTE mask, plc_t p) {
     return p;
 }
 
-BYTE manage_timers(plc_t p) {
+PLC_BYTE manage_timers(plc_t p) {
     int i = 0;
-    BYTE t_changed = 0;
+    PLC_BYTE t_changed = 0;
     for (i = 0; i < p->nt; i++) {
         if (p->t[i].V < p->t[i].P && p->t[i].START) {
             if (p->t[i].sn < p->t[i].S)
@@ -1404,8 +1404,8 @@ BYTE manage_timers(plc_t p) {
     return t_changed;
 }
 
-BYTE manage_blinkers(plc_t p) {
-    BYTE s_changed = 0;
+PLC_BYTE manage_blinkers(plc_t p) {
+    PLC_BYTE s_changed = 0;
     int i = 0;
     for (i = 0; i < p->ns; i++) {
         if (p->s[i].S > 0) { // if set up
@@ -1515,12 +1515,12 @@ plc_t plc_func(plc_t p) { // TODO: this is a callback, supposed to be
     static long run_time = 0;
 
     int r = PLC_OK;
-    BYTE change_mask = p->update;
-    BYTE i_changed = FALSE;
-    BYTE o_changed = FALSE;
-    BYTE m_changed = FALSE;
-    BYTE t_changed = FALSE;
-    BYTE s_changed = FALSE;
+    PLC_BYTE change_mask = p->update;
+    PLC_BYTE i_changed = FALSE;
+    PLC_BYTE o_changed = FALSE;
+    PLC_BYTE m_changed = FALSE;
+    PLC_BYTE t_changed = FALSE;
+    PLC_BYTE s_changed = FALSE;
     
     dt.tv_sec = 0;
     dt.tv_usec = 0;
@@ -1588,8 +1588,8 @@ plc_t plc_func(plc_t p) { // TODO: this is a callback, supposed to be
 static plc_t allocate(plc_t plc) {
     /*******************initialize***************/
 
-    plc->inputs = (BYTE*) calloc(1, plc->ni);
-    plc->outputs = (BYTE*) calloc(1, plc->nq);
+    plc->inputs = (PLC_BYTE*) calloc(1, plc->ni);
+    plc->outputs = (PLC_BYTE*) calloc(1, plc->nq);
     plc->real_in = (uint64_t*) calloc(plc->nai, sizeof(uint64_t));
     plc->real_out = (uint64_t*) calloc(plc->naq, sizeof(uint64_t));
     plc->di = (di_t) calloc(BYTESIZE * plc->ni, sizeof(struct digital_input));
@@ -1705,10 +1705,10 @@ void plc_clear(plc_t plc) {
 }
 
 // configurators
-plc_t plc_declare_variable(const plc_t p, int var, BYTE idx, const char *val) {
+plc_t plc_declare_variable(const plc_t p, int var, PLC_BYTE idx, const char *val) {
     plc_t r = p;
     char **nick = NULL;
-    BYTE max = 0;
+    PLC_BYTE max = 0;
     switch (var) {
         case OP_INPUT:
             max = p->ni * BYTESIZE;
@@ -1768,9 +1768,9 @@ plc_t plc_declare_variable(const plc_t p, int var, BYTE idx, const char *val) {
     return r;
 }
 
-plc_t plc_init_variable(const plc_t p, int var, BYTE idx, const char *val) {
+plc_t plc_init_variable(const plc_t p, int var, PLC_BYTE idx, const char *val) {
     plc_t r = p;
-    BYTE len = 0;
+    PLC_BYTE len = 0;
 
     switch (var) {
         case OP_REAL_MEMORY:
@@ -1798,9 +1798,9 @@ plc_t plc_init_variable(const plc_t p, int var, BYTE idx, const char *val) {
     return r;
 }
 
-plc_t plc_configure_variable_readonly(const plc_t p, int var, BYTE idx, const char *val) {
+plc_t plc_configure_variable_readonly(const plc_t p, int var, PLC_BYTE idx, const char *val) {
     plc_t r = p;
-    BYTE len = 0;
+    PLC_BYTE len = 0;
     switch (var) {
         case OP_REAL_MEMORY:
             len = r->nmr;
@@ -1827,10 +1827,10 @@ plc_t plc_configure_variable_readonly(const plc_t p, int var, BYTE idx, const ch
     return r;
 }
 
-plc_t plc_configure_io_limit(const plc_t p, int var, BYTE idx, const char *val, BYTE upper) {
+plc_t plc_configure_io_limit(const plc_t p, int var, PLC_BYTE idx, const char *val, PLC_BYTE upper) {
     plc_t r = p;
     aio_t io = NULL;
-    BYTE len = 0;
+    PLC_BYTE len = 0;
     switch (var) {
         case OP_REAL_INPUT:
             io = r->ai;
@@ -1862,9 +1862,9 @@ plc_t plc_configure_io_limit(const plc_t p, int var, BYTE idx, const char *val, 
     return r;
 }
 
-plc_t plc_configure_counter_direction(const plc_t p, BYTE idx, const char *val) {
+plc_t plc_configure_counter_direction(const plc_t p, PLC_BYTE idx, const char *val) {
     plc_t r = p;
-    BYTE len = r->nm;
+    PLC_BYTE len = r->nm;
     
     if (idx >= len) {
         r->status = PLC_ERR_BADINDEX;
@@ -1874,9 +1874,9 @@ plc_t plc_configure_counter_direction(const plc_t p, BYTE idx, const char *val) 
     return r;
 }
 
-plc_t plc_configure_timer_scale(const plc_t p, BYTE idx, const char *val) {
+plc_t plc_configure_timer_scale(const plc_t p, PLC_BYTE idx, const char *val) {
     plc_t r = p;
-    BYTE len = r->nt;
+    PLC_BYTE len = r->nt;
     
     if (idx >= len) {
         r->status = PLC_ERR_BADINDEX;
@@ -1886,9 +1886,9 @@ plc_t plc_configure_timer_scale(const plc_t p, BYTE idx, const char *val) {
     return r;
 }
 
-plc_t plc_configure_timer_preset(const plc_t p, BYTE idx, const char *val) {
+plc_t plc_configure_timer_preset(const plc_t p, PLC_BYTE idx, const char *val) {
     plc_t r = p;
-    BYTE len = r->nt;
+    PLC_BYTE len = r->nt;
 
     if (idx >= len) {
         r->status = PLC_ERR_BADINDEX;
@@ -1898,9 +1898,9 @@ plc_t plc_configure_timer_preset(const plc_t p, BYTE idx, const char *val) {
     return r;
 }
 
-plc_t plc_configure_timer_delay_mode(const plc_t p, BYTE idx, const char *val) {
+plc_t plc_configure_timer_delay_mode(const plc_t p, PLC_BYTE idx, const char *val) {
     plc_t r = p;
-    BYTE len = r->nt;
+    PLC_BYTE len = r->nt;
     if (idx >= len) {
         r->status = PLC_ERR_BADINDEX;
     } else {
@@ -1909,9 +1909,9 @@ plc_t plc_configure_timer_delay_mode(const plc_t p, BYTE idx, const char *val) {
     return r;
 }
 
-plc_t plc_configure_pulse_scale(const plc_t p, BYTE idx, const char *val) {
+plc_t plc_configure_pulse_scale(const plc_t p, PLC_BYTE idx, const char *val) {
     plc_t r = p;
-    BYTE len = r->ns;
+    PLC_BYTE len = r->ns;
     
     if (idx >= len) {
         r->status = PLC_ERR_BADINDEX;

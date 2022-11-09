@@ -30,22 +30,22 @@ typedef enum {
 } item_tag_t;
 
 typedef struct identifier {
-    BYTE operand;
-    BYTE byte;
-    BYTE bit;
+    PLC_BYTE operand;
+    PLC_BYTE byte;
+    PLC_BYTE bit;
 } *identifier_t;
 
 typedef struct expression {
     struct item *a;
     struct item *b;
-    BYTE op;
-    BYTE mod;
+    PLC_BYTE op;
+    PLC_BYTE mod;
 } *expression_t;
 
 typedef struct assignment {
     struct item *left;
     struct item *right;
-    BYTE type; // contact, down, set, reset
+    PLC_BYTE type; // contact, down, set, reset
 } *assignment_t;
 
 /**
@@ -67,7 +67,7 @@ typedef struct item {
  * @param bit
  * @return a newly allocated tree node 
  */
-item_t mk_identifier(const BYTE operand, const BYTE byte, const BYTE bit);
+item_t mk_identifier(const PLC_BYTE operand, const PLC_BYTE byte, const PLC_BYTE bit);
 
 /**
  * @brief make an expression node
@@ -77,7 +77,7 @@ item_t mk_identifier(const BYTE operand, const BYTE byte, const BYTE bit);
  * @param modifier
  * @return a newly allocated tree node 
  */
-item_t mk_expression(const item_t a, const item_t b, const BYTE op, const BYTE mod);
+item_t mk_expression(const item_t a, const item_t b, const PLC_BYTE op, const PLC_BYTE mod);
 
 /**
  * @brief make an assignment node
@@ -86,7 +86,7 @@ item_t mk_expression(const item_t a, const item_t b, const BYTE op, const BYTE m
  * @param type of assignment (normal, negative, set, reset)
  * @return a newly allocated tree node 
  */
-item_t mk_assignment(const item_t identifier, const item_t expression, const BYTE type);
+item_t mk_assignment(const item_t identifier, const item_t expression, const PLC_BYTE type);
 
 /**
  * @brief recursively clear (deallocate) 

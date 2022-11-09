@@ -87,22 +87,22 @@ int usp_flush() {
     return 0;
 }
 
-void usp_dio_read(unsigned int n, BYTE *bit) { // write input n to bit
+void usp_dio_read(unsigned int n, PLC_BYTE *bit) { // write input n to bit
     unsigned int b;
-    BYTE i;
+    PLC_BYTE i;
     i = inb(Io_base + Rd_offs + n / BYTESIZE);
     b = (i >> n % BYTESIZE) % 2;
-    *bit = (BYTE) b;
+    *bit = (PLC_BYTE) b;
 }
 
-void usp_dio_write(const BYTE *buf, unsigned int n, unsigned char bit) { // write bit to n output
-    BYTE q;
+void usp_dio_write(const PLC_BYTE *buf, unsigned int n, unsigned char bit) { // write bit to n output
+    PLC_BYTE q;
     q = buf[n / BYTESIZE];
     q |= bit << n % BYTESIZE;
     outb(q, Io_base + Wr_offs + n / BYTESIZE);
 }
 
-void usp_dio_bitfield(const BYTE *write_mask, BYTE *bits) { // simultaneously write output bits defined my mask and read all inputs
+void usp_dio_bitfield(const PLC_BYTE *write_mask, PLC_BYTE *bits) { // simultaneously write output bits defined my mask and read all inputs
     /*FIXME
      int i;
      for (i = 0; i < Dq; i++)

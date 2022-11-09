@@ -100,12 +100,12 @@ typedef enum {
  * @brief The digital_input struct
  */
 typedef struct digital_input {
-    BIT(I);      // contact value
-    BIT(RE);     // rising edge
-    BIT(FE);     // falling edge
-    BIT(EDGE);   // true if value changed
-    BIT(MASK);   // true if forced 1
-    BIT(N_MASK); // true if forced 0
+    PLC_BIT(I);      // contact value
+    PLC_BIT(RE);     // rising edge
+    PLC_BIT(FE);     // falling edge
+    PLC_BIT(EDGE);   // true if value changed
+    PLC_BIT(MASK);   // true if forced 1
+    PLC_BIT(N_MASK); // true if forced 0
     char *nick;  // [NICKLEN]; // nickname
 } *di_t;
 
@@ -113,11 +113,11 @@ typedef struct digital_input {
  * @brief The digital_output struct
  */
 typedef struct digital_output {
-    BIT(Q);      // contact
-    BIT(SET);    // set
-    BIT(RESET);  // reset
-    BIT(MASK);   // true if forced true
-    BIT(N_MASK); // true if forced false
+    PLC_BIT(Q);      // contact
+    PLC_BIT(SET);    // set
+    PLC_BIT(RESET);  // reset
+    PLC_BIT(MASK);   // true if forced true
+    PLC_BIT(N_MASK); // true if forced false
     char *nick;  // [NICKLEN];//nickname
 } *do_t;
 
@@ -140,12 +140,12 @@ typedef struct timer {
     long S;       // scale; S=1000=>increase every 1000 cycles. STEP= 10 msec=> increase every 10 sec
     long sn;      // internal counter used for scaling
     long V;       // value
-    BIT(Q);       // output
+    PLC_BIT(Q);       // output
     long P;       // Preset value
-    BIT(ONDELAY); // 1=on delay, 0 = off delay
-    BIT(START);   // start command: must be on to count
-    BIT(RESET);   // down command: sets V = 0
-    //BIT(MASK);  // true if timer is forced to up or down
+    PLC_BIT(ONDELAY); // 1=on delay, 0 = off delay
+    PLC_BIT(START);   // start command: must be on to count
+    PLC_BIT(RESET);   // down command: sets V = 0
+    //PLC_BIT(MASK);  // true if timer is forced to up or down
     char *nick;   // [NICKLEN];
 } *dt_t;
 
@@ -154,7 +154,7 @@ typedef struct timer {
  * struct which represents a blinker
  */
 typedef struct blink {
-    BIT(Q);     // output
+    PLC_BIT(Q);     // output
     long S;     // scale; S=1000=>toggle every 1000 cycles. STEP= 10 msec=> toggle every 10 sec
     long sn;    // internal counter for scaling
     char *nick; // [NICKLEN];
@@ -166,13 +166,13 @@ typedef struct blink {
  */
 typedef struct mvar {
     uint64_t V;  // TODO: add type
-    BIT(RO);     // 1 if read only;
-    BIT(DOWN);   // 1: can be used as a down counter
-    BIT(PULSE);  // pulse for up/downcounting
-    BIT(EDGE);   // edge of pulse
-    BIT(SET);    // set pulse
-    BIT(RESET);  // reset pulse
-    //BIT(MASK); // true if pulse is set
+    PLC_BIT(RO);     // 1 if read only;
+    PLC_BIT(DOWN);   // 1: can be used as a down counter
+    PLC_BIT(PULSE);  // pulse for up/downcounting
+    PLC_BIT(EDGE);   // edge of pulse
+    PLC_BIT(SET);    // set pulse
+    PLC_BIT(RESET);  // reset pulse
+    //PLC_BIT(MASK); // true if pulse is set
     char *nick;  // [NICKLEN]; // nickname
 } *mvar_t;
 
@@ -182,7 +182,7 @@ typedef struct mvar {
  */
 typedef struct mreal {
     double V;   // TODO: add type
-    BIT(RO);    // 1 if read only;
+    PLC_BIT(RO);    // 1 if read only;
     char *nick; // [NICKLEN]; // nickname
 } *mreal_t;
 
@@ -194,43 +194,43 @@ typedef struct mreal {
 typedef struct PLC_regs {
     hardware_t hw;
     // hardware interface
-    BYTE *inputs;         // digital input values buffer
+    PLC_BYTE *inputs;         // digital input values buffer
     uint64_t *real_in;    // analog raw input values buffer
-    BYTE *outputs;        // digital output values buffer
+    PLC_BYTE *outputs;        // digital output values buffer
     uint64_t *real_out;   // analog raw output values buffer
     
-    BYTE command;         // serial command from plcpipe
-    BYTE response;        // response to named pipe
+    PLC_BYTE command;         // serial command from plcpipe
+    PLC_BYTE response;        // response to named pipe
     
-    BYTE update;          // binary mask of state update
+    PLC_BYTE update;          // binary mask of state update
     int status;           // 0 = stopped, 1 = running, negative = error
     
-    BYTE ni;              // number of bytes for digital inputs
+    PLC_BYTE ni;              // number of bytes for digital inputs
     di_t di;              // digital inputs
     
-    BYTE nq;              // number of bytes for digital outputs
+    PLC_BYTE nq;              // number of bytes for digital outputs
     do_t dq;              // the digital outputs
 
-    BYTE nai;             // number of analog input channels
+    PLC_BYTE nai;             // number of analog input channels
     aio_t ai;             // the analog inputs
     
-    BYTE naq;             // number of analog output channels
+    PLC_BYTE naq;             // number of analog output channels
     aio_t aq;             // the analog outputs
 
-    BYTE nt;              // number of timers
+    PLC_BYTE nt;              // number of timers
     dt_t t;               // the timers
     
-    BYTE ns;              // number of blinkers
+    PLC_BYTE ns;              // number of blinkers
     blink_t s;            // the blinkers
     
-    BYTE nm;              // number of memory counters
+    PLC_BYTE nm;              // number of memory counters
     mvar_t m;             // the memory
     
-    BYTE nmr;             // number of memory registers
+    PLC_BYTE nmr;             // number of memory registers
     mreal_t mr;           // the memory
 
     rung_t *rungs;
-    BYTE rungno;          // 256 rungs should suffice
+    PLC_BYTE rungno;          // 256 rungs should suffice
     
     long step;            // cycle time in milliseconds
     struct PLC_regs *old; // pointer to previous state
@@ -291,7 +291,7 @@ int plc_project_task(plc_t p);
  * @param the value
  * @return new plc state, or NULL in error
  */
-plc_t plc_force(plc_t p, int op, BYTE i, char *val);
+plc_t plc_force(plc_t p, int op, PLC_BYTE i, char *val);
 
 /**
  * @brief unforce operand
@@ -300,7 +300,7 @@ plc_t plc_force(plc_t p, int op, BYTE i, char *val);
  * @param the operand index
  * @param new plc state, or null in error
  */
-plc_t plc_unforce(plc_t p, int op, BYTE i);
+plc_t plc_unforce(plc_t p, int op, PLC_BYTE i);
 
 /**
  * @brief is an operand forced
@@ -309,7 +309,7 @@ plc_t plc_unforce(plc_t p, int op, BYTE i);
  * @param input index
  * @return true if forced, false if not, error if out of bounds
  */
-int plc_is_forced(plc_t p, int op, BYTE i);
+int plc_is_forced(plc_t p, int op, PLC_BYTE i);
 
 /**
  * @brief copy constructor
@@ -334,7 +334,7 @@ void plc_clear(plc_t plc);
  * @see also data.h
  * @return plc instance with saved change or updated error status
  */
-plc_t plc_declare_variable(const plc_t p, int var, BYTE idx, const char *val);
+plc_t plc_declare_variable(const plc_t p, int var, PLC_BYTE idx, const char *val);
 
 /**
  * @brief assign initial value to a plc register variable
@@ -346,7 +346,7 @@ plc_t plc_declare_variable(const plc_t p, int var, BYTE idx, const char *val);
  * @see also data.h
  * @return plc instance with saved change or updated error status
  */
-plc_t plc_init_variable(const plc_t p, int var, BYTE idx, const char *val);
+plc_t plc_init_variable(const plc_t p, int var, PLC_BYTE idx, const char *val);
 
 /**
  * @brief configure a plc register variable as readonly
@@ -357,7 +357,7 @@ plc_t plc_init_variable(const plc_t p, int var, BYTE idx, const char *val);
  * @see also data.h
  * @return plc instance with saved change or updated error status
  */
-plc_t plc_configure_variable_readonly(const plc_t p, int var, BYTE idx, const char *val);
+plc_t plc_configure_variable_readonly(const plc_t p, int var, PLC_BYTE idx, const char *val);
 
 /**
  * @brief assign upper or lower limit to an analog input or output
@@ -369,7 +369,7 @@ plc_t plc_configure_variable_readonly(const plc_t p, int var, BYTE idx, const ch
  * @see also data.h
  * @return plc instance with saved change or updated error status
  */
-plc_t plc_configure_io_limit(const plc_t p, int io, BYTE idx, const char *val, BYTE max);
+plc_t plc_configure_io_limit(const plc_t p, int io, PLC_BYTE idx, const char *val, PLC_BYTE max);
 
 /**
  * @brief configure a register as up or down counter
@@ -378,7 +378,7 @@ plc_t plc_configure_io_limit(const plc_t p, int io, BYTE idx, const char *val, B
  * @param serialized direction flag (true if "DOWN", false otherwise)
  * @return plc instance with saved change or updated error status
  */
-plc_t plc_configure_counter_direction(const plc_t p, BYTE idx, const char *val);
+plc_t plc_configure_counter_direction(const plc_t p, PLC_BYTE idx, const char *val);
 /**
  * @brief configure a timer scale
  * @param plc instance   
@@ -387,7 +387,7 @@ plc_t plc_configure_counter_direction(const plc_t p, BYTE idx, const char *val);
  * @see also timer_t
  * @return plc instance with saved change or updated error status
  */
-plc_t plc_configure_timer_scale(const plc_t p, BYTE idx, const char *val);
+plc_t plc_configure_timer_scale(const plc_t p, PLC_BYTE idx, const char *val);
 
 /**
  * @brief configure a timer preset
@@ -397,7 +397,7 @@ plc_t plc_configure_timer_scale(const plc_t p, BYTE idx, const char *val);
  * @see also timer_t
  * @return plc instance with saved change or updated error status
  */
-plc_t plc_configure_timer_preset(const plc_t p, BYTE idx, const char *val);
+plc_t plc_configure_timer_preset(const plc_t p, PLC_BYTE idx, const char *val);
 
 /**
  * @brief configure a timer delay mode
@@ -407,7 +407,7 @@ plc_t plc_configure_timer_preset(const plc_t p, BYTE idx, const char *val);
  * @see also timer_t
  * @return plc instance with saved change or updated error status
  */
-plc_t plc_configure_timer_delay_mode(const plc_t p, BYTE idx, const char *val);
+plc_t plc_configure_timer_delay_mode(const plc_t p, PLC_BYTE idx, const char *val);
 
 /**
  * @brief configure a pulse scale
@@ -417,6 +417,6 @@ plc_t plc_configure_timer_delay_mode(const plc_t p, BYTE idx, const char *val);
  * @see also blink_t
  * @return plc instance with saved change or updated error status
  */
-plc_t plc_configure_pulse_scale(const plc_t p, BYTE idx, const char *val);
+plc_t plc_configure_pulse_scale(const plc_t p, PLC_BYTE idx, const char *val);
 
 #endif /* _PLCLIB_H_ */
