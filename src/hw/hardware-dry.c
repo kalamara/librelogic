@@ -42,15 +42,15 @@ int dry_flush() {
     return 0;
 }
 
-void dry_dio_read(unsigned int n, BYTE *bit) {
+void dry_dio_read(unsigned int n, PLC_BYTE *bit) {
     return;
 }
 
-void dry_dio_write(const unsigned char *buf, unsigned int n, BYTE bit) {
+void dry_dio_write(const unsigned char *buf, unsigned int n, PLC_BYTE bit) {
     return;
 }
 
-void dry_dio_bitfield(const BYTE *mask, BYTE *bits) {
+void dry_dio_bitfield(const PLC_BYTE *mask, PLC_BYTE *bits) {
     return;
 }
 

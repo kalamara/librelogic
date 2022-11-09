@@ -56,7 +56,7 @@ typedef enum {
 
 typedef struct ld_line {
     char *buf;
-    BYTE status;
+    PLC_BYTE status;
     unsigned int cursor;
     item_t stmt;
 } *ld_line_t;
@@ -103,7 +103,7 @@ void destroy_program(unsigned int length, ld_line_t *program);
  * @param c index
  * @return LD symbol
  */
-BYTE read_char(const char *line, unsigned int c);
+PLC_BYTE read_char(const char *line, unsigned int c);
 
 /**
  * @brief parse each program line horizontally up to coil or '+'

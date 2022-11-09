@@ -14,8 +14,8 @@ void init_mock_plc(plc_t plc) {
     plc->nm = 8;
     plc->nmr = 8;
     plc->hw = &Hw_stub;
-    plc->inputs = (BYTE*) calloc(1, plc->ni);
-    plc->outputs = (BYTE*) calloc(1, plc->nq);
+    plc->inputs = (PLC_BYTE*) calloc(1, plc->ni);
+    plc->outputs = (PLC_BYTE*) calloc(1, plc->nq);
     plc->real_in = (uint64_t*) calloc(plc->nai, sizeof(uint64_t));
     plc->real_out = (uint64_t*) calloc(plc->naq, sizeof(uint64_t));
 
@@ -106,7 +106,7 @@ void ut_codec() {
     p.ai[0].min = 0.0l;
     p.ai[0].max = 10.0l;
     
-    BYTE changed = dec_inp(&p);
+    PLC_BYTE changed = dec_inp(&p);
     
     CU_ASSERT(changed == TRUE);
     //everything in buffer should be transferred to inputs
@@ -289,9 +289,9 @@ void ut_jmp() {
     CU_ASSERT(pc == 3);
 }
 
-int handle_reset(const instruction_t op, const data_t acc, BYTE is_bit, plc_t p);
+int handle_reset(const instruction_t op, const data_t acc, PLC_BYTE is_bit, plc_t p);
 
-int handle_set(const instruction_t op, const data_t acc, BYTE is_bit, plc_t p);
+int handle_set(const instruction_t op, const data_t acc, PLC_BYTE is_bit, plc_t p);
 
 void ut_set_reset() {
     struct PLC_regs p;
@@ -1034,7 +1034,7 @@ void ut_stackable() {
     CU_ASSERT(result == PLC_ERR_BADOPERATOR);
 
     //no modifier should be the same as operate()
-    BYTE op = FIRST_BITWISE;
+    PLC_BYTE op = FIRST_BITWISE;
     ins.operation = op;
     ins.bit = BYTESIZE;
     op += NEGATE;
@@ -1111,8 +1111,8 @@ void ut_stackable() {
     deinit_mock_plc(&p);
 }
 
-BYTE gcd(BYTE a, BYTE b) {
-    BYTE r = 0;
+PLC_BYTE gcd(PLC_BYTE a, PLC_BYTE b) {
+    PLC_BYTE r = 0;
     while (a != b && a != 0 && b != 0) {
         if (a > b)
             a = a - b;
@@ -1328,8 +1328,8 @@ void ut_instruct_scalar() {
      endwhile:LD %m0 ;
      ST %q0 ; output gcd
      */
-    BYTE a = 0xff;
-    BYTE b = 0x22;
+    PLC_BYTE a = 0xff;
+    PLC_BYTE b = 0x22;
     //printf("GCD (0x%x, 0x%x) = 0x%x\n", a, b, gcd(a,b));
     deinit_mock_plc(&p);
     init_mock_plc(&p);
@@ -1397,8 +1397,8 @@ void ut_instruct_scalar() {
     ins.bit = 8;
     result = append(&ins, &r);
     pc = r.insno - 1;
-    BYTE _while = pc;
-    BYTE _endwhile = pc + 12;
+    PLC_BYTE _while = pc;
+    PLC_BYTE _endwhile = pc + 12;
     
     result = instruct(&p, &r, &pc);
     CU_ASSERT(r.acc.u == 0xff); //A
@@ -1452,7 +1452,7 @@ void ut_instruct_scalar() {
     ins.bit = 8;
     result = append(&ins, &r);
     pc = r.insno - 1;
-    BYTE _reverse = pc + 6;
+    PLC_BYTE _reverse = pc + 6;
     
     result = instruct(&p, &r, &pc);
     CU_ASSERT(r.acc.u == FALSE); //A > B
@@ -1964,9 +1964,9 @@ void ut_task_scalar() {
     int result = task(0, NULL, NULL);
     CU_ASSERT(result == PLC_ERR);
 
-    BYTE _reverse = 18;
-    BYTE _endwhile = 22;
-    BYTE _while = 8;
+    PLC_BYTE _reverse = 18;
+    PLC_BYTE _endwhile = 22;
+    PLC_BYTE _while = 8;
 
     //0.LD  %I0   ;A = 0xff
     ins.operation = IL_LD;
@@ -2212,10 +2212,10 @@ void ut_task_scalar() {
     CU_ASSERT(p.outputs[0] == 0);
     CU_ASSERT(result == PLC_OK);
     
-    BYTE a = 0xff;
-    BYTE b = 0x22;
+    PLC_BYTE a = 0xff;
+    PLC_BYTE b = 0x22;
     // printf("GCD (0x%x, 0x%x) = 0x%x\n", a, b, gcd(a,b));
-    BYTE expected = 0x11;
+    PLC_BYTE expected = 0x11;
     p.inputs[0] = a;
     p.inputs[1] = b;
     
@@ -2777,7 +2777,7 @@ void ut_stack() {
     CU_ASSERT(res.u == val.u);
     
     //push any one, pop one
-    BYTE op = FIRST_BITWISE;
+    PLC_BYTE op = FIRST_BITWISE;
     data_t a;
     a.u = 1;
     data_t b;

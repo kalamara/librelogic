@@ -16,6 +16,8 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifdef COMEDI
+
 #include <string.h>
 
 #include "util.h"
@@ -26,7 +28,6 @@
 
 struct hardware Comedi;
 
-#ifdef COMEDI
 #include <comedilib.h>
 
 static comedi_t *it;
@@ -77,13 +78,13 @@ int com_flush() {
     return 0;
 }
 
-void com_dio_read(unsigned int index, BYTE *value) { // write input n to bit
+void com_dio_read(unsigned int index, PLC_BYTE *value) { // write input n to bit
     unsigned int b;
     comedi_dio_read(it, Comedi_subdev_i, index, &b);
-    *value = (BYTE) b;
+    *value = (PLC_BYTE) b;
 }
 
-void com_dio_write(const BYTE *value, unsigned int n, unsigned char bit) { // write bit to n output
+void com_dio_write(const PLC_BYTE *value, unsigned int n, unsigned char bit) { // write bit to n output
     comedi_dio_write(it, Comedi_subdev_q, n, bit);
 }
 
@@ -125,9 +126,5 @@ struct hardware Comedi = {
         com_data_write,   // data_write
         com_config,       // hw_config
 };
-
-#else 
-
-struct hardware Comedi;
 
 #endif //COMEDI

@@ -34,6 +34,10 @@ extern struct hardware Sim;
 #ifdef GPIOD
 extern struct hardware Gpiod;
 #endif
+#ifdef HW_EXTERNAL
+extern struct hardware HW_EXTERNAL;
+#endif
+
 extern struct hardware Dry;
 
 hardware_t plc_get_hardware(int type) {
@@ -63,7 +67,14 @@ hardware_t plc_get_hardware(int type) {
         	return &Sim;
 #else
             return NULL;
-#endif             
+#endif
+
+        case HW_EXT:
+#ifdef HW_EXTERNAL
+            return &HW_EXTERNAL;
+#else
+            return NULL;
+#endif
 
         default:
             return &Dry;

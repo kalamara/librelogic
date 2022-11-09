@@ -83,7 +83,7 @@ int stub_flush() {
     return PLC_OK;
 }
 
-void stub_dio_read(unsigned int n, BYTE *bit) {
+void stub_dio_read(unsigned int n, PLC_BYTE *bit) {
     *bit = Mock_din;
 }
 

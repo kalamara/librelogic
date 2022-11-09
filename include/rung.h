@@ -30,9 +30,9 @@
  *if op > 128 then value is negated first.
  */
 typedef struct opcode {
-    BYTE operation;
-    BYTE type;
-    BYTE depth;
+    PLC_BYTE operation;
+    PLC_BYTE type;
+    PLC_BYTE depth;
     union accdata value;
     struct opcode *next;
 } *opcode_t;
@@ -77,7 +77,7 @@ void give(opcode_t head);
  * @param the rung //pointer to head of stack
  * @return OK or error
  */
-int push(BYTE op, BYTE t, const data_t val, rung_t r);
+int push(PLC_BYTE op, PLC_BYTE t, const data_t val, rung_t r);
 
 /**
  * @brief retrieve stack heads operation and operand,

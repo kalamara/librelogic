@@ -26,7 +26,7 @@
 
 // TODO: memory optimization: create a factory to allocate different size per node type
 
-item_t mk_identifier(const BYTE operand, const BYTE byte, const BYTE bit) {
+item_t mk_identifier(const PLC_BYTE operand, const PLC_BYTE byte, const PLC_BYTE bit) {
     item_t r = (item_t) calloc(1, sizeof(struct item));
 
     r->tag = TAG_IDENTIFIER;
@@ -36,7 +36,7 @@ item_t mk_identifier(const BYTE operand, const BYTE byte, const BYTE bit) {
     return r;
 }
 
-item_t mk_expression(const item_t a, const item_t b, const BYTE op, const BYTE mod) {
+item_t mk_expression(const item_t a, const item_t b, const PLC_BYTE op, const PLC_BYTE mod) {
     item_t r = (item_t) calloc(1, sizeof(struct item));
 
     r->tag = TAG_EXPRESSION;
@@ -47,7 +47,7 @@ item_t mk_expression(const item_t a, const item_t b, const BYTE op, const BYTE m
     return r;
 }
 
-item_t mk_assignment(const item_t identifier, const item_t expression, const BYTE type) {
+item_t mk_assignment(const item_t identifier, const item_t expression, const PLC_BYTE type) {
     item_t r = (item_t) calloc(1, sizeof(struct item));
 
     r->tag = TAG_ASSIGNMENT;

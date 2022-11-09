@@ -3,7 +3,7 @@
 
 void ut_char() {
     int result = read_char(NULL, -1);
-    CU_ASSERT(result == (BYTE) PLC_ERR);
+    CU_ASSERT(result == (PLC_BYTE) PLC_ERR);
 }
 
 void ut_number() {
@@ -81,8 +81,8 @@ void ut_modifier() {
     char line[MAXSTR];
     memset(line, 0, MAXSTR);
     
-    BYTE result = read_modifier(NULL, NULL);
-    CU_ASSERT(result == (BYTE) PLC_ERR);
+    PLC_BYTE result = read_modifier(NULL, NULL);
+    CU_ASSERT(result == (PLC_BYTE) PLC_ERR);
     
     char *target = "";
     sprintf(line, "%s", "lol");
@@ -116,8 +116,8 @@ void ut_operator() {
     char line[MAXSTR];
     memset(line, 0, MAXSTR);
     
-    BYTE result = read_operator(NULL, NULL);
-    CU_ASSERT(result == (BYTE) PLC_ERR);
+    PLC_BYTE result = read_operator(NULL, NULL);
+    CU_ASSERT(result == (PLC_BYTE) PLC_ERR);
     
     sprintf(line, "%s", "LT");
     result = read_operator(line, NULL);
@@ -140,9 +140,9 @@ void ut_arguments() {
     char line[MAXSTR];
     memset(line, 0, MAXSTR);
     
-    BYTE operand = 0;
-    BYTE byte = 0;
-    BYTE bit = 0;
+    PLC_BYTE operand = 0;
+    PLC_BYTE byte = 0;
+    PLC_BYTE bit = 0;
     
     sprintf(line, "%s", "aqhsgdf");
     result = find_arguments(line, &operand, &byte, &bit);
