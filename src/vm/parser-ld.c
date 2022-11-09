@@ -73,55 +73,55 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 int minmin(const int * arr, int min, int max) {
 //for an array arr of integers ,return the smallest of indices i so that 
 //arr[i] =  min(arr) >= min 
-	int i;
-	int v = MAXSTR;		//cant be more than length  of line
-	int r = PLC_ERR;
-	for (i = max - 1; i >= 0; i--){
-		if (arr[i] <= v && arr[i] >= min){
-			v = arr[i];
-			r = i;
-		}
-	}
-	return r;
+    int i;
+    int v = MAXSTR;        //cant be more than length  of line
+    int r = PLC_ERR;
+    for (i = max - 1; i >= 0; i--){
+        if (arr[i] <= v && arr[i] >= min){
+            v = arr[i];
+            r = i;
+        }
+    }
+    return r;
 }
 
 BYTE digits(unsigned int i) {
     if (i > 100)
-		return 3;
-	else if (i > 10)
-		return 2;
-	else
-		return 1;
+        return 3;
+    else if (i > 10)
+        return 2;
+    else
+        return 1;
 }
 /***********************************************************************/
 int handle_coil(const int type, ld_line_t line) {
 //(expect Q,T,M,W followed by byte / bit)
-	int rv = PLC_OK;
-	BYTE byte = 0;
+    int rv = PLC_OK;
+    BYTE byte = 0;
     BYTE bit = 0;
     int c = read_char(line->buf, ++line->cursor);
     if (c >= OP_CONTACT && c < OP_END) {
-		int operand = c;
-	    c = read_char(line->buf, line->cursor);
-		//int idx = extract_number(line->buf, ++line->cursor);
-		rv = extract_arguments(line->buf + (++line->cursor),
-		                       &byte,
-		                       &bit);
-		if (rv == PLC_OK) {
-		    item_t identifier = mk_identifier(operand, 
-			                                byte, 
-			                                bit);
-		    line->stmt = mk_assignment(identifier,
-		                               line->stmt,
-		                               type);
-		    line->status = STATUS_RESOLVED;
-		} else {
-			rv = PLC_ERR_BADINDEX;
-			line->status = STATUS_ERROR;
-	    }
-	} else {
-		rv = PLC_ERR_BADCOIL;
-		line->status = STATUS_ERROR;
+        int operand = c;
+        c = read_char(line->buf, line->cursor);
+        //int idx = extract_number(line->buf, ++line->cursor);
+        rv = extract_arguments(line->buf + (++line->cursor),
+                               &byte,
+                               &bit);
+        if (rv == PLC_OK) {
+            item_t identifier = mk_identifier(operand,
+                                            byte,
+                                            bit);
+            line->stmt = mk_assignment(identifier,
+                                       line->stmt,
+                                       type);
+            line->status = STATUS_RESOLVED;
+        } else {
+            rv = PLC_ERR_BADINDEX;
+            line->status = STATUS_ERROR;
+        }
+    } else {
+        rv = PLC_ERR_BADCOIL;
+        line->status = STATUS_ERROR;
     }
     return rv;
 }
@@ -131,41 +131,41 @@ int handle_operand(int operand,
     int rv = PLC_OK;
     BYTE byte = 0;
     BYTE bit = 0;
-    if (operand >= OP_INPUT && operand < OP_CONTACT){	//valid input symbol
-		rv = extract_arguments(line->buf + (++line->cursor), 
-		                            &byte, 
-		                            &bit);       
-		//extract_number(line->buf, ++line->cursor);
-		if (rv == PLC_OK){
-			/*byte + slash + bit*/
-			line->cursor += digits((unsigned int)byte) + 2; 
-			
-			item_t identifier = mk_identifier(operand, 
-			                                byte, 
-			                                bit);
-			line->stmt = mk_expression(identifier,
-			                                 line->stmt,
-			                                 IL_AND,
-			                                 IL_PUSH | (negate?IL_NEG:IL_NORM));
-		} else {
-			rv = PLC_ERR_BADINDEX;
-			line->status = STATUS_ERROR;		    
-		}
-	} else {
-		rv = PLC_ERR_BADOPERAND;
-	    line->status = STATUS_ERROR;
-	}
-	line->cursor++;
+    if (operand >= OP_INPUT && operand < OP_CONTACT){    //valid input symbol
+        rv = extract_arguments(line->buf + (++line->cursor),
+                                    &byte,
+                                    &bit);
+        //extract_number(line->buf, ++line->cursor);
+        if (rv == PLC_OK){
+            /*byte + slash + bit*/
+            line->cursor += digits((unsigned int)byte) + 2;
+
+            item_t identifier = mk_identifier(operand,
+                                            byte,
+                                            bit);
+            line->stmt = mk_expression(identifier,
+                                             line->stmt,
+                                             IL_AND,
+                                             IL_PUSH | (negate?IL_NEG:IL_NORM));
+        } else {
+            rv = PLC_ERR_BADINDEX;
+            line->status = STATUS_ERROR;
+        }
+    } else {
+        rv = PLC_ERR_BADOPERAND;
+        line->status = STATUS_ERROR;
+    }
+    line->cursor++;
     return rv;
 }
 
 BYTE read_char(const char *line, unsigned int c) {  
 //read ONE character from line[idx]
 //parse grammatically:
-	int r = 0;
+    int r = 0;
     if (line == NULL
     ||  c > strlen(line))
-		return PLC_ERR;
+        return PLC_ERR;
     if (line[c] == 0 || line[c] == ';' || line[c] == '\n'
             || line[c] == '\r')
         return OP_END;
@@ -177,69 +177,69 @@ BYTE read_char(const char *line, unsigned int c) {
     switch (line[c]){
     case '(': //COIL
         r = LD_COIL;
-		break;
-	case '-': //horizontal line
+        break;
+    case '-': //horizontal line
         r = LD_AND;
-		break;
-	case '|': //vertical line
+        break;
+    case '|': //vertical line
         r = LD_OR;
-		break;
-	case '!': //normally clozed
+        break;
+    case '!': //normally clozed
         r = LD_NOT;
-		break;
-	case '+': //
+        break;
+    case '+': //
         r = LD_NODE;
-		break;
+        break;
     case '[': //set output
         r = LD_SET;
-		break;
+        break;
     case ']': //reset output
         r = LD_RESET;
-		break;
+        break;
     case ')'://down timer
         r = LD_DOWN;
-		break;
-	case 'i': //input
+        break;
+    case 'i': //input
         r = OP_INPUT;
-		break;
-	case 'f': //falling edge
+        break;
+    case 'f': //falling edge
         r = OP_FALLING;
-		break;
-	case 'r': //rising Edge
+        break;
+    case 'r': //rising Edge
         r = OP_RISING;
-		break;
-	case 'm': //pulse of counter
+        break;
+    case 'm': //pulse of counter
         r = OP_MEMORY;
-		break;
-	case 't': //timer.q
+        break;
+    case 't': //timer.q
         r = OP_TIMEOUT;
-		break;
-	case 'c': //read command
+        break;
+    case 'c': //read command
         r = OP_COMMAND;
-		break;
-	case 'b': //blinker
+        break;
+    case 'b': //blinker
         r = OP_BLINKOUT;
         break;
     case 'q': //output value
         r = OP_OUTPUT;
-		break;
+        break;
     case 'Q': //dry contact output
         r = OP_CONTACT;
-		break;
+        break;
     case 'T': //start timer
         r = OP_START;
-		break;
-	case 'M': //pulse to counter
+        break;
+    case 'M': //pulse to counter
         r = OP_PULSEIN;
-		break;
-	case 'W': //write response
+        break;
+    case 'W': //write response
         r = OP_WRITE;
-		break;
-	default:
-		r = (BYTE)PLC_ERR_BADCHAR; //error
-	}
+        break;
+    default:
+        r = (BYTE)PLC_ERR_BADCHAR; //error
+    }
 //return value or error
-	return r;
+    return r;
 }
 
 int parse_ld_line(ld_line_t line) {
@@ -251,37 +251,37 @@ int parse_ld_line(ld_line_t line) {
     BYTE n_mode = FALSE;
     
     while (line->status == STATUS_UNRESOLVED 
-    && c != LD_NODE) {	//loop	    
-		c = read_char(line->buf, line->cursor);
-		switch (c) {
-		    case LD_NODE://PAUSE
-				break;	
-			case PLC_ERR_BADCHAR:
-			case (BYTE)PLC_ERR:
-				rv = PLC_ERR;
-				line->status = STATUS_ERROR;
-				break;
+    && c != LD_NODE) {    //loop
+        c = read_char(line->buf, line->cursor);
+        switch (c) {
+            case LD_NODE://PAUSE
+                break;
+            case PLC_ERR_BADCHAR:
+            case (BYTE)PLC_ERR:
+                rv = PLC_ERR;
+                line->status = STATUS_ERROR;
+                break;
             case OP_END:/*this should happen only if line ends without 
                            a valid coil*/
-				line->status = STATUS_RESOLVED;
-				line->stmt = NULL;//clear_tree(line->stmt);
-				break;
+                line->status = STATUS_RESOLVED;
+                line->stmt = NULL;//clear_tree(line->stmt);
+                break;
             case LD_OR:
             case LD_BLANK://if blank or '|', empty value for the line.
-				line->cursor++;
-				line->stmt = NULL;//clear_tree(line->stmt);
-				break;
-		    case LD_NOT:
-				n_mode = TRUE;	//normally closed mode
+                line->cursor++;
+                line->stmt = NULL;//clear_tree(line->stmt);
+                break;
+            case LD_NOT:
+                n_mode = TRUE;    //normally closed mode
             case LD_AND:
-				line->cursor++;
-				break;
-			case LD_COIL://see if it is a coil: ()[] 
+                line->cursor++;
+                break;
+            case LD_COIL://see if it is a coil: ()[]
             case LD_SET:
             case LD_RESET:
             case LD_DOWN:
-				rv = handle_coil(c, line);
-				break;
+                rv = handle_coil(c, line);
+                break;
             default://otherwise operand is expected(i,q,f,r,m,t,c,b)
                 rv = handle_operand(c, n_mode, line);
                 n_mode = FALSE;
@@ -420,9 +420,9 @@ plc_t generate_code(unsigned int length,
     int i = 0; 
     for(; i < length && rv == PLC_OK; i++){
        
-	    r->code = append_line(trunk_whitespace(program[i]->buf), 
-	                            r->code);
-	                            
+        r->code = append_line(trunk_whitespace(program[i]->buf),
+                                r->code);
+
         if(program[i]->stmt != NULL
         && program[i]->stmt->tag == TAG_ASSIGNMENT)
             rv = gen_ass(program[i]->stmt, r);

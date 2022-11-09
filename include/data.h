@@ -26,11 +26,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #define NEGATE 128//negate second operand, not return value.
 #define BOOLEAN   64
-#define NOP	0
+#define NOP    0
 
 #define MAXBUF 256 
-#define MAXSTR	1024
-#define MEDSTR	256
+#define MAXSTR    1024
+#define MEDSTR    256
 #define SMALLSTR 128
 #define SMALLBUF 64
 #define TINYBUF 24
@@ -108,14 +108,14 @@ typedef enum{
 ///operands
     OP_INPUT = 20,  ///i
     OP_REAL_INPUT,  ///if 21
-    OP_FALLING, 	///f  22
+    OP_FALLING,     ///f  22
     OP_RISING,      ///r  23
-    OP_MEMORY,  	///m  24
+    OP_MEMORY,      ///m  24
     OP_REAL_MEMORY, ///mf 25 
     OP_COMMAND,     ///c  26
     OP_BLINKOUT,    ///b  27
     OP_TIMEOUT,     ///t  28
-    OP_OUTPUT,   	///q  29
+    OP_OUTPUT,       ///q  29
     OP_REAL_OUTPUT, ///qf 30
     ///coils 
     OP_CONTACT,     ///Q  31

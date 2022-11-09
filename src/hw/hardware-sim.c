@@ -184,7 +184,7 @@ int sim_flush()
 }
 
 void sim_dio_read(unsigned int n, BYTE* bit)
-{	//write input n to bit
+{    //write input n to bit
     unsigned int b, position;
     position = n / BYTESIZE;
     BYTE i = 0;
@@ -198,8 +198,8 @@ void sim_dio_read(unsigned int n, BYTE* bit)
 
 void sim_dio_write(const unsigned char *buf, unsigned int n,  BYTE bit)
 
-{	//write bit to n output
-	BYTE q;
+{    //write bit to n output
+    BYTE q;
     unsigned int position = n / BYTESIZE;
     q = buf[position];
     q |= bit << n % BYTESIZE;
@@ -212,7 +212,7 @@ void sim_dio_write(const unsigned char *buf, unsigned int n,  BYTE bit)
 }
 
 void sim_dio_bitfield(const BYTE* mask, BYTE *bits)
-{	//simultaneusly write output bits defined by mask and read all inputs
+{    //simultaneusly write output bits defined by mask and read all inputs
     /* FIXME
     int i=0;
     unsigned int w = (unsigned int) (*mask);

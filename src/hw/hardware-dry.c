@@ -51,17 +51,17 @@ int dry_flush()
 }
 
 void dry_dio_read(unsigned int n, BYTE* bit)
-{	
+{
     return;
 }
 
 void dry_dio_write(const unsigned char *buf, unsigned int n,  BYTE bit)
-{	
+{
     return;
 }
 
 void dry_dio_bitfield(const BYTE* mask, BYTE *bits)
-{	
+{
     return;
 }
 

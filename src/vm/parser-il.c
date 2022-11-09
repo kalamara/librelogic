@@ -31,28 +31,28 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  parsing:
  2. switch operator:
  valid ones:
- )	pop
+ )    pop
  only boolean:(bitwise if operand is byte)
 
- S 	set
- R 	reset
+ S     set
+ R     reset
 
  AND
  OR
  XOR
  any:
- LD 	load
- ST 	store
+ LD     load
+ ST     store
  ADD
  SUB
  MUL
  DIV
- GT	>
- GE	>=
- NE	<>
- EQ	==
- LE	<=
- LT	<
+ GT    >
+ GE    >=
+ NE    <>
+ EQ    ==
+ LE    <=
+ LT    <
  JMP
  unimplemented:
  CAL
@@ -68,18 +68,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  if '(' push stack
  4. switch operand
  valid ones:
- BOOL_DI	digital input
- R	rising edge
- F	falling edge
- DQ	digital output
- MH	memory high byte
- ML	memory low byte
- MP	pulse byte: 0000-SET-RESET-EDGE-VALUE
- B	blinker
- TQ	timer output
- TI	timer start
- W	serial output
- C	serial input
+ BOOL_DI    digital input
+ R    rising edge
+ F    falling edge
+ DQ    digital output
+ MH    memory high byte
+ ML    memory low byte
+ MP    pulse byte: 0000-SET-RESET-EDGE-VALUE
+ B    blinker
+ TQ    timer output
+ TI    timer start
+ W    serial output
+ C    serial input
  5. resolve operand byte: 0 to MAX
  6. resolve operand bit: 0 to BYTESIZE
  7. execute command if no errors
@@ -108,19 +108,19 @@ const char * IlErrors[N_IE] =
 
 int extract_number(const char *line)
 { //read characters from string line
-	int i, n= 0;
+    int i, n= 0;
     if(line == NULL){
     
-		return PLC_ERR;
+        return PLC_ERR;
     }
     for (i = 0; isdigit(line[i]); i++){
-		n = 10 * n + (line[i] - '0');
+        n = 10 * n + (line[i] - '0');
     }
     if (i == 0){
-		//no digits read
-		return PLC_ERR;
-	}
-	return n;
+        //no digits read
+        return PLC_ERR;
+    }
+    return n;
 //return number read or error 
 }
 
@@ -151,43 +151,43 @@ int extract_arguments(const char* buf,
 BYTE read_operand(const char *line, unsigned int index)
 { //read ONE character from line[idx]
 //parse grammatically:
-	int r = PLC_OK;
+    int r = PLC_OK;
     if (line == NULL
     ||  index > strlen(line))
-		return PLC_ERR;
+        return PLC_ERR;
     
     char c = tolower(line[index]);
     
     switch (c){
     case 'i': //input
         r = OP_INPUT;
-		break;
-	case 'f': //falling edge
+        break;
+    case 'f': //falling edge
         r = OP_FALLING;
-		break;
-	case 'r': //rising Edge
+        break;
+    case 'r': //rising Edge
         r = OP_RISING;
-		break;
-	case 'm': //pulse of counter
+        break;
+    case 'm': //pulse of counter
         r = OP_MEMORY;
-		break;
-	case 't': //timer.q
+        break;
+    case 't': //timer.q
         r = OP_TIMEOUT;
-		break;
-	case 'c': //read command
+        break;
+    case 'c': //read command
         r = OP_COMMAND;
-		break;
-	case 'b': //blinker
+        break;
+    case 'b': //blinker
         r = OP_BLINKOUT;
         break;
     case 'q': //output value
         r = OP_OUTPUT;
-		break;
-	default:
-		r = (BYTE)PLC_ERR_BADCHAR; //error
-	}
+        break;
+    default:
+        r = (BYTE)PLC_ERR_BADCHAR; //error
+    }
 //return value or error
-	return r;
+    return r;
 }
 
 BYTE read_type(const char *line, 
@@ -195,11 +195,11 @@ BYTE read_type(const char *line,
                 unsigned int index)
 { //read characters from line[idx]
 //parse grammatically:
-	int r = PLC_OK;
+    int r = PLC_OK;
     if (line == NULL
     ||  index > strlen(line))
-		return PLC_ERR;
-		
+        return PLC_ERR;
+
     if(tolower(line[index])=='f'){
         switch(*operand)
         {
@@ -218,7 +218,7 @@ BYTE read_type(const char *line,
         }
     }    
 //return ok or error
-	return r;
+    return r;
 }
 
 void read_line_trunk_comments(char* line)
@@ -403,9 +403,9 @@ int find_arguments(const char* buf,
 /***PARSE & GENERATE CODE**/
 int parse_il_line(const char * line, rung_t r)
 { //    line format:[label:]<operator>[<modifier>[%<operand><byte>[/<bit>]]|<label>][;comment]
-	char tmp[MAXSTR];
-	char buf[MAXSTR];
-	char label_buf[MAXSTR];
+    char tmp[MAXSTR];
+    char buf[MAXSTR];
+    char label_buf[MAXSTR];
     char * pos = NULL;
     BYTE byte=0;
     BYTE bit=0;
@@ -415,19 +415,19 @@ int parse_il_line(const char * line, rung_t r)
     struct instruction op;
     
     memset(&op, 0, sizeof(struct instruction));
-	memset(label_buf, 0, MAXBUF);
-	memset(tmp, 0, MAXSTR);
-	memset(buf, 0, MAXSTR);
-	
-	if(line == NULL
-	|| r == NULL)
+    memset(label_buf, 0, MAXBUF);
+    memset(tmp, 0, MAXSTR);
+    memset(buf, 0, MAXSTR);
+
+    if(line == NULL
+    || r == NULL)
         return PLC_ERR;
-	
-	sprintf(tmp, "%s", line);
-	
-	r->code = append_line(trunk_whitespace(tmp), r->code);
-	
-	read_line_trunk_comments(tmp);
+
+    sprintf(tmp, "%s", line);
+
+    r->code = append_line(trunk_whitespace(tmp), r->code);
+
+    read_line_trunk_comments(tmp);
     trunk_label(tmp, buf, label_buf);
     trunk_whitespace(label_buf);
     trunk_whitespace(buf);
@@ -438,29 +438,29 @@ int parse_il_line(const char * line, rung_t r)
     oper = read_operator(buf, pos);
 
     if (oper == N_IL_INSN)
-		return PLC_ERR_BADOPERATOR;
+        return PLC_ERR_BADOPERATOR;
 
     if (oper > IL_CAL)
-	    find_arguments(buf, &operand, &byte, &bit);
+        find_arguments(buf, &operand, &byte, &bit);
     else if (oper == IL_JMP)
         strcpy(op.lookup, pos + 1); 
-	
+
     op.operation = oper;
-	op.modifier = modifier;
-	op.operand = operand;
-	op.byte = byte;
-	op.bit = bit;
-	
-	if(check_modifier(&op)<0){
+    op.modifier = modifier;
+    op.operand = operand;
+    op.byte = byte;
+    op.bit = bit;
+
+    if(check_modifier(&op)<0){
         return PLC_ERR_BADOPERATOR;
     }
     if(check_operand(&op)<0){
         return PLC_ERR_BADOPERAND;
-	}
-	if(op.operation != IL_NOP){
-	    append(&op, r);
-	}
-	return PLC_OK ;
+    }
+    if(op.operation != IL_NOP){
+        append(&op, r);
+    }
+    return PLC_OK ;
 }
 /****************entry point**************************/
 plc_t parse_il_program(const char * name, 

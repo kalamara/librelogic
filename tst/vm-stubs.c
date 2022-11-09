@@ -87,18 +87,18 @@ int stub_flush()
 }
 
 void stub_dio_read(unsigned int n, BYTE* bit)
-{	
+{
     *bit = Mock_din;
 }
 
 void stub_dio_write(const unsigned char *buf, unsigned  int n, unsigned char bit)
-{	//write bit to n output
+{    //write bit to n output
     if(n < 8)
         Mock_dout += (bit << n);
 }
 
 void stub_dio_bitfield(const unsigned char* mask, unsigned char *bits)
-{	//simultaneusly write output bits defined by mask and read all inputs
+{    //simultaneusly write output bits defined by mask and read all inputs
 }
 
 void stub_data_read(unsigned int index, uint64_t* value)

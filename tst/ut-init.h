@@ -65,7 +65,7 @@ void ut_construct()
 
     CU_ASSERT(plc->step == 100);
     CU_ASSERT(plc->command == 0);
-    CU_ASSERT(plc->status == ST_STOPPED);	
+    CU_ASSERT(plc->status == ST_STOPPED);
     
     plc_clear(plc);
 }

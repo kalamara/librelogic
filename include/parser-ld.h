@@ -20,8 +20,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define _PARSER_LD_H_
 
 /*TODO: factor these out*/
-#define RESOLVED 	-1
-#define FINAL	2
+#define RESOLVED     -1
+#define FINAL    2
 
 /**
  *possible LD line statuses
@@ -47,7 +47,7 @@ typedef enum {
     LD_COIL   = 15,        ///( contact coil
     LD_SET    = 16,         ///[ set
     LD_RESET  = 17,       ///] reset,
-    LD_DOWN   = 18,    	///) negate coil
+    LD_DOWN   = 18,        ///) negate coil
     N_LD_SYMBOLS
 }LD_SYMBOLS;
 

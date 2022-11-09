@@ -21,16 +21,16 @@ void init_mock_plc(plc_t plc)
     plc->real_in = (uint64_t *) calloc(plc->nai, sizeof(uint64_t));
     plc->real_out = (uint64_t *) calloc(plc->naq, sizeof(uint64_t));
    
-	plc->di = (di_t) calloc(BYTESIZE * plc->ni, 
+    plc->di = (di_t) calloc(BYTESIZE * plc->ni,
                             sizeof(struct digital_input));
-	plc->dq = (do_t) calloc(BYTESIZE * plc->nq, 
+    plc->dq = (do_t) calloc(BYTESIZE * plc->nq,
                             sizeof(struct digital_output));
-			
-	plc->ai = (aio_t) calloc(plc->nai, 
+
+    plc->ai = (aio_t) calloc(plc->nai,
                             sizeof(struct analog_io));
-	plc->aq = (aio_t) calloc(plc->naq,
+    plc->aq = (aio_t) calloc(plc->naq,
                             sizeof(struct analog_io));
-					
+
     plc->t = (dt_t) calloc(plc->nt, sizeof(struct timer));
     plc->s = (blink_t) calloc(plc->ns, sizeof(struct blink));
     plc->m = (mvar_t) calloc(plc->nm, sizeof(struct mvar));
@@ -100,7 +100,7 @@ void ut_codec()
     struct PLC_regs p;
     init_mock_plc(&p);
     plc_t p_old=NULL;
-	p_old = (plc_t) malloc(sizeof(struct PLC_regs));
+    p_old = (plc_t) malloc(sizeof(struct PLC_regs));
     init_mock_plc(p_old);
     p.old = p_old;
 

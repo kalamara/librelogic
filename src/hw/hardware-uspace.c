@@ -47,39 +47,39 @@ int usp_config(void * conf)
 
 int usp_enable() /* Enable bus communication */
 {
-	int uid = getuid(); /* get User id */
-	int r = seteuid(0); /* set User Id to root (0) */
-	if (r < 0 || geteuid() != 0){
-		fprintf(stderr, "FATAL ERROR: UNABLE TO CHANGE TO ROOT\n");
-		return PLC_ERR;
-	}
-	if (iopl(3)){
+    int uid = getuid(); /* get User id */
+    int r = seteuid(0); /* set User Id to root (0) */
+    if (r < 0 || geteuid() != 0){
+        fprintf(stderr, "FATAL ERROR: UNABLE TO CHANGE TO ROOT\n");
+        return PLC_ERR;
+    }
+    if (iopl(3)){
 /* request bus WR i/o permission */
-		fprintf(stderr, "FATAL ERROR: UNABLE TO GET I/O PORT PERMISSION\n");
-		perror("iopl() ");
-		r = seteuid(uid);
-		return PLC_ERR;
-	}
-	r = seteuid(uid); /* reset User Id */
-	outb(0, Io_base + Wr_offs); //clear outputs port
-	printf("io card enabled\n");
-	return PLC_OK;
+        fprintf(stderr, "FATAL ERROR: UNABLE TO GET I/O PORT PERMISSION\n");
+        perror("iopl() ");
+        r = seteuid(uid);
+        return PLC_ERR;
+    }
+    r = seteuid(uid); /* reset User Id */
+    outb(0, Io_base + Wr_offs); //clear outputs port
+    printf("io card enabled\n");
+    return PLC_OK;
 }
 
 int usp_disable() /* Disable bus communication */
 {
-	int uid = getuid(); /* get User id */
-	int r = setuid(0); /* set User Id to root (0) */
-	if (r < 0 || getuid() != 0){
-		fprintf(stderr, "Unable to change id to root\nExiting\n");
-		return PLC_ERR;
-	}
-	if (iopl(0)){ /* Normal i/o prevelege level */
-		perror("iopl() ");
-		r = setuid(uid);
-		return PLC_ERR;
-	}
-	r = setuid(uid); /* reset User Id */
+    int uid = getuid(); /* get User id */
+    int r = setuid(0); /* set User Id to root (0) */
+    if (r < 0 || getuid() != 0){
+        fprintf(stderr, "Unable to change id to root\nExiting\n");
+        return PLC_ERR;
+    }
+    if (iopl(0)){ /* Normal i/o prevelege level */
+        perror("iopl() ");
+        r = setuid(uid);
+        return PLC_ERR;
+    }
+    r = setuid(uid); /* reset User Id */
     return PLC_OK;
 }
 
@@ -94,29 +94,29 @@ int usp_flush()
 }
 
 void usp_dio_read(unsigned int n, BYTE* bit)
-{	//write input n to bit
-	unsigned int b;
-	BYTE i;
-	i = inb(Io_base + Rd_offs + n / BYTESIZE);
-	b = (i >> n % BYTESIZE) % 2;
-	*bit = (BYTE) b;
+{    //write input n to bit
+    unsigned int b;
+    BYTE i;
+    i = inb(Io_base + Rd_offs + n / BYTESIZE);
+    b = (i >> n % BYTESIZE) % 2;
+    *bit = (BYTE) b;
 }
 
 void usp_dio_write(const BYTE * buf, unsigned int n, unsigned char bit)
-{	//write bit to n output
-	BYTE q;
-	q = buf[n / BYTESIZE];
-	q |= bit << n % BYTESIZE;
-	outb(q, Io_base + Wr_offs + n / BYTESIZE);
+{    //write bit to n output
+    BYTE q;
+    q = buf[n / BYTESIZE];
+    q |= bit << n % BYTESIZE;
+    outb(q, Io_base + Wr_offs + n / BYTESIZE);
 }
 
 void usp_dio_bitfield(const BYTE * write_mask, BYTE * bits)
-{	//simultaneusly write output bits defined my mask and read all inputs
+{    //simultaneusly write output bits defined my mask and read all inputs
     /*FIXME
     int i;
-	for (i = 0; i < Dq; i++)
-		outb(bits[i] & write_mask[i], Base + Wr_offs + i);
-	for (i = 0; i < Di; i++)
+    for (i = 0; i < Dq; i++)
+        outb(bits[i] & write_mask[i], Base + Wr_offs + i);
+    for (i = 0; i < Di; i++)
         bits[i] = inb(Base + Rd_offs + i);*/
 }
 

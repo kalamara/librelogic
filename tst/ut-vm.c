@@ -135,7 +135,7 @@ int main ()
   || ADD_TEST(suite_lib, ut_force)
     )
   {
-	CU_cleanup_registry ();
+    CU_cleanup_registry ();
         return CU_get_error ();
   }
 
@@ -144,7 +144,7 @@ int main ()
   || ADD_TEST(suite_io, ut_write) 
     )
   {
-	CU_cleanup_registry ();
+    CU_cleanup_registry ();
         return CU_get_error ();
   }
 
@@ -161,7 +161,7 @@ int main ()
   || ADD_TEST(suite_il, ut_parse_real)
      )
   {
-	CU_cleanup_registry ();
+    CU_cleanup_registry ();
         return CU_get_error ();
   }
 
@@ -173,7 +173,7 @@ int main ()
   || ADD_TEST(suite_tree, ut_mk_assignment)
      )
   {
-	CU_cleanup_registry ();
+    CU_cleanup_registry ();
         return CU_get_error ();
   }
 
@@ -182,7 +182,7 @@ int main ()
   || ADD_TEST(suite_codegen, ut_gen_ass)
      )
   {
-	CU_cleanup_registry ();
+    CU_cleanup_registry ();
         return CU_get_error ();
   }
   
@@ -192,7 +192,7 @@ int main ()
  || ADD_TEST(suite_init, ut_start_stop)
      )
   {
-	CU_cleanup_registry ();
+    CU_cleanup_registry ();
         return CU_get_error ();
   }
 //LD expression parser
@@ -202,7 +202,7 @@ int main ()
   || ADD_TEST(suite_ld, ut_parse_ld_program)  
      )
   {
-	CU_cleanup_registry ();
+    CU_cleanup_registry ();
         return CU_get_error ();
   }
   /* Run all tests using the basic interface */
