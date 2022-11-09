@@ -17,6 +17,7 @@ void ut_read() {
     read_inputs(&p);
     CU_ASSERT(p.inputs[p.ni - 1] == 0xFF);
     CU_ASSERT(p.real_in[p.nai - 1] == 0xABCDEF01);
+    deinit_mock_plc(&p);
 }
 
 void ut_write() {
@@ -46,6 +47,7 @@ void ut_write() {
     plc_stop(&p);
     //this should reset outputs
     CU_ASSERT(Mock_flush_count == 0);
+    deinit_mock_plc(&p);
 }
 
 #endif //_UT_IO_

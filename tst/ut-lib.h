@@ -233,6 +233,7 @@ void ut_codec() {
     //printf("%lx\n", p.real_out[0]);
     CU_ASSERT(p.real_out[0] == 0xa000000000000000);
 
+    deinit_mock_plc(p_old);
     deinit_mock_plc(&p);
 }
 
@@ -888,7 +889,7 @@ void ut_ld() {
     result = handle_ld(&ins, &acc, &p);
     CU_ASSERT(acc.u == 1);
     
-    init_mock_plc(&p);
+    //init_mock_plc(&p);
     deinit_mock_plc(&p);
 }
 

@@ -592,6 +592,7 @@ void ut_parse_real() {
 22.ST  QF0/8\n";
 
     CU_ASSERT_STRING_EQUAL(dump, expected);
+    deinit_mock_plc(&p);
 }
 
 void ut_parse() {
@@ -865,5 +866,6 @@ void ut_parse() {
 13.ST  Q0/8\n";
 
     CU_ASSERT_STRING_EQUAL(dump, expected);
+    deinit_mock_plc(&p);
 }
 #endif //_UT_IL_H_
