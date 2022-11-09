@@ -16,6 +16,8 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifdef SIM
+
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -233,3 +235,5 @@ struct hardware Sim = {
         sim_data_write,   // data_write
         sim_config,       // hw_config
 };
+
+#endif

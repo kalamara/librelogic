@@ -17,6 +17,7 @@
  */
 
 #ifdef GPIOD
+
 #include <gpiod.h>
 #include <stddef.h>
 

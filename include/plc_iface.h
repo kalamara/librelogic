@@ -26,6 +26,7 @@ typedef enum {
     HW_GPIOD,
     HW_IIO,    // TODO Linux industrial I/O
     HW_USB,    // TODO FAR IN THE FUTURE
+    HW_EXT,    // external hardware
     N_HW
 } HARDWARES;
 

@@ -16,6 +16,8 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifdef COMEDI
+
 #include <string.h>
 
 #include "util.h"
@@ -26,7 +28,6 @@
 
 struct hardware Comedi;
 
-#ifdef COMEDI
 #include <comedilib.h>
 
 static comedi_t *it;
@@ -125,9 +126,5 @@ struct hardware Comedi = {
         com_data_write,   // data_write
         com_config,       // hw_config
 };
-
-#else 
-
-struct hardware Comedi;
 
 #endif //COMEDI
