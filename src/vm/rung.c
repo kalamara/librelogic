@@ -52,7 +52,7 @@ void give(opcode_t head) {
     memset(head, 0, sizeof(struct opcode));
 }
 
-int push(BYTE op, BYTE t, const data_t val, rung_t r) {
+int push(PLC_BYTE op, PLC_BYTE t, const data_t val, rung_t r) {
     // push an opcode and a value into stack.
     struct opcode *p = take(r);
     if (!p)

@@ -2,10 +2,10 @@
 #define _UT_TREE_H_
 
 void ut_mk_identifier() {
-    BYTE op = OP_INPUT;
+    PLC_BYTE op = OP_INPUT;
 
-    BYTE byte = 1;
-    BYTE bit = 1;
+    PLC_BYTE byte = 1;
+    PLC_BYTE bit = 1;
     
     item_t id = mk_identifier(op, byte, bit);
     

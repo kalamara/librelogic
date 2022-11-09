@@ -130,14 +130,14 @@ int sim_fetch() {
     unsigned int analog = Nai;
     int bytes_read = 0;
     if (Ifd) {
-        bytes_read = fread(BufIn, sizeof(BYTE), digital, Ifd ? Ifd : stdin);
+        bytes_read = fread(BufIn, sizeof(PLC_BYTE), digital, Ifd ? Ifd : stdin);
         int i = 0;
         for (; i < bytes_read; i++) {
             if (BufIn[i] >= ASCIISTART) {
                 BufIn[i] -= ASCIISTART;
             }
         }
-        bytes_read += fread(AdcIn, sizeof(BYTE),
+        bytes_read += fread(AdcIn, sizeof(PLC_BYTE),
         LONG_BYTES * analog, Ifd ? Ifd : stdin);
 
         if (bytes_read < digital + LONG_BYTES * analog) {
@@ -158,28 +158,28 @@ int sim_flush() {
     unsigned int digital = Nq;
     unsigned int analog = Naq;
     if (Qfd) {
-        bytes_written = fwrite(BufOut, sizeof(BYTE), digital, Qfd);
-        bytes_written += fwrite(AdcOut, sizeof(BYTE), analog * LONG_BYTES, Qfd);
+        bytes_written = fwrite(BufOut, sizeof(PLC_BYTE), digital, Qfd);
+        bytes_written += fwrite(AdcOut, sizeof(PLC_BYTE), analog * LONG_BYTES, Qfd);
         fputc('\n', Qfd);
         fflush(Qfd);
     }
     return bytes_written;
 }
 
-void sim_dio_read(unsigned int n, BYTE *bit) { // write input n to bit
+void sim_dio_read(unsigned int n, PLC_BYTE *bit) { // write input n to bit
     unsigned int b, position;
     position = n / BYTESIZE;
-    BYTE i = 0;
+    PLC_BYTE i = 0;
     if (strlen(BufIn) > position) {
         // read a byte from input stream
         i = BufIn[position];
     }
     b = (i >> n % BYTESIZE) % 2;
-    *bit = (BYTE) b;
+    *bit = (PLC_BYTE) b;
 }
 
-void sim_dio_write(const unsigned char *buf, unsigned int n, BYTE bit) { //write bit to n output
-    BYTE q;
+void sim_dio_write(const unsigned char *buf, unsigned int n, PLC_BYTE bit) { //write bit to n output
+    PLC_BYTE q;
     unsigned int position = n / BYTESIZE;
     q = buf[position];
     q |= bit << n % BYTESIZE;
@@ -191,7 +191,7 @@ void sim_dio_write(const unsigned char *buf, unsigned int n, BYTE bit) { //write
     }
 }
 
-void sim_dio_bitfield(const BYTE *mask, BYTE *bits) { // simultaneously write output bits defined by mask and read all inputs
+void sim_dio_bitfield(const PLC_BYTE *mask, PLC_BYTE *bits) { // simultaneously write output bits defined by mask and read all inputs
     /* FIXME
      int i=0;
      unsigned int w = (unsigned int) (*mask);

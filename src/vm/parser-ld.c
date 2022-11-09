@@ -83,7 +83,7 @@ int minmin(const int *arr, int min, int max) {
     return r;
 }
 
-BYTE digits(unsigned int i) {
+PLC_BYTE digits(unsigned int i) {
     if (i > 100)
         return 3;
     else if (i > 10)
@@ -96,8 +96,8 @@ BYTE digits(unsigned int i) {
 int handle_coil(const int type, ld_line_t line) {
 // (expect Q,T,M,W followed by byte / bit)
     int rv = PLC_OK;
-    BYTE byte = 0;
-    BYTE bit = 0;
+    PLC_BYTE byte = 0;
+    PLC_BYTE bit = 0;
     int c = read_char(line->buf, ++line->cursor);
     if (c >= OP_CONTACT && c < OP_END) {
         int operand = c;
@@ -119,10 +119,10 @@ int handle_coil(const int type, ld_line_t line) {
     return rv;
 }
 
-int handle_operand(int operand, BYTE negate, ld_line_t line) {
+int handle_operand(int operand, PLC_BYTE negate, ld_line_t line) {
     int rv = PLC_OK;
-    BYTE byte = 0;
-    BYTE bit = 0;
+    PLC_BYTE byte = 0;
+    PLC_BYTE bit = 0;
     if (operand >= OP_INPUT && operand < OP_CONTACT) { // valid input symbol
         rv = extract_arguments(line->buf + (++line->cursor), &byte, &bit);
         //extract_number(line->buf, ++line->cursor);
@@ -144,7 +144,7 @@ int handle_operand(int operand, BYTE negate, ld_line_t line) {
     return rv;
 }
 
-BYTE read_char(const char *line, unsigned int c) {
+PLC_BYTE read_char(const char *line, unsigned int c) {
 // read ONE character from line[idx]
 // parse grammatically:
     int r = 0;
@@ -218,7 +218,7 @@ BYTE read_char(const char *line, unsigned int c) {
             r = OP_WRITE;
             break;
         default:
-            r = (BYTE) PLC_ERR_BADCHAR; // error
+            r = (PLC_BYTE) PLC_ERR_BADCHAR; // error
     }
 // return value or error
     return r;
@@ -230,7 +230,7 @@ int parse_ld_line(ld_line_t line) {
         return PLC_ERR;
     
     int c = LD_AND; // default character = '-'
-    BYTE n_mode = FALSE;
+    PLC_BYTE n_mode = FALSE;
     
     while (line->status == STATUS_UNRESOLVED && c != LD_NODE) { //loop
         c = read_char(line->buf, line->cursor);
@@ -238,7 +238,7 @@ int parse_ld_line(ld_line_t line) {
             case LD_NODE: // PAUSE
                 break;
             case PLC_ERR_BADCHAR:
-            case (BYTE) PLC_ERR:
+            case (PLC_BYTE) PLC_ERR:
                 rv = PLC_ERR;
                 line->status = STATUS_ERROR;
                 break;

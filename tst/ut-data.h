@@ -4,7 +4,7 @@
 /*boolean ops*/
 void ut_operate_b() {
     //invalid operation
-    BYTE op = -1;
+    PLC_BYTE op = -1;
     data_t a;
     a.u = 1;
     data_t b;
@@ -108,7 +108,7 @@ void ut_operate_b() {
 /*floating point ops*/
 void ut_operate_r() {
     //invalid operation
-    BYTE op = -1;
+    PLC_BYTE op = -1;
     data_t a;
     data_t b;
 
@@ -192,7 +192,7 @@ void ut_operate_r() {
 /*scalar ops*/
 void ut_operate() {
     //invalid operation
-    BYTE op = -1;
+    PLC_BYTE op = -1;
     data_t a;
     a.u = 1;
     data_t b;
