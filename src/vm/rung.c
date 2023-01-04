@@ -129,18 +129,44 @@ codeline_t append_line(const char *l, codeline_t code) {
     return r;
 }
 
+codeline_t clear_lines(codeline_t code){
+    
+    codeline_t i = code;
+    codeline_t p = NULL;
+    while (i) {
+        while (i->next) {
+            p = i;
+            i = i->next;
+        }   
+        if(i->line){
+            free(i->line);
+            i->line = NULL; 
+        }
+        free(i);
+        if(p){
+            p->next = NULL;
+        } else {
+           code = NULL;
+        }
+        p = NULL;
+        i = code;
+    }
+    return code;
+}
+
 void clear_rung(rung_t r) {
     int i = 0;
     if (r != NULL && r->instructions != NULL) {
         for (; i < MAXSTACK; i++) {
-            if (r->instructions[i] != NULL)
+            if (r->instructions[i] != NULL){
                 free(r->instructions[i]);
+                r->instructions[i] == NULL;
+            }
         }
         free(r->instructions);
-        free(r->code);
+        clear_lines(r->code);
         r->instructions = NULL;
         r->insno = 0;
-        // TODO: also free rung, return null
     }
 }
 

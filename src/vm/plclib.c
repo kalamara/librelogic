@@ -40,7 +40,7 @@ const char *LibErrors[N_IE] = {
 struct timeval Curtime;
 
 int plc_init(plc_t p) {
-
+    
     gettimeofday(&Curtime, NULL);
     
     return PLC_OK;
@@ -1034,7 +1034,6 @@ rung_t plc_mk_rung(const char *name, plc_t p) {
     r->id = strdup(name);
     if (p->rungs == NULL) {        //lazy allocation
         p->rungs = (rung_t*) calloc(MAXRUNG, sizeof(rung_t));
-
     }
     p->rungs[p->rungno++] = r;
     
@@ -1046,6 +1045,19 @@ rung_t plc_get_rung(const plc_t p, const unsigned int idx) {
         return NULL;
     }
     return p->rungs[idx];
+}
+
+void plc_destroy_rungs(const plc_t p) { 
+    if (p && p->rungs) {
+    int i = 0;
+        for(;i < MAXRUNG;i++){
+            clear_rung(p->rungs[i]);
+            free(p->rungs[i]);
+            p->rungs[i] = NULL;
+        }
+        free(p->rungs);
+        p->rungs = NULL;
+    }
 }
 
 /*****************realtime loop************************************/
@@ -1425,6 +1437,10 @@ plc_t plc_load_program_file(const char *path, plc_t plc) {
     int r = PLC_ERR_BADFILE;
     char program_lines[MAXBUF][MAXSTR]; // program lines
     char line[MAXSTR];
+    
+    memset(program_lines, 0, MAXBUF*MAXSTR); 
+    memset(line, 0, MAXSTR);
+
     int i = 0;
     
     if (path == NULL) {
@@ -1700,6 +1716,8 @@ void plc_clear(plc_t plc) {
         if (plc->inputs != NULL) {
             free(plc->inputs);
         }
+        plc_destroy_rungs(plc);
+        plc_clear(plc->old);
         free(plc);
     }
 }

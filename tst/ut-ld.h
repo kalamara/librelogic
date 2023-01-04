@@ -329,7 +329,6 @@ void ut_parse_ld_program() {
 
     dump_rung(p.rungs[0], dump);
 
-    clear_rung(p.rungs[0]);
     deinit_mock_plc(&p);
 
 }

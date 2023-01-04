@@ -56,7 +56,22 @@ elseif(${HW} STREQUAL "GPIOD")
 
 endif()
 
+link_directories(
+    ${PROJECT_BINARY_DIR}
+#    ${PROJECT_BINARY_DIR}/librelogic
+)	
 
+#minimal console plc for performance testing, etc.
+add_executable(plclite
+    ${PROJECT_SOURCE_DIR}/plclite.c 
+)
+add_dependencies(plclite ${PROJECT_NAME})
+target_link_options(
+	plclite PUBLIC -Wl,--gc-sections -Wl,--print-memory-usage 
+)
+target_link_libraries(
+        plclite PUBLIC -llogic
+) 
 
 
 

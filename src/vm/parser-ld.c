@@ -371,10 +371,15 @@ ld_line_t* construct_program(const char lines[][MAXSTR], unsigned int length) {
 void destroy_program(unsigned int length, ld_line_t *program) {
     int i = 0;
     for (; i < length; i++) { // for each line destroy ld_line
+        if(program[i]->buf){
+            free(program[i]->buf);
+            program[i]->buf = NULL;
+        }
         free(program[i]);
         program[i] = NULL;
     }
     free(program);
+    program = NULL;
 }
 
 plc_t generate_code(unsigned int length, const char *name, const ld_line_t *program, plc_t p) {
@@ -386,9 +391,11 @@ plc_t generate_code(unsigned int length, const char *name, const ld_line_t *prog
 
         r->code = append_line(trunk_whitespace(program[i]->buf), r->code);
 
-        if (program[i]->stmt != NULL && program[i]->stmt->tag == TAG_ASSIGNMENT)
+        if (program[i]->stmt != NULL && program[i]->stmt->tag == TAG_ASSIGNMENT){
             rv = gen_ass(program[i]->stmt, r);
-        //clear_tree(program[i]->stmt);
+            //clear_tree(program[i]->stmt); FIXME: this causes double-free exceptions
+            //in case of cyclical branches, keep the tree in memory for now 
+       }
     }
     p->status = rv;
     

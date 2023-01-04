@@ -33,8 +33,6 @@ void ut_mk_expression() {
     CU_ASSERT(it->v.exp.b->v.id.operand == OP_MEMORY);
     it = clear_tree(it);
     CU_ASSERT(it == NULL);
-    CU_ASSERT(id1->tag == 0);
-    CU_ASSERT(id2->tag == 0);
 }
 
 void ut_mk_assignment() {

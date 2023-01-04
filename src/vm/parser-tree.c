@@ -58,30 +58,26 @@ item_t mk_assignment(const item_t identifier, const item_t expression, const PLC
 }
 
 item_t clear_tree(item_t root) {
-    item_t r = root;
     if (root) {
         switch (root->tag) {
             case TAG_EXPRESSION:
-                r->v.exp.a = clear_tree(root->v.exp.a);
-                r->v.exp.b = clear_tree(root->v.exp.b);
+                root->v.exp.a = clear_tree(root->v.exp.a);
+                root->v.exp.b = clear_tree(root->v.exp.b);
 
                 break;
 
             case TAG_ASSIGNMENT:
-                r->v.ass.left = clear_tree(root->v.ass.left);
-                r->v.ass.right = clear_tree(root->v.ass.right);
-
+                root->v.ass.left = clear_tree(root->v.ass.left);
+                root->v.ass.right = clear_tree(root->v.ass.right);
                 break;
 
             default:
                 break;
         }
         // tree leaves
-        if (r != NULL) {
-            //free(r);
-            memset(r, 0, sizeof(struct item));
-            r = (item_t) NULL;
-        }
+        //memset(root, 0, sizeof(struct item));
+        free(root);
+        root = (item_t) NULL;
     }
-    return r;
+    return root;
 }
