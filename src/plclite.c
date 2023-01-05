@@ -120,7 +120,7 @@ int main(int argc, char **argv)
 
     hardware_t hw = NULL;
 #ifdef GPIOD
-    hardware_t hw = plc_get_hardware(HW_GPIOD); 
+    hw = plc_get_hardware(HW_GPIOD); 
     hw->configure(&GpiodConf);
 #endif // GPIOD
     Plc = plc_new(
