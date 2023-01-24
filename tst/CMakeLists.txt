@@ -28,8 +28,17 @@ if(CUNIT)
         ${PROJECT_SOURCE_DIR}/../src/vm/codegen.c
     )
 
+    add_executable(test_lex
+        ${PROJECT_SOURCE_DIR}/ut-lex.c
+#        ${PROJECT_SOURCE_DIR}/vm-stubs.c
+        ${PROJECT_SOURCE_DIR}/../src/vm/lex.yy.c
+    )
+
     target_link_libraries(
     test_vm PUBLIC ${CUNIT} -lgcov # -fsanitize=address
+    )	
+    target_link_libraries(
+    test_lex PUBLIC ${CUNIT}
     )	
 endif(CUNIT)    
 
